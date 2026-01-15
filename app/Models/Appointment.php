@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Appointment extends Model
 {
     protected $fillable = [
+        'company_id',
         'user_id',
         'service_id',
         'employee_id',
@@ -14,6 +15,11 @@ class Appointment extends Model
         'status',
         'notes',
     ];
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
 
     public function user()
     {
