@@ -6,6 +6,7 @@ use App\Models\Appointment;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Employee;
+use Illuminate\Support\Facades\Auth;
 
 class AppointmentController extends Controller
 {
@@ -35,7 +36,26 @@ class AppointmentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'employee_id' => 'required',
+            'date' => 'required',
+            'time' => 'required',
+            'service_id' => 'required',
+            'user_id' => 'required',
+        ]);
+
+        $appointmentTime = $request->date . ' ' . $request->time . ':00';
+
+         Appointment::create([
+        'company_id'       => auth()->user()->company_id, 
+        'employee_id'      => $request->employee_id,
+        'user_id'          => $request->user_id,
+        'service_id'       => $request->service_id,
+        'appointment_time' => $appointmentTime,
+        'status'           => 'pending',
+    ]);
+
+        return redirect()->route('appointments.index');
     }
 
     /**

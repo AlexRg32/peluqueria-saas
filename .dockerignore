@@ -1,0 +1,51 @@
+# Dependencies
+/node_modules
+/vendor
+
+# Build artifacts
+/public/build
+/public/hot
+/public/storage
+
+# IDE and editors
+/.idea
+/.vscode
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.backup
+.env.production
+
+# Logs and cache
+/storage/*.key
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+
+# Testing
+/coverage
+.phpunit.result.cache
+phpunit.xml
+
+# Docker
+docker-compose.override.yml
+
+# Git
+.git
+.gitattributes
+.gitignore
+
+# Documentation
+README.md
+CHANGELOG.md
+
+# Tests
+/tests
+phpunit.xml
