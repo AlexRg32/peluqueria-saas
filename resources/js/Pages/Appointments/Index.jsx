@@ -7,12 +7,16 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import Modal from '@/Components/Modal';
 
 
+
 export default function Index({ appointments, employees }) {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("all");
+
   const [isCreating, setIsCreating] = useState(false);
+
   const filteredAppointments = selectedEmployeeId === "all"
     ? appointments
     : appointments.filter((appointment) => appointment.employee_id == selectedEmployeeId);
+
   const { data, setData, post, processing, reset } = useForm({
     employee_id: "",
     date: "",
@@ -30,6 +34,8 @@ export default function Index({ appointments, employees }) {
       },
     });
   };
+
+
 
   return (
     <AuthenticatedLayout

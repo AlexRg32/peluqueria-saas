@@ -1,6 +1,12 @@
-import React from 'react'
+import DangerButton from '@/Components/DangerButton';
+import React from 'react';
+import { router } from '@inertiajs/react';
 
 export default function AppointmentsTable({ appointments }) {
+
+  const deleteAppointment = (id) => {
+    confirm('¿Estás seguro de eliminar esta cita?') && router.delete(route('appointments.destroy', id));
+  }
 
   if (appointments.length === 0) {
     return (
@@ -20,6 +26,7 @@ export default function AppointmentsTable({ appointments }) {
             <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Servicio</th>
             <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Precio</th>
             <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Fecha y Hora</th>
+            <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Acciones</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200 bg-white">
@@ -44,6 +51,10 @@ export default function AppointmentsTable({ appointments }) {
                   day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
                 })}
               </td>
+              <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                <DangerButton onClick={() => deleteAppointment(cita.id)}>Eliminar</DangerButton>
+              </td>
+
             </tr>
           ))}
         </tbody>
