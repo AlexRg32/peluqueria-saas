@@ -1,4 +1,4 @@
-package com.peluqueria.peluqueria.model;
+package com.peluqueria.model;
 
 public enum Role {
   ADMIN,

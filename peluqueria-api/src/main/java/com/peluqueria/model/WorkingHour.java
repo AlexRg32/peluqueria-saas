@@ -1,4 +1,4 @@
-package com.peluqueria.peluqueria.model;
+package com.peluqueria.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,22 +11,20 @@ import lombok.Data;
 
 @Entity
 @Data
-public class Service {
+public class WorkingHour {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private String name;
+  private String day;
+
+  private String startTime;
+
+  private String endTime;
+
+  private boolean is_day_off;
 
   private String description;
-
-  private double price;
-
-  private String image;
-
-  private Integer duration;
-
-  private String category;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "enterprise_id", nullable = false)

@@ -1,4 +1,4 @@
-package com.peluqueria.peluqueria.model;
+package com.peluqueria.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
