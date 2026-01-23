@@ -13,7 +13,7 @@ import jakarta.persistence.Table;
 @Entity
 @Data
 @Table(name = "services")
-public class Service {
+public class ServiceOffering {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -34,7 +34,4 @@ public class Service {
   @JoinColumn(name = "enterprise_id", nullable = false)
   private Enterprise enterprise;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", nullable = false)
-  private User user;
 }
