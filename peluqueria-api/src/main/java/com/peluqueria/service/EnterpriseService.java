@@ -20,7 +20,7 @@ public class EnterpriseService {
 
   public Enterprise save(Enterprise enterprise) {
     if (enterpriseRepository.findByCif(enterprise.getCif()).isPresent()) {
-      throw new RuntimeException("Enterprise already exists");
+      throw new RuntimeException("La empresa ya existe");
     }
     return enterpriseRepository.save(enterprise);
   }
