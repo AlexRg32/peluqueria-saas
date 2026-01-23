@@ -8,9 +8,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import lombok.Data;
+import jakarta.persistence.Table;
 
 @Entity
 @Data
+@Table(name = "working_hours")
 public class WorkingHour {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
