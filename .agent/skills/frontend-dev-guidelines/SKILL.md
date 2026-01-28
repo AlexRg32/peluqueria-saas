@@ -198,21 +198,21 @@ export const Route = createFileRoute('/my-route/')({
 
 ---
 
-## 9. Styling Standards (MUI v7)
+## 9. Styling Standards (Tailwind CSS)
 
-### Inline vs Separate
+### Class Organization
 
-* `<100 lines`: inline `sx`
-* `>100 lines`: `{Component}.styles.ts`
-
-### Grid Syntax (v7 Only)
+* Sort classes logically (Layout -> Spacing -> Typography -> Design)
+* Use `clsx` or `tailwind-merge` for conditional classes.
 
 ```tsx
-<Grid size={{ xs: 12, md: 6 }} /> // ✅
-<Grid xs={12} md={6} />          // ❌
+<div className={clsx('flex flex-col p-4', isActive && 'bg-blue-500')} />
 ```
 
-Theme access must always be type-safe.
+### Colors & Theme
+
+* Use semantic names from `tailwind.config.js` (e.g., `bg-primary`, `text-secondary`).
+* Avoid arbitrary values (e.g., `w-[123px]`) unless absolutely necessary.
 
 ---
 
@@ -278,42 +278,41 @@ src/
 
 ## 14. Canonical Component Template
 
-```ts
-import React, { useState, useCallback } from 'react';
-import { Box, Paper } from '@mui/material';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { featureApi } from '../api/featureApi';
-import type { FeatureData } from '~types/feature';
-
-interface MyComponentProps {
-  id: number;
-  onAction?: () => void;
-}
-
-export const MyComponent: React.FC<MyComponentProps> = ({ id, onAction }) => {
-  const [state, setState] = useState('');
-
-  const { data } = useSuspenseQuery<FeatureData>({
-    queryKey: ['feature', id],
-    queryFn: () => featureApi.getFeature(id),
-  });
-
-  const handleAction = useCallback(() => {
-    setState('updated');
-    onAction?.();
-  }, [onAction]);
-
-  return (
-    <Box sx={{ p: 2 }}>
-      <Paper sx={{ p: 3 }}>
-        {/* Content */}
-      </Paper>
-    </Box>
-  );
-};
-
-export default MyComponent;
-```
+ ```tsx
+ import React, { useState, useCallback } from 'react';
+ import { useSuspenseQuery } from '@tanstack/react-query';
+ import { featureApi } from '../api/featureApi';
+ import type { FeatureData } from '~types/feature';
+ 
+ interface MyComponentProps {
+   id: number;
+   onAction?: () => void;
+ }
+ 
+ export const MyComponent: React.FC<MyComponentProps> = ({ id, onAction }) => {
+   const [state, setState] = useState('');
+ 
+   const { data } = useSuspenseQuery<FeatureData>({
+     queryKey: ['feature', id],
+     queryFn: () => featureApi.getFeature(id),
+   });
+ 
+   const handleAction = useCallback(() => {
+     setState('updated');
+     onAction?.();
+   }, [onAction]);
+ 
+   return (
+     <div className="p-4">
+       <div className="p-6 bg-white rounded-lg shadow-md">
+         {/* Content */}
+       </div>
+     </div>
+   );
+ };
+ 
+ export default MyComponent;
+ ```
 
 ---
 
@@ -356,4 +355,3 @@ Before finalizing code:
 
 **Status:** Stable, opinionated, and enforceable
 **Intended Use:** Production React codebases with long-term maintenance horizons
-

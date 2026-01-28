@@ -15,4 +15,5 @@
 
 - **Strict Typing**: No `any`. Zod validation for all API responses.
 - **Performance First**: Memoize expensive calculations. Lazy load routes.
-- **Aesthetics**: Ensure the implementation matches the "Premium" design ethos.
+- **Styling**: Always use **Tailwind CSS**. Avoid vanilla CSS files unless for global resets.
+- **Aesthetics**: Ensure the implementation matches the "Premium" design ethos using Tailwind utility classes.

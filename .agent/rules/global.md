@@ -23,7 +23,7 @@ Global constraints for all agents in the SaaS Orchestrator Framework.
 - **BACKEND**: Spring Boot (Java) is the standard. Use Maven for dependency management.
 - **API**: REST is the standard for communication.
 - **FRONTEND**: React (Vite) with TypeScript.
-- **DESIGN**: Use Vanilla CSS (unless Tailwind is requested) and premium visual aesthetics.
+- **DESIGN**: Use **Tailwind CSS** for all styling. Maintain premium visual aesthetics.
 
 ## 4. Security & Quality
 
