@@ -31,7 +31,7 @@ description: Use this skill to ORCHESTRATE the entire lifecycle of a SaaS produc
 
 1. **Dispatch**: For each task in `plan.md`, spawn a subagent.
 2. **Review (Context: `review.md`)**: `@architect` (spec) then `@spring-boot-engineer` (quality).
-3. **Commit**: `git commit -m "feat: <msg>"` + pointer update.
+3. **Commit**: Wait for User to trigger `/ship "<msg>"`. NEVER auto-commit.
 
 ## Token Optimization Rules
 

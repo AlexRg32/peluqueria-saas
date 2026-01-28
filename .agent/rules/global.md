@@ -11,6 +11,7 @@ Global constraints for all agents in the SaaS Orchestrator Framework.
 ## 2. Git & Submodules
 
 - **COMMITS**: Use Conventional Commits (feat, fix, refactor, docs, chore).
+- **NO AUTO-COMMIT**: Never perform `git commit` or `git push` automatically. Only execute these operations when the user explicitly requests it (e.g., using `/ship "message"`).
 - **SUBMODULES**:
     1. Update code inside the submodule.
     2. Commit and push inside the submodule.
