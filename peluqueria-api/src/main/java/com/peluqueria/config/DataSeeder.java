@@ -1,17 +1,16 @@
 package com.peluqueria.config;
 
 import com.peluqueria.model.Enterprise;
+import com.peluqueria.model.Role;
 import com.peluqueria.model.ServiceOffering;
 import com.peluqueria.model.User;
-import com.peluqueria.model.Role;
 import com.peluqueria.repository.EnterpriseRepository;
 import com.peluqueria.repository.ServiceOfferingRepository;
 import com.peluqueria.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.Arrays;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class DataSeeder {
@@ -19,7 +18,8 @@ public class DataSeeder {
   @Bean
   CommandLineRunner initDatabase(EnterpriseRepository enterpriseRepository,
       ServiceOfferingRepository serviceOfferingRepository,
-      UserRepository userRepository) {
+      UserRepository userRepository,
+      PasswordEncoder passwordEncoder) {
     return args -> {
       if (enterpriseRepository.count() == 0) {
         // 1. MACIA BARBER
@@ -29,8 +29,8 @@ public class DataSeeder {
         macia.setAddress("Calle Peluquería 1");
         enterpriseRepository.save(macia);
 
-        createUser("Joel", "joel@maciabarber.com", macia, userRepository);
-        createUser("Alejandro", "alejandro@maciabarber.com", macia, userRepository);
+        createUser("Joel", "joel@maciabarber.com", macia, userRepository, passwordEncoder);
+        createUser("Alejandro", "alejandro@maciabarber.com", macia, userRepository, passwordEncoder);
 
         createService("Corte Clásico", 15.0, 30, macia, serviceOfferingRepository);
         createService("Corte Degradado", 20.0, 45, macia, serviceOfferingRepository);
@@ -42,9 +42,9 @@ public class DataSeeder {
         sergioEnt.setAddress("Avenida Barbero 22");
         enterpriseRepository.save(sergioEnt);
 
-        createUser("Sergio", "sergio@barberiasergio.com", sergioEnt, userRepository);
-        createUser("Juaki", "juaki@barberiasergio.com", sergioEnt, userRepository);
-        createUser("Giovanny", "giovanny@barberiasergio.com", sergioEnt, userRepository);
+        createUser("Sergio", "sergio@barberiasergio.com", sergioEnt, userRepository, passwordEncoder);
+        createUser("Juaki", "juaki@barberiasergio.com", sergioEnt, userRepository, passwordEncoder);
+        createUser("Giovanny", "giovanny@barberiasergio.com", sergioEnt, userRepository, passwordEncoder);
 
         createService("Corte Clásico", 15.0, 30, sergioEnt, serviceOfferingRepository);
         createService("Barba Premium", 12.0, 25, sergioEnt, serviceOfferingRepository);
@@ -56,8 +56,8 @@ public class DataSeeder {
         hb.setAddress("Plaza HB 3");
         enterpriseRepository.save(hb);
 
-        createUser("Jamid", "jamid@barberiahb.com", hb, userRepository);
-        createUser("Joel", "joel@barberiahb.com", hb, userRepository);
+        createUser("Jamid", "jamid@barberiahb.com", hb, userRepository, passwordEncoder);
+        createUser("Joel", "joel@barberiahb.com", hb, userRepository, passwordEncoder);
 
         createService("Corte + Barba", 25.0, 60, hb, serviceOfferingRepository);
         createService("Corte Infantil", 12.0, 20, hb, serviceOfferingRepository);
@@ -67,11 +67,12 @@ public class DataSeeder {
     };
   }
 
-  private void createUser(String name, String email, Enterprise enterprise, UserRepository userRepository) {
+  private void createUser(String name, String email, Enterprise enterprise, UserRepository userRepository,
+      PasswordEncoder passwordEncoder) {
     User user = new User();
     user.setName(name);
     user.setEmail(email);
-    user.setPassword("123456");
+    user.setPassword(passwordEncoder.encode("123456"));
     user.setRole(Role.EMPLEADO);
     user.setEnterprise(enterprise);
     userRepository.save(user);

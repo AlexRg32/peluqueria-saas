@@ -18,7 +18,7 @@ public class UserService {
   }
 
   public User createUser(User user) {
-    if (userRepository.findByEmail(user.getEmail()) != null) {
+    if (userRepository.findByEmail(user.getEmail()).isPresent()) {
       throw new RuntimeException("El usuario ya existe");
     }
     return userRepository.save(user);
