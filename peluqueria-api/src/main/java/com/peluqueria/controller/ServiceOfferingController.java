@@ -36,8 +36,8 @@ public class ServiceOfferingController {
     }
   }
 
-  @GetMapping("/{id}")
-  public ResponseEntity<?> getServiceById(@PathVariable Long id) {
+  @GetMapping("/{enterpriseId}/{id}")
+  public ResponseEntity<?> getServiceById(@PathVariable Long enterpriseId, @PathVariable Long id) {
     try {
       return ResponseEntity.ok(serviceOfferingService.getServiceById(id));
     } catch (Exception e) {
@@ -45,8 +45,8 @@ public class ServiceOfferingController {
     }
   }
 
-  @DeleteMapping("/{id}")
-  public ResponseEntity<?> deleteService(@PathVariable Long id) {
+  @DeleteMapping("/{enterpriseId}/{id}")
+  public ResponseEntity<?> deleteService(@PathVariable Long enterpriseId, @PathVariable Long id) {
     try {
       serviceOfferingService.deleteService(id);
       return ResponseEntity.ok().build();
