@@ -3,7 +3,6 @@ package com.peluqueria.controller;
 import com.peluqueria.dto.AuthRequest;
 import com.peluqueria.dto.AuthResponse;
 import com.peluqueria.dto.RegisterRequest;
-import com.peluqueria.security.JwtUtil;
 import com.peluqueria.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
