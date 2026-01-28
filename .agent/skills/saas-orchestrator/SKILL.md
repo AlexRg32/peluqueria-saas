@@ -30,7 +30,7 @@ description: Use this skill to ORCHESTRATE the entire lifecycle of a SaaS produc
 - **Context**: `development.md`.
 
 1. **Dispatch**: For each task in `plan.md`, spawn a subagent.
-2. **Review (Context: `review.md`)**: `@architect` (spec) then `@springboot-master` (quality).
+2. **Review (Context: `review.md`)**: `@architect` (spec) then `@spring-boot-engineer` (quality).
 3. **Commit**: `git commit -m "feat: <msg>"` + pointer update.
 
 ## Token Optimization Rules
@@ -54,7 +54,7 @@ description: Use this skill to ORCHESTRATE the entire lifecycle of a SaaS produc
 - **Specialized Agents** (See `.agent/agents/`):
   - `@architect` (`architect.md`): For system design.
   - `@planner` (`planner.md`): For breakdown.
-  - `@springboot-master` (`springboot-master.md`): For Java/Spring Boot code.
+  - `@spring-boot-engineer` (`spring-boot-engineer.md`): For Java/Spring Boot code.
   - `@frontend-master` (`frontend-master.md`): For React code.
   - `@doc-expert` (`doc-expert.md`): For docs.
 - **Behavioral Contexts**:

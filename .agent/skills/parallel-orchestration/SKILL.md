@@ -13,7 +13,7 @@ This skill coordinates multiple specialized agents natively through Claude Code'
 
 | Team | Agents involved | Trigger |
 | :--- | :--- | :--- |
-| **New Feature** | `@architect` → `@planner` → `@springboot-master` | New business requirement |
+| **New Feature** | `@architect` → `@planner` → `@spring-boot-engineer` | New business requirement |
 | **Security Audit** | `@architect` → `security-scanner` | New API or sensitive change |
 | **Doc Polish** | `@doc-expert` → `@architect` | Refactoring or public release |
 

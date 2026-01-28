@@ -9,7 +9,7 @@ description: Use when executing implementation plans. Dispatches fresh subagents
 
 1. **Dispatch**: Spawn fresh subagent per task from `plan.md`.
 2. **Review 1 (Spec)**: `@architect` validates requirements.
-3. **Review 2 (Quality)**: `@springboot-master`/`@doc-expert` validates code/docs.
+3. **Review 2 (Quality)**: `@spring-boot-engineer`/`@doc-expert` validates code/docs.
 4. **Cleanup**: Mark task complete in `plan.md` + `implementation.md`.
 
 ## Laws
