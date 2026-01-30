@@ -35,4 +35,9 @@ public class Appointment {
   @JoinColumn(name = "service_id", nullable = false)
   private ServiceOffering service;
 
+  @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
+  private AppointmentStatus status = AppointmentStatus.PENDING;
+
+  private double price;
+
 }

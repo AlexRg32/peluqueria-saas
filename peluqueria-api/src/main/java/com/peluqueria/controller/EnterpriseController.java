@@ -48,4 +48,14 @@ public class EnterpriseController {
     }
   }
 
+  @org.springframework.web.bind.annotation.PutMapping("/{id}")
+  public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Enterprise enterprise) {
+    try {
+      Enterprise updatedEnterprise = enterpriseService.update(id, enterprise);
+      return ResponseEntity.ok(updatedEnterprise);
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
+
 }

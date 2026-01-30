@@ -31,5 +31,19 @@ public class Enterprise {
 
   private String logo;
 
+  private String banner;
+
+  private String instagram;
+
+  private String facebook;
+
+  private String tiktok;
+
+  private String whatsapp;
+
+  private String primaryColor;
+
+  private String secondaryColor;
+
   private String description;
 }
