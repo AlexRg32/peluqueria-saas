@@ -143,6 +143,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep
 - Log error
 - Offer retry option
 - Preserve user data
+- **Personalized Feedback**: Always show clear, user-friendly error messages from the API for interaction failures (e.g., failed form submissions).
 
 ---
 

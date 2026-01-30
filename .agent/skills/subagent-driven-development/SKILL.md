@@ -17,3 +17,4 @@ description: Use when executing implementation plans. Dispatches fresh subagents
 - **Strict Isolation**: One subagent = one task. No context carryover.
 - **Copy-Paste**: Provide the subagent with the **task text**, not a file path to the plan.
 - **Review Loop**: Fixes MUST be re-reviewed by the same agent persona.
+- **Error Check**: Reviews MUST verify that user interactions have clear, personalized error messages.

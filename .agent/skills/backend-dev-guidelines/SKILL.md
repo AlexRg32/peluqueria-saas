@@ -123,8 +123,26 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(ex.getMessage()));
     }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ValidationErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
+        // Collect all validation errors into a friendly message or map
+        // Ensure personalized messages from @NotNull(message = "...") are preserved
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(...);
+    }
 }
 ```
+
+### 5. Personalized Error Messages (Mandatory)
+
+* **Human-Readable**: All exceptions thrown to the user must contain a human-readable, localized (if applicable) message.
+* **No Technical Leaks**: Never show stack traces or internal db errors (e.g., "ConstraintViolationException") directly. Map them to a friendly message like "This name is already in use."
+* **Validation Errors**: Use the `message` attribute in JSR 303 annotations to provide clear instructions (e.g., `@NotBlank(message = "El nombre es obligatorio")`).
 
 ---
 

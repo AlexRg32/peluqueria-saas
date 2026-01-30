@@ -224,10 +224,13 @@ export const Route = createFileRoute('/my-route/')({
 ❌ Never return early loaders
 ✅ Always rely on Suspense boundaries
 
-### User Feedback
+### User Feedback & Personalized Errors
 
-* `useMuiSnackbar` only
-* No third-party toast libraries
+* **Unified Feedback**: `useMuiSnackbar` only.
+* **No third-party toast libraries**.
+* **Mutation Error Handling**: Every mutation (`useMutation`) **must** have an `onError` handler that extracts the error message from the backend (usually `error.response.data.message` or `error.message`) and displays it to the user.
+* **Validation Feedback**: Inline validation errors should be shown next to the fields whenever possible, in addition to a general error snackbar.
+* **Meaningful Messages**: Avoid generic "An error occurred". Use the message provided by the API.
 
 ---
 
