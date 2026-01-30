@@ -1,5 +1,6 @@
 export interface User {
   sub: string;
+  enterpriseName?: string;
   iat?: number;
   exp?: number;
   // Add other claims if needed

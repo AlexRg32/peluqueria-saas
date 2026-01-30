@@ -18,9 +18,19 @@ const Sidebar = () => {
 
     return (
         <aside className="w-64 bg-slate-900 text-white min-h-screen p-6 flex flex-col">
-            <h2 className="text-2xl font-bold mb-8 text-center text-slate-100 border-b border-slate-700 pb-4">
-                Peluquería SaaS
-            </h2>
+            <div className="flex flex-col items-center mb-8 border-b border-slate-700/50 pb-6">
+                <div className="w-12 h-12 bg-gradient-to-tr from-[#c5a059] to-[#ecd3a5] rounded-xl flex items-center justify-center shadow-lg shadow-[#c5a059]/10 mb-3">
+                    <span className="text-slate-900 font-bold text-xl">
+                        {user?.enterpriseName?.[0]?.toUpperCase() || 'P'}
+                    </span>
+                </div>
+                <h2 className="text-xl font-bold text-white tracking-tight text-center">
+                    {user?.enterpriseName || 'Peluquería SaaS'}
+                </h2>
+                <p className="text-[10px] text-[#c5a059] uppercase font-bold tracking-[0.2em] mt-1">
+                    Panel Admin
+                </p>
+            </div>
             <nav className="flex-1">
                 <ul className="space-y-2">
                     {navItems.map((item) => (
@@ -44,9 +54,16 @@ const Sidebar = () => {
             
             <div className="mt-auto space-y-4">
                 {user && (
-                    <div className="px-4 py-2 bg-slate-800/50 rounded-lg">
-                        <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Sesión como</p>
-                        <p className="text-sm text-slate-200 truncate">{user.sub}</p>
+                    <div className="px-4 py-3 bg-slate-800/40 border border-slate-700/30 rounded-xl backdrop-blur-sm">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-300 border border-slate-600">
+                                {user.sub[0].toUpperCase()}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-xs font-semibold text-slate-200 truncate">{user.sub}</p>
+                                <p className="text-[10px] text-slate-500 truncate">Empresa: {user.enterpriseName || 'N/A'}</p>
+                            </div>
+                        </div>
                     </div>
                 )}
                 
