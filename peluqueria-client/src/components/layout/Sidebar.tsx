@@ -6,7 +6,7 @@ const Sidebar = () => {
     const navigate = useNavigate();
 
     const navItems = [
-        { name: 'Empresas', path: '/empresas' },
+        { name: user?.role === 'ADMIN' ? 'Mi Peluquería' : 'Empresas', path: '/empresas' },
         { name: 'Servicios', path: '/servicios' },
         { name: 'Usuarios', path: '/usuarios' },
     ];
@@ -61,7 +61,12 @@ const Sidebar = () => {
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="text-xs font-semibold text-slate-200 truncate">{user.sub}</p>
-                                <p className="text-[10px] text-slate-500 truncate">Empresa: {user.enterpriseName || 'N/A'}</p>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                    <span className="text-[10px] bg-[#c5a059]/10 text-[#c5a059] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider border border-[#c5a059]/20">
+                                        {user.role}
+                                    </span>
+                                    <p className="text-[10px] text-slate-500 truncate">Empresa: {user.enterpriseName || 'N/A'}</p>
+                                </div>
                             </div>
                         </div>
                     </div>

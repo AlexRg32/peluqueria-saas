@@ -40,13 +40,14 @@ public class AuthenticationService {
         .name(request.getName())
         .email(request.getEmail())
         .password(passwordEncoder.encode(request.getPassword()))
-        .role(Role.EMPLEADO)
+        .role(Role.ADMIN)
         .enterprise(enterprise)
         .build();
     repository.save(user);
 
     Map<String, Object> extraClaims = new HashMap<>();
     extraClaims.put("enterpriseName", enterprise.getName());
+    extraClaims.put("role", user.getRole().name());
 
     var jwtToken = jwtService.generateToken(extraClaims, user);
     return AuthResponse.builder()
@@ -66,6 +67,7 @@ public class AuthenticationService {
     if (user.getEnterprise() != null) {
       extraClaims.put("enterpriseName", user.getEnterprise().getName());
     }
+    extraClaims.put("role", user.getRole().name());
 
     var jwtToken = jwtService.generateToken(extraClaims, user);
     return AuthResponse.builder()
