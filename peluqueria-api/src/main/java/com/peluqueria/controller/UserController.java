@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import com.peluqueria.model.User;
 import com.peluqueria.service.UserService;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -21,8 +23,10 @@ public class UserController {
   @Autowired
   private UserService userService;
 
+  @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
   @GetMapping("/{enterpriseId}")
   public List<User> getAllUsers(@PathVariable Long enterpriseId) {
+
     return userService.getUsersByEnterpriseId(enterpriseId);
   }
 

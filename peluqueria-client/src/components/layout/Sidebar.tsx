@@ -4,11 +4,18 @@ import { useAuth } from '@/features/auth/hooks/useAuth';
 const Sidebar = () => {
     const { user } = useAuth();
 
-    const navItems = [
-        { name: user?.role === 'ADMIN' ? 'Mi Peluquería' : 'Empresas', path: '/empresas' },
-        { name: 'Servicios', path: '/servicios' },
-        { name: 'Usuarios', path: '/usuarios' },
+    const allNavItems = [
+        { name: 'Empresas Global', path: '/superadmin/empresas', roles: ['SUPER_ADMIN'] },
+        { name: 'Mi Peluquería', path: '/empresas', roles: ['ADMIN'] },
+        { name: 'Plataforma', path: '/empresas', roles: ['EMPLEADO'] },
+        { name: 'Servicios', path: '/servicios', roles: ['ADMIN', 'EMPLEADO'] },
+        { name: 'Usuarios', path: '/usuarios', roles: ['ADMIN'] },
     ];
+
+    const navItems = allNavItems.filter(item => 
+        item.roles.includes(user?.role || '')
+    );
+
 
 
 
@@ -24,8 +31,9 @@ const Sidebar = () => {
                     {user?.enterpriseName || 'Peluquería SaaS'}
                 </h2>
                 <p className="text-[10px] text-[#c5a059] uppercase font-bold tracking-[0.2em] mt-1">
-                    Panel Admin
+                    Panel {user?.role || 'User'}
                 </p>
+
             </div>
             <nav className="flex-1">
                 <ul className="space-y-2">
