@@ -3,8 +3,10 @@ package com.peluqueria.service;
 import com.peluqueria.dto.AuthRequest;
 import com.peluqueria.dto.AuthResponse;
 import com.peluqueria.dto.RegisterRequest;
+import com.peluqueria.model.Enterprise;
 import com.peluqueria.model.Role;
 import com.peluqueria.model.User;
+import com.peluqueria.repository.EnterpriseRepository;
 import com.peluqueria.repository.UserRepository;
 import com.peluqueria.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -17,16 +19,26 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthenticationService {
   private final UserRepository repository;
+  private final EnterpriseRepository enterpriseRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtUtil jwtService;
   private final AuthenticationManager authenticationManager;
 
   public AuthResponse register(RegisterRequest request) {
+    // Buscar o crear la empresa
+    Enterprise enterprise = enterpriseRepository.findByName(request.getEnterpriseName())
+        .orElseGet(() -> {
+          Enterprise newEnterprise = new Enterprise();
+          newEnterprise.setName(request.getEnterpriseName());
+          return enterpriseRepository.save(newEnterprise);
+        });
+
     var user = User.builder()
         .name(request.getName())
         .email(request.getEmail())
         .password(passwordEncoder.encode(request.getPassword()))
         .role(Role.EMPLEADO)
+        .enterprise(enterprise)
         .build();
     repository.save(user);
     var jwtToken = jwtService.generateToken(user);

@@ -8,6 +8,7 @@ import { useNavigate, Link } from 'react-router-dom';
 const registerSchema = z.object({
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   email: z.string().email('Email inválido'),
+  enterpriseName: z.string().min(1, 'El nombre de la empresa es obligatorio'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
   confirmPassword: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -39,6 +40,7 @@ export const RegisterForm: React.FC = () => {
         name: data.name,
         email: data.email,
         password: data.password,
+        enterpriseName: data.enterpriseName,
       });
       navigate('/empresas', { replace: true });
     } catch (err: any) {
@@ -92,6 +94,22 @@ export const RegisterForm: React.FC = () => {
             placeholder="correo@ejemplo.com"
           />
           {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
+        </div>
+
+        <div>
+          <label htmlFor="enterpriseName" className="block text-sm font-medium text-slate-300">
+            Empresa
+          </label>
+          <input
+            id="enterpriseName"
+            type="text"
+            {...register('enterpriseName')}
+            className={`mt-1 block w-full px-4 py-3 bg-slate-900/50 border ${
+              errors.enterpriseName ? 'border-red-500' : 'border-slate-700'
+            } rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#c5a059] transition-all duration-200`}
+            placeholder="Nombre de tu peluquería"
+          />
+          {errors.enterpriseName && <p className="mt-1 text-xs text-red-500">{errors.enterpriseName.message}</p>}
         </div>
 
         <div>
