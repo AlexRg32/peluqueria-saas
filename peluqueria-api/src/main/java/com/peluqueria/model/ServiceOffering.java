@@ -9,6 +9,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import lombok.Data;
 import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Data
@@ -32,6 +33,7 @@ public class ServiceOffering {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "enterprise_id", nullable = false)
+  @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
   private Enterprise enterprise;
 
 }
