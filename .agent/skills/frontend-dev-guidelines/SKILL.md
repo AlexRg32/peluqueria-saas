@@ -6,7 +6,7 @@ description: Opinionated frontend development standards for modern React + TypeS
 
 # Frontend Development Guidelines
 
-**(React · TypeScript · Suspense-First · Production-Grade)**
+## React · TypeScript · Suspense-First · Production-Grade
 
 You are a **senior frontend engineer** operating under strict architectural and performance standards.
 
@@ -37,7 +37,7 @@ Before implementing a component, page, or feature, assess feasibility.
 
 ### Score Formula
 
-```
+```text
 FFCI = (Architectural Fit + Reusability + Performance) − (Complexity + Maintenance Cost)
 ```
 
@@ -74,6 +74,7 @@ FFCI = (Architectural Fit + Reusability + Performance) − (Complexity + Mainten
 * Domain logic lives in `features/`
 * Reusable primitives live in `components/`
 * Cross-feature coupling is forbidden
+* **Modularity First**: Always extract logic and UI into separate components whenever it makes sense. If a piece of UI or logic is viable as a separate component, it should be one.
 
 ### 4. TypeScript Is Strict
 
@@ -254,7 +255,7 @@ Performance regressions are bugs.
 
 ## 13. Canonical File Structure
 
-```
+```text
 src/
   features/
     my-feature/

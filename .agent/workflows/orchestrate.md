@@ -6,6 +6,7 @@ description: Master Loop that manages the state of the project.
 **Goal**: Initialize workspace and dispatch sub-workflows with EXPLICIT PATHS.
 
 ## 1. Setup Workspace Only
+
 Analyze Intent (`feat`, `fix`, `docs`) + Slug.
 
 ```bash
@@ -16,24 +17,31 @@ echo "Workspace Ready: $PLAN_PATH"
 ```
 
 ## 2. Dispatch Loop (Explicit Path Injection)
+
 The Agent MUST pass the `$PLAN_PATH` to every sub-workflow.
 
 ### Step A: Investigation
--   **Command**: Invoke `/investigation PATH="$PLAN_PATH"`.
+
+- **Command**: Invoke `/investigation PATH="$PLAN_PATH"`.
 
 ### Step B: Design
--   **Command**: Invoke `/design PATH="$PLAN_PATH"`.
+
+- **Command**: Invoke `/design PATH="$PLAN_PATH"`.
 
 ### Step C: Planning
--   **Command**: Invoke `/plan PATH="$PLAN_PATH"`.
+
+- **Command**: Invoke `/plan PATH="$PLAN_PATH"`.
 
 ### Step D: Implementation & Verification
--   **Command**: Invoke `/implementation PATH="$PLAN_PATH"`.
--   **Validation (The Quality Gate)**:
-    -   READ `$PLAN_PATH/plan.md`.
-    -   **IF** any `[ ]` exists:
-        -   **FAIL**: "Implementation incomplete. Tasks pending."
-        -   **ADVISE**: "Rerunning /implementation to finish tasks."
 
-## Rule
-**Never invoke a sub-workflow without appending the PATH.**
+- **Command**: Invoke `/implementation PATH="$PLAN_PATH"`.
+- **Validation (The Quality Gate)**:
+  - READ `$PLAN_PATH/plan.md`.
+  - **IF** any `[ ]` exists:
+    - **FAIL**: "Implementation incomplete. Tasks pending."
+    - **ADVISE**: "Rerunning /implementation to finish tasks."
+
+## Rules
+
+- **Never invoke a sub-workflow without appending the PATH.**
+- **COMPONENTIZATION**: In React, always split logic and UI into separate components whenever logical, viable, and sensible.
