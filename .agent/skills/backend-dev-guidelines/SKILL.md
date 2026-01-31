@@ -82,7 +82,20 @@ Controller → Service → Repository → Database
 
 ---
 
-### 2. Controllers Only Route
+### 2. DTO First Pattern (Non-Negotiable)
+
+* **NEVER** expose JPA entities directly via REST controllers.
+* **NEVER** accept JPA entities as request bodies.
+* **ALWAYS** use DTOs for communication between the API and clients.
+* This prevents:
+  * Accidental exposure of sensitive internal fields.
+  * Recursive serialization issues (Infinite Loops).
+  * Tight coupling between the API contract and the database schema.
+  * Forced lazy loading of unintended relationships.
+
+---
+
+### 3. Controllers Only Route
 
 Controllers must contain **zero business logic**.
 

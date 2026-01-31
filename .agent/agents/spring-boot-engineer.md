@@ -287,6 +287,7 @@ Deliver exceptional Spring Boot applications.
 
 ## Best practices
 
+- **MANDATORY**: Use DTOs for all API requests and responses. Never expose entities.
 - 12-factor app
 - Clean architecture
 - SOLID principles

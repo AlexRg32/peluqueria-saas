@@ -21,7 +21,7 @@ Global constraints for all agents in the SaaS Orchestrator Framework.
 ## 3. Technology Stack
 
 - **BACKEND**: Spring Boot (Java) is the standard. Use Maven for dependency management.
-- **API**: REST is the standard for communication.
+- **API**: REST is the standard for communication. **MANDATORY**: Use DTOs for all API requests and responses. Never expose entities.
 - **FRONTEND**: React (Vite) with TypeScript.
 - **COMPONENTIZATION**: Favor modularity. Whenever logical, viable, and sensible, split React code into separate components rather than monolithic files.
 - **DESIGN**: Use **Tailwind CSS** for all styling. Maintain premium visual aesthetics.
