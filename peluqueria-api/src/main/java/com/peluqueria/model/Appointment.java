@@ -32,6 +32,10 @@ public class Appointment {
   private User user;
 
   @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "employee_id", nullable = false)
+  private User employee;
+
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "service_id", nullable = false)
   private ServiceOffering service;
 

@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import com.peluqueria.service.EnterpriseService;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import com.peluqueria.dto.UserResponse;
 import com.peluqueria.model.Enterprise;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -56,6 +58,24 @@ public class EnterpriseController {
     } catch (Exception e) {
       return ResponseEntity.badRequest().body(e.getMessage());
     }
+  }
+
+  @Autowired
+  private com.peluqueria.repository.UserRepository userRepository;
+
+  @GetMapping("/{id}/employees")
+  public ResponseEntity<?> getEmployees(@PathVariable Long id) {
+    List<UserResponse> employees = userRepository.findByEnterpriseIdAndRole(id, com.peluqueria.model.Role.EMPLEADO)
+        .stream()
+        .map(user -> UserResponse.builder()
+            .id(user.getId())
+            .name(user.getName())
+            .email(user.getEmail())
+            .role(user.getRole())
+            .enterpriseId(user.getEnterprise() != null ? user.getEnterprise().getId() : null)
+            .build())
+        .collect(Collectors.toList());
+    return ResponseEntity.ok(employees);
   }
 
 }

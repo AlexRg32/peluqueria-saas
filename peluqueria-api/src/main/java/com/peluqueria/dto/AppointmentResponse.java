@@ -1,0 +1,23 @@
+package com.peluqueria.dto;
+
+import java.time.LocalDateTime;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class AppointmentResponse {
+  private Long id;
+  private String customerName;
+  private String employeeName;
+  private String serviceName;
+  private LocalDateTime date;
+  private Integer duration;
+  private double price;
+  private String status;
+}

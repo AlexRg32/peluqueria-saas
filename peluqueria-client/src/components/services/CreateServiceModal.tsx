@@ -69,56 +69,57 @@ export const CreateServiceModal: React.FC<CreateServiceModalProps> = ({ isOpen, 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
             <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-                <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
-                    <h2 className="text-xl font-bold text-slate-800">Nuevo Servicio</h2>
-                    <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+                <div className="bg-slate-900 px-8 py-6 text-white relative">
+                    <h2 className="text-2xl font-bold tracking-tight">Nuevo Servicio</h2>
+                    <p className="text-slate-400 text-sm mt-1">Define los detalles del nuevo servicio para tu negocio.</p>
+                    <button onClick={onClose} className="absolute top-6 right-6 text-slate-400 hover:text-white transition-colors">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
                 
-                <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Nombre del Servicio</label>
+                <form onSubmit={handleSubmit} className="p-8 space-y-6 max-h-[80vh] overflow-y-auto">
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-slate-700 ml-1">Nombre del Servicio</label>
                         <input 
                             type="text" 
                             required
-                            className="w-full rounded-lg border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 transition-all p-2.5 border"
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all placeholder:text-slate-400"
                             value={formData.name}
                             onChange={(e) => setFormData({...formData, name: e.target.value})}
                             placeholder="Ej: Corte Clásico"
                         />
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                             <label className="block text-sm font-medium text-slate-700 mb-1">Precio ($)</label>
+                    <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                             <label className="text-sm font-semibold text-slate-700 ml-1">Precio (€)</label>
                              <input 
                                 type="number" 
                                 required
                                 min="0"
-                                className="w-full rounded-lg border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 p-2.5 border"
+                                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
                                 value={formData.price}
                                 onChange={(e) => setFormData({...formData, price: Number(e.target.value)})}
                              />
                         </div>
-                        <div>
-                             <label className="block text-sm font-medium text-slate-700 mb-1">Duración (min)</label>
+                        <div className="space-y-2">
+                             <label className="text-sm font-semibold text-slate-700 ml-1">Duración (min)</label>
                              <input 
                                 type="number" 
                                 required
                                 min="5"
                                 step="5"
-                                className="w-full rounded-lg border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 p-2.5 border"
+                                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
                                 value={formData.duration}
                                 onChange={(e) => setFormData({...formData, duration: Number(e.target.value)})}
                              />
                         </div>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Categoría</label>
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-slate-700 ml-1">Categoría</label>
                         <select 
-                            className="w-full rounded-lg border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 p-2.5 border"
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all appearance-none bg-white"
                             value={formData.category}
                             onChange={(e) => setFormData({...formData, category: e.target.value})}
                         >
@@ -130,50 +131,56 @@ export const CreateServiceModal: React.FC<CreateServiceModalProps> = ({ isOpen, 
                         </select>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Imagen del Servicio</label>
-                        <div className="flex items-center gap-4">
-                            {previewUrl && (
-                                <img src={previewUrl} alt="Preview" className="w-16 h-16 rounded-lg object-cover border border-slate-200" />
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-slate-700 ml-1">Imagen del Servicio</label>
+                        <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                            {previewUrl ? (
+                                <img src={previewUrl} alt="Preview" className="w-20 h-20 rounded-xl object-cover border border-white shadow-sm" />
+                            ) : (
+                                <div className="w-20 h-20 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
+                                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                </div>
                             )}
-                            <input 
-                                type="file" 
-                                accept="image/*"
-                                className="block w-full text-sm text-slate-500
-                                  file:mr-4 file:py-2 file:px-4
-                                  file:rounded-full file:border-0
-                                  file:text-sm file:font-semibold
-                                  file:bg-indigo-50 file:text-indigo-700
-                                  hover:file:bg-indigo-100
-                                "
-                                onChange={handleFileChange}
-                            />
+                            <div className="flex-1">
+                                <input 
+                                    type="file" 
+                                    accept="image/*"
+                                    className="block w-full text-xs text-slate-500
+                                      file:mr-4 file:py-2 file:px-4
+                                      file:rounded-full file:border-0
+                                      file:text-xs file:font-bold
+                                      file:bg-[#c5a059]/10 file:text-[#c5a059]
+                                      hover:file:bg-[#c5a059]/20 transition-all cursor-pointer
+                                    "
+                                    onChange={handleFileChange}
+                                />
+                                <p className="mt-1 text-[10px] text-slate-400 uppercase font-bold tracking-wider">PNG, JPG hasta 5MB</p>
+                            </div>
                         </div>
-                        <p className="mt-1 text-xs text-slate-500">PNG, JPG, GIF hasta 5MB</p>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Descripción</label>
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-slate-700 ml-1">Descripción</label>
                         <textarea 
-                            className="w-full rounded-lg border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 p-2.5 border h-24 resize-none"
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all h-28 resize-none placeholder:text-slate-400"
                             value={formData.description}
                             onChange={(e) => setFormData({...formData, description: e.target.value})}
                             placeholder="Describe brevemente el servicio..."
                         />
                     </div>
 
-                    <div className="pt-4 flex gap-3">
+                    <div className="pt-6 flex gap-4 border-t border-slate-100">
                         <button 
                             type="button" 
                             onClick={onClose}
-                            className="flex-1 py-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium transition-colors"
+                            className="flex-1 px-6 py-3 rounded-xl text-slate-600 font-semibold hover:bg-slate-50 transition-colors"
                         >
                             Cancelar
                         </button>
                         <button 
                             type="submit" 
                             disabled={loading}
-                            className="flex-1 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 font-medium transition-colors disabled:opacity-50 shadow-lg shadow-indigo-200"
+                            className="flex-2 px-8 py-3 rounded-xl bg-[#c5a059] text-white hover:bg-[#b38f4a] font-bold transition-all disabled:opacity-50 shadow-lg shadow-[#c5a059]/30 active:scale-95"
                         >
                             {loading ? 'Guardando...' : 'Crear Servicio'}
                         </button>

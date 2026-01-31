@@ -3,6 +3,7 @@ import MainLayout from './components/layout/MainLayout';
 import EnterprisePage from './pages/Enterprises';
 import ServicesPage from './pages/Services';
 import UsersPage from './pages/Users';
+import CalendarPage from './pages/CalendarPage';
 import { AuthProvider } from './features/auth/context/AuthContext';
 import RequireAuth from './features/auth/components/RequireAuth';
 import ProtectedRoute from './features/auth/components/ProtectedRoute';
@@ -30,6 +31,7 @@ function App() {
               <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPER_ADMIN']} />}>
                 <Route path="servicios" element={<ServicesPage />} />
                 <Route path="usuarios" element={<UsersPage />} />
+                <Route path="citas" element={<CalendarPage />} />
               </Route>
 
               {/* Super Admin Only Routes */}

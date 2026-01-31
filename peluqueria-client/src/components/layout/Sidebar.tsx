@@ -15,6 +15,7 @@ const Sidebar = ({ isMobile, onClose }: SidebarProps) => {
         { name: 'Mi Peluquería', path: '/empresas', roles: ['ADMIN'] },
         { name: 'Plataforma', path: '/empresas', roles: ['EMPLEADO'] },
         { name: 'Servicios', path: '/servicios', roles: ['ADMIN', 'EMPLEADO'] },
+        { name: 'Agenda', path: '/citas', roles: ['ADMIN', 'SUPER_ADMIN'] },
         { name: 'Usuarios', path: '/usuarios', roles: ['ADMIN'] },
     ];
 

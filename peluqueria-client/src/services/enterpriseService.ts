@@ -28,5 +28,10 @@ export const enterpriseService = {
     update: async (id: number, enterprise: Enterprise) => {
         const response = await apiClient.put<Enterprise>(`/api/enterprises/${id}`, enterprise);
         return response.data;
+    },
+
+    getEmployees: async (id: number) => {
+        const response = await apiClient.get<any[]>(`/api/enterprises/${id}/employees`);
+        return response.data;
     }
 };

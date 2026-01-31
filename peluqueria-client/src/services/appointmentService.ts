@@ -1,5 +1,4 @@
 import { apiClient } from '../lib/axios';
-import { ServiceOffering } from './serviceOfferingService';
 
 export enum AppointmentStatus {
     PENDING = 'PENDING',
@@ -9,17 +8,34 @@ export enum AppointmentStatus {
 }
 
 export interface Appointment {
-    id?: number;
+    id: number;
+    customerName: string;
+    employeeName: string;
+    serviceName: string;
     date: string;
-    enterpriseId: number;
-    userId: number;
-    serviceId: number;
-    service?: ServiceOffering;
-    status: AppointmentStatus;
+    duration: number;
     price: number;
+    status: AppointmentStatus | string;
+}
+
+export interface CreateAppointmentRequest {
+    userId: number;
+    employeeId: number;
+    serviceId: number;
+    enterpriseId: number;
+    date: string;
 }
 
 export const appointmentService = {
-    // We'll implement endpoints here as we build the calendar
-    // For now, this prepares the ground for stats
+    getAll: async (enterpriseId: number) => {
+        const response = await apiClient.get<Appointment[]>('/api/appointments', {
+            params: { enterpriseId }
+        });
+        return response.data;
+    },
+
+    create: async (data: CreateAppointmentRequest) => {
+        const response = await apiClient.post<Appointment>('/api/appointments', data);
+        return response.data;
+    }
 };

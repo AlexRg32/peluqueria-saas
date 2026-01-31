@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 
+import com.peluqueria.dto.UserResponse;
 import com.peluqueria.model.User;
 import com.peluqueria.service.UserService;
 
@@ -25,7 +26,7 @@ public class UserController {
 
   @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
   @GetMapping("/{enterpriseId}")
-  public List<User> getAllUsers(@PathVariable Long enterpriseId) {
+  public List<UserResponse> getAllUsers(@PathVariable Long enterpriseId) {
 
     return userService.getUsersByEnterpriseId(enterpriseId);
   }
