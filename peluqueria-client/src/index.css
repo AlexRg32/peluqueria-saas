@@ -1,1 +1,22 @@
 @import "tailwindcss";
+
+@theme {
+  /* Brand Colors */
+  --color-brand-primary: #c5a059;
+  --color-brand-secondary: #ecd3a5;
+  --color-brand-accent: #1e293b; /* slate-800 */
+  --color-brand-bg: #0f172a; /* slate-900 */
+  --color-brand-surface: #f8fafc; /* slate-50 */
+  
+  /* Semantic Tokens */
+  --color-text-main: #0f172a;
+  --color-text-muted: #64748b;
+  --color-border-subtle: #e2e8f0;
+  
+  /* Proportions & Sizes */
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  
+  /* Shadow tokens for consistent depth */
+  --shadow-brand: 0 10px 15px -3px rgba(197, 160, 89, 0.2);
+}

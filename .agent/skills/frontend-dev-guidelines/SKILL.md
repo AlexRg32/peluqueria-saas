@@ -212,8 +212,15 @@ export const Route = createFileRoute('/my-route/')({
 
 ### Colors & Theme
 
-* Use semantic names from `tailwind.config.js` (e.g., `bg-primary`, `text-secondary`).
-* Avoid arbitrary values (e.g., `w-[123px]`) unless absolutely necessary.
+* Use semantic colors defined in `src/index.css` via the `@theme` block.
+* **MANDATORY**: Use brand tokens for consistent UI:
+  * Primary: `bg-brand-primary`, `text-brand-primary`
+  * Secondary: `bg-brand-secondary`
+  * Backgrounds: `bg-brand-bg` (dark), `bg-brand-surface` (light)
+  * Borders: `border-border-subtle`
+* **Size & Proportions**: Use consistent radius tokens: `rounded-xl`, `rounded-2xl`.
+* **Shadows**: Use `shadow-brand` for primary elements.
+* Avoid arbitrary values (e.g., `w-[123px]` or `#color`) unless absolutely necessary for custom animations.
 
 ---
 

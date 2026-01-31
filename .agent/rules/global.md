@@ -24,7 +24,7 @@ Global constraints for all agents in the SaaS Orchestrator Framework.
 - **API**: REST is the standard for communication. **MANDATORY**: Use DTOs for all API requests and responses. Never expose entities.
 - **FRONTEND**: React (Vite) with TypeScript.
 - **COMPONENTIZATION**: Favor modularity. Whenever logical, viable, and sensible, split React code into separate components rather than monolithic files.
-- **DESIGN**: Use **Tailwind CSS** for all styling. Maintain premium visual aesthetics.
+- **DESIGN**: Use **Tailwind CSS** for all styling. Maintain premium visual aesthetics by strictly following the design system defined in `peluqueria-client/src/index.css` (@theme block). Consistently use brand colors, radius, and spacing tokens.
 
 ## 4. Security & Quality
 
