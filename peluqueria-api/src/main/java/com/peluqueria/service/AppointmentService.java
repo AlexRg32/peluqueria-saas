@@ -15,12 +15,11 @@ public class AppointmentService {
 
   private final AppointmentRepository appointmentRepository;
   private final UserRepository userRepository;
+  private final CustomerRepository customerRepository;
   private final ServiceOfferingRepository serviceOfferingRepository;
   private final EnterpriseRepository enterpriseRepository;
 
   public AppointmentResponse create(CreateAppointmentRequest request) {
-    User user = userRepository.findById(request.getUserId())
-        .orElseThrow(() -> new RuntimeException("User not found"));
     User employee = userRepository.findById(request.getEmployeeId())
         .orElseThrow(() -> new RuntimeException("Employee not found"));
     ServiceOffering service = serviceOfferingRepository.findById(request.getServiceId())
@@ -28,8 +27,10 @@ public class AppointmentService {
     Enterprise enterprise = enterpriseRepository.findById(request.getEnterpriseId())
         .orElseThrow(() -> new RuntimeException("Enterprise not found"));
 
+    Customer customer = getOrCreateCustomer(request, enterprise);
+
     Appointment appointment = new Appointment();
-    appointment.setUser(user);
+    appointment.setCustomer(customer);
     appointment.setEmployee(employee);
     appointment.setService(service);
     appointment.setEnterprise(enterprise);
@@ -38,7 +39,46 @@ public class AppointmentService {
     appointment.setStatus(AppointmentStatus.PENDING);
 
     Appointment saved = appointmentRepository.save(appointment);
+
+    // Increment visit count
+    customer.setVisitsCount(customer.getVisitsCount() + 1);
+    customerRepository.save(customer);
+
     return mapToResponse(saved);
+  }
+
+  private Customer getOrCreateCustomer(CreateAppointmentRequest request, Enterprise enterprise) {
+    if (request.getUserId() != null) {
+      // Registered User
+      return customerRepository.findByEnterpriseIdAndUserId(enterprise.getId(), request.getUserId())
+          .orElseGet(() -> {
+            User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+            return customerRepository.save(Customer.builder()
+                .name(user.getName())
+                .phone(user.getPhone())
+                .email(user.getEmail())
+                .enterprise(enterprise)
+                .user(user)
+                .build());
+          });
+    } else {
+      // Guest / Walk-in
+      return customerRepository.findByEnterpriseIdAndPhone(enterprise.getId(), request.getCustomerPhone())
+          .map(existing -> {
+            // Update name if it was empty or changed
+            if (request.getCustomerName() != null && !request.getCustomerName().equals(existing.getName())) {
+              existing.setName(request.getCustomerName());
+              return customerRepository.save(existing);
+            }
+            return existing;
+          })
+          .orElseGet(() -> customerRepository.save(Customer.builder()
+              .name(request.getCustomerName())
+              .phone(request.getCustomerPhone())
+              .enterprise(enterprise)
+              .build()));
+    }
   }
 
   public List<AppointmentResponse> findByEnterpriseId(Long enterpriseId) {
@@ -48,9 +88,11 @@ public class AppointmentService {
   }
 
   private AppointmentResponse mapToResponse(Appointment a) {
+    Customer c = a.getCustomer();
     return AppointmentResponse.builder()
         .id(a.getId())
-        .customerName(a.getUser().getName())
+        .customerName(c.getName())
+        .customerPhone(c.getPhone())
         .employeeName(a.getEmployee().getName())
         .serviceName(a.getService().getName())
         .date(a.getDate())

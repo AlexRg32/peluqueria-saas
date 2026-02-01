@@ -28,8 +28,8 @@ public class Appointment {
   private Enterprise enterprise;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", nullable = false)
-  private User user;
+  @JoinColumn(name = "customer_id", nullable = false)
+  private Customer customer;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "employee_id", nullable = false)

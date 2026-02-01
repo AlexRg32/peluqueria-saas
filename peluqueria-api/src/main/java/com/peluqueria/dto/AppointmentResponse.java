@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class AppointmentResponse {
   private Long id;
   private String customerName;
+  private String customerPhone;
   private String employeeName;
   private String serviceName;
   private LocalDateTime date;

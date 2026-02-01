@@ -19,6 +19,7 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     isOpen, onClose, onSubmit, enterpriseId, initialDate
 }) => {
     const { register, handleSubmit, setValue } = useForm<CreateAppointmentRequest>();
+    const [isGuest, setIsGuest] = useState(false);
     const [employees, setEmployees] = useState<any[]>([]);
     const [customers, setCustomers] = useState<User[]>([]);
     const [services, setServices] = useState<any[]>([]);
@@ -73,31 +74,81 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                         </header>
                         
                         <form onSubmit={handleSubmit((data) => {
-                            onSubmit({
+                            const submitData: CreateAppointmentRequest = {
                                 ...data,
                                 enterpriseId,
-                                userId: Number(data.userId),
+                                userId: isGuest ? null : (data.userId ? Number(data.userId) : null),
                                 employeeId: Number(data.employeeId),
-                                serviceId: Number(data.serviceId)
-                            });
+                                serviceId: Number(data.serviceId),
+                                customerName: isGuest ? data.customerName : undefined,
+                                customerPhone: isGuest ? data.customerPhone : undefined
+                            };
+                            onSubmit(submitData);
                         })} className="p-8 space-y-6">
                             
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-slate-700 ml-1">Cliente</label>
-                                    <div className="relative">
-                                        <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                        <select 
-                                            {...register('userId', { required: true })} 
-                                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all appearance-none bg-white"
-                                        >
-                                            <option value="">Seleccionar Cliente</option>
-                                            {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                        </select>
-                                    </div>
-                                </div>
+                            {/* Toggle Client Type */}
+                            <div className="flex bg-slate-100 p-1 rounded-xl">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsGuest(false)}
+                                    className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all ${!isGuest ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                >
+                                    Usuario Registrado
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsGuest(true)}
+                                    className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all ${isGuest ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                >
+                                    Walk-in / Invitado
+                                </button>
+                            </div>
 
-                                <div className="space-y-2">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {!isGuest ? (
+                                    <div className="space-y-2 col-span-1 md:col-span-2">
+                                        <label className="text-sm font-semibold text-slate-700 ml-1">Cliente Registrado</label>
+                                        <div className="relative">
+                                            <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                            <select 
+                                                {...register('userId', { required: !isGuest })} 
+                                                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all appearance-none bg-white"
+                                            >
+                                                <option value="">Seleccionar Cliente</option>
+                                                {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-semibold text-slate-700 ml-1">Nombre Cliente</label>
+                                            <div className="relative">
+                                                <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                                <input 
+                                                    type="text"
+                                                    placeholder="Nombre Completo"
+                                                    {...register('customerName', { required: isGuest })} 
+                                                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-semibold text-slate-700 ml-1">Teléfono</label>
+                                            <div className="relative">
+                                                <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                                <input 
+                                                    type="tel"
+                                                    placeholder="Teléfono (ej: 600000000)"
+                                                    {...register('customerPhone', { required: isGuest })} 
+                                                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+                                                />
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+
+                                <div className="space-y-2 col-span-1 md:col-span-2">
                                     <label className="text-sm font-semibold text-slate-700 ml-1">Empleado</label>
                                     <div className="relative">
                                         <Scissors className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -105,7 +156,7 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                                             {...register('employeeId', { required: true })} 
                                             className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all appearance-none bg-white"
                                         >
-                                            <option value="">Cualquier empleado</option>
+                                            <option value="">Seleccionar empleado</option>
                                             {employees.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
                                         </select>
                                     </div>

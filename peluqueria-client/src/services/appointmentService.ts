@@ -10,6 +10,7 @@ export enum AppointmentStatus {
 export interface Appointment {
     id: number;
     customerName: string;
+    customerPhone?: string;
     employeeName: string;
     serviceName: string;
     date: string;
@@ -19,7 +20,9 @@ export interface Appointment {
 }
 
 export interface CreateAppointmentRequest {
-    userId: number;
+    userId?: number | null;
+    customerName?: string;
+    customerPhone?: string;
     employeeId: number;
     serviceId: number;
     enterpriseId: number;
