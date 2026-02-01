@@ -34,7 +34,7 @@ const UserMenu = () => {
         whileTap={{ scale: 0.98 }}
         className="flex items-center gap-4 px-4 py-2.5 rounded-full bg-white border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200"
       >
-        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#c5a059] to-[#ecd3a5] flex items-center justify-center text-slate-900 font-bold text-sm shadow-inner">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-primary to-brand-secondary flex items-center justify-center text-slate-900 font-bold text-sm shadow-inner">
           {user.sub[0].toUpperCase()}
         </div>
         <div className="hidden md:flex flex-col items-start leading-none gap-1">
@@ -61,8 +61,8 @@ const UserMenu = () => {
                 <div className="flex flex-col min-w-0">
                   <p className="text-base font-bold text-slate-800 truncate">{user.sub}</p>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <Shield size={12} className="text-[#c5a059]" />
-                    <span className="text-xs font-bold text-[#c5a059] uppercase tracking-tight">{user.role}</span>
+                    <Shield size={12} className="text-brand-primary" />
+                    <span className="text-xs font-bold text-brand-primary uppercase tracking-tight">{user.role}</span>
                   </div>
                 </div>
               </div>

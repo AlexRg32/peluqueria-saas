@@ -24,8 +24,8 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service, onDelete, isA
             <div className="p-5 flex-1 flex flex-col">
                 <div className="flex justify-between items-start mb-2">
                     <div>
-                         <span className="text-xs font-semibold tracking-wider text-indigo-600 uppercase bg-indigo-50 px-2 py-1 rounded-full">{service.category}</span>
-                         <h3 className="mt-2 text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{service.name}</h3>
+                         <span className="text-xs font-semibold tracking-wider text-brand-primary uppercase bg-brand-primary/10 px-2 py-1 rounded-full">{service.category}</span>
+                         <h3 className="mt-2 text-lg font-bold text-slate-900 group-hover:text-brand-primary transition-colors">{service.name}</h3>
                     </div>
                     <span className="text-xl font-bold text-slate-800">${service.price}</span>
                 </div>

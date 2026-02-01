@@ -89,7 +89,7 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                                         <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                                         <select 
                                             {...register('userId', { required: true })} 
-                                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all appearance-none bg-white"
+                                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all appearance-none bg-white"
                                         >
                                             <option value="">Seleccionar Cliente</option>
                                             {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -103,7 +103,7 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                                         <Scissors className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                                         <select 
                                             {...register('employeeId', { required: true })} 
-                                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all appearance-none bg-white"
+                                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all appearance-none bg-white"
                                         >
                                             <option value="">Cualquier empleado</option>
                                             {employees.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
@@ -117,7 +117,7 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                                         <Scissors className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                                         <select 
                                             {...register('serviceId', { required: true })} 
-                                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all appearance-none bg-white"
+                                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all appearance-none bg-white"
                                         >
                                             <option value="">Seleccionar un servicio</option>
                                             {services.map(s => <option key={s.id} value={s.id}>{s.name} — {s.price}€ ({s.duration} min)</option>)}
@@ -132,7 +132,7 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                                         <input 
                                             type="datetime-local" 
                                             {...register('date', { required: true })} 
-                                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
+                                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
                                         />
                                     </div>
                                 </div>
@@ -148,7 +148,7 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                                 </button>
                                 <button 
                                     type="submit" 
-                                    className="px-8 py-3 bg-[#c5a059] hover:bg-[#b38f4a] text-white rounded-xl font-bold shadow-lg shadow-[#c5a059]/30 transition-all active:scale-95"
+                                    className="px-8 py-3 bg-brand-primary hover:bg-brand-primary/90 text-slate-900 rounded-xl font-bold shadow-brand transition-all active:scale-95"
                                 >
                                     Confirmar Cita
                                 </button>

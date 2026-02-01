@@ -48,6 +48,8 @@ public class AuthenticationService {
     Map<String, Object> extraClaims = new HashMap<>();
     extraClaims.put("enterpriseName", enterprise.getName());
     extraClaims.put("enterpriseId", enterprise.getId());
+    extraClaims.put("primaryColor", enterprise.getPrimaryColor());
+    extraClaims.put("secondaryColor", enterprise.getSecondaryColor());
     extraClaims.put("role", user.getRole().name());
 
     var jwtToken = jwtService.generateToken(extraClaims, user);
@@ -68,6 +70,8 @@ public class AuthenticationService {
     if (user.getEnterprise() != null) {
       extraClaims.put("enterpriseName", user.getEnterprise().getName());
       extraClaims.put("enterpriseId", user.getEnterprise().getId());
+      extraClaims.put("primaryColor", user.getEnterprise().getPrimaryColor());
+      extraClaims.put("secondaryColor", user.getEnterprise().getSecondaryColor());
     }
     extraClaims.put("role", user.getRole().name());
 

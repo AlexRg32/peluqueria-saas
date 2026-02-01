@@ -75,7 +75,7 @@ export const EmployeeModal = ({ isOpen, onClose, onSubmit, employee }: EmployeeM
                     <div className="space-y-4">
                         <div className="space-y-1.5">
                             <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                                <UserIcon size={14} className="text-[#c5a059]" />
+                                <UserIcon size={14} className="text-brand-primary" />
                                 Nombre completo
                             </label>
                             <input 
@@ -83,7 +83,7 @@ export const EmployeeModal = ({ isOpen, onClose, onSubmit, employee }: EmployeeM
                                 type="text"
                                 value={formData.name || ''}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
+                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
                                 placeholder="Ej. Juan Pérez"
                             />
                         </div>
@@ -91,7 +91,7 @@ export const EmployeeModal = ({ isOpen, onClose, onSubmit, employee }: EmployeeM
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-1.5">
                                 <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                                    <Mail size={14} className="text-[#c5a059]" />
+                                    <Mail size={14} className="text-brand-primary" />
                                     Email
                                 </label>
                                 <input 
@@ -99,20 +99,20 @@ export const EmployeeModal = ({ isOpen, onClose, onSubmit, employee }: EmployeeM
                                     type="email"
                                     value={formData.email || ''}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
+                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
                                     placeholder="juan@ejemplo.com"
                                 />
                             </div>
                             <div className="space-y-1.5">
                                 <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                                    <Phone size={14} className="text-[#c5a059]" />
+                                    <Phone size={14} className="text-brand-primary" />
                                     Teléfono
                                 </label>
                                 <input 
                                     type="tel"
                                     value={formData.phone || ''}
                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
+                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
                                     placeholder="+34 600 000 000"
                                 />
                             </div>
@@ -120,13 +120,13 @@ export const EmployeeModal = ({ isOpen, onClose, onSubmit, employee }: EmployeeM
 
                         <div className="space-y-1.5">
                             <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                                <Shield size={14} className="text-[#c5a059]" />
+                                <Shield size={14} className="text-brand-primary" />
                                 Rol en la empresa
                             </label>
                             <select 
                                 value={formData.role}
                                 onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
-                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all appearance-none cursor-pointer"
+                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all appearance-none cursor-pointer"
                             >
                                 <option value="EMPLEADO">Empleado (Barbero/Peluquero)</option>
                                 <option value="ADMIN">Administrador</option>
@@ -135,7 +135,7 @@ export const EmployeeModal = ({ isOpen, onClose, onSubmit, employee }: EmployeeM
 
                         <div className="space-y-1.5">
                             <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                                <Lock size={14} className="text-[#c5a059]" />
+                                <Lock size={14} className="text-brand-primary" />
                                 Contraseña {employee && <span className="text-slate-400 font-normal">(opcional)</span>}
                             </label>
                             <input 
@@ -143,7 +143,7 @@ export const EmployeeModal = ({ isOpen, onClose, onSubmit, employee }: EmployeeM
                                 type="password"
                                 value={formData.password || ''}
                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
+                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
                                 placeholder="••••••••"
                             />
                         </div>
@@ -155,7 +155,7 @@ export const EmployeeModal = ({ isOpen, onClose, onSubmit, employee }: EmployeeM
                                     id="active"
                                     checked={!!formData.active}
                                     onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
-                                    className="w-5 h-5 accent-[#c5a059] rounded-md cursor-pointer"
+                                    className="w-5 h-5 accent-brand-primary rounded-md cursor-pointer"
                                 />
                                 <label htmlFor="active" className="text-sm font-medium text-slate-700 cursor-pointer">
                                     Empleado activo
@@ -175,7 +175,7 @@ export const EmployeeModal = ({ isOpen, onClose, onSubmit, employee }: EmployeeM
                         <button 
                             type="submit"
                             disabled={loading}
-                            className="flex-1 px-6 py-3 bg-[#c5a059] text-white font-semibold rounded-xl hover:bg-[#b38f4a] shadow-lg shadow-[#c5a059]/30 transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-2"
+                            className="flex-1 px-6 py-3 bg-brand-primary text-slate-900 font-bold rounded-xl hover:bg-brand-primary/90 shadow-brand transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-2"
                         >
                             {loading ? (
                                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>

@@ -83,7 +83,7 @@ export const CreateServiceModal: React.FC<CreateServiceModalProps> = ({ isOpen, 
                         <input 
                             type="text" 
                             required
-                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all placeholder:text-slate-400"
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all placeholder:text-slate-400"
                             value={formData.name}
                             onChange={(e) => setFormData({...formData, name: e.target.value})}
                             placeholder="Ej: Corte Clásico"
@@ -97,7 +97,7 @@ export const CreateServiceModal: React.FC<CreateServiceModalProps> = ({ isOpen, 
                                 type="number" 
                                 required
                                 min="0"
-                                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
+                                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
                                 value={formData.price}
                                 onChange={(e) => setFormData({...formData, price: Number(e.target.value)})}
                              />
@@ -109,7 +109,7 @@ export const CreateServiceModal: React.FC<CreateServiceModalProps> = ({ isOpen, 
                                 required
                                 min="5"
                                 step="5"
-                                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
+                                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
                                 value={formData.duration}
                                 onChange={(e) => setFormData({...formData, duration: Number(e.target.value)})}
                              />
@@ -119,7 +119,7 @@ export const CreateServiceModal: React.FC<CreateServiceModalProps> = ({ isOpen, 
                     <div className="space-y-2">
                         <label className="text-sm font-semibold text-slate-700 ml-1">Categoría</label>
                         <select 
-                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all appearance-none bg-white"
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all appearance-none bg-white"
                             value={formData.category}
                             onChange={(e) => setFormData({...formData, category: e.target.value})}
                         >
@@ -149,8 +149,8 @@ export const CreateServiceModal: React.FC<CreateServiceModalProps> = ({ isOpen, 
                                       file:mr-4 file:py-2 file:px-4
                                       file:rounded-full file:border-0
                                       file:text-xs file:font-bold
-                                      file:bg-[#c5a059]/10 file:text-[#c5a059]
-                                      hover:file:bg-[#c5a059]/20 transition-all cursor-pointer
+                                      file:bg-brand-primary/10 file:text-brand-primary
+                                      hover:file:bg-brand-primary/20 transition-all cursor-pointer
                                     "
                                     onChange={handleFileChange}
                                 />
@@ -162,7 +162,7 @@ export const CreateServiceModal: React.FC<CreateServiceModalProps> = ({ isOpen, 
                     <div className="space-y-2">
                         <label className="text-sm font-semibold text-slate-700 ml-1">Descripción</label>
                         <textarea 
-                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all h-28 resize-none placeholder:text-slate-400"
+                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all h-28 resize-none placeholder:text-slate-400"
                             value={formData.description}
                             onChange={(e) => setFormData({...formData, description: e.target.value})}
                             placeholder="Describe brevemente el servicio..."
@@ -180,7 +180,7 @@ export const CreateServiceModal: React.FC<CreateServiceModalProps> = ({ isOpen, 
                         <button 
                             type="submit" 
                             disabled={loading}
-                            className="flex-2 px-8 py-3 rounded-xl bg-[#c5a059] text-white hover:bg-[#b38f4a] font-bold transition-all disabled:opacity-50 shadow-lg shadow-[#c5a059]/30 active:scale-95"
+                            className="flex-2 px-8 py-3 rounded-xl bg-brand-primary text-slate-900 font-bold transition-all disabled:opacity-50 shadow-brand active:scale-95"
                         >
                             {loading ? 'Guardando...' : 'Crear Servicio'}
                         </button>

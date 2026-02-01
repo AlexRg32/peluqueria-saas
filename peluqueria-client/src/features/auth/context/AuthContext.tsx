@@ -11,7 +11,25 @@ interface AuthContextType {
   login: (data: LoginPayload) => Promise<void>;
   register: (data: RegisterPayload) => Promise<void>;
   logout: () => void;
+  updateBranding: (primary?: string, secondary?: string) => void;
 }
+
+export const applyBranding = (primary?: string, secondary?: string) => {
+  const root = document.documentElement;
+  const defaultPrimary = '#c5a059';
+  const defaultSecondary = '#1e293b';
+
+  const p = primary || defaultPrimary;
+  const s = secondary || defaultSecondary;
+
+  root.style.setProperty('--color-brand-primary', p);
+  root.style.setProperty('--color-brand-secondary', s);
+  
+  // Calculate shadow with opacity if it's a hex color
+  if (p.startsWith('#')) {
+    root.style.setProperty('--shadow-brand', `0 10px 15px -3px ${p}33`);
+  }
+};
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -26,6 +44,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(decoded);
       setToken(newToken);
       localStorage.setItem('token', newToken);
+      applyBranding(decoded.primaryColor, decoded.secondaryColor);
     } catch (error) {
       console.error('Invalid token', error);
       logout();
@@ -55,6 +74,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => window.removeEventListener('auth-unauthorized', handleUnauthorized);
   }, [processToken, logout]);
 
+  // Apply branding when user changes (e.g. after refresh)
+  useEffect(() => {
+    if (user) {
+      applyBranding(user.primaryColor, user.secondaryColor);
+    } else {
+      applyBranding(); // Apply defaults
+    }
+  }, [user]);
+
   const login = async (data: LoginPayload) => {
     try {
       const response = await authApi.login(data);
@@ -83,6 +111,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         register,
         logout,
+        updateBranding: applyBranding,
       }}
     >
       {children}

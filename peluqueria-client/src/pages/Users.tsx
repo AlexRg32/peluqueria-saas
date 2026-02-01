@@ -89,7 +89,7 @@ const UsersPage = () => {
         <section className="max-w-7xl mx-auto space-y-8 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div className="space-y-1">
-                     <div className="flex items-center gap-2 text-[#c5a059] font-semibold text-sm uppercase tracking-wider">
+                     <div className="flex items-center gap-2 text-brand-primary font-semibold text-sm uppercase tracking-wider">
                         <UsersIcon size={16} />
                         Administración
                      </div>
@@ -99,7 +99,7 @@ const UsersPage = () => {
                 <div className="flex items-center gap-3">
                     <button 
                         onClick={fetchEmployees}
-                        className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-[#c5a059] rounded-xl transition-all active:scale-95 shadow-sm"
+                        className="p-2.5 bg-white border border-slate-200 text-slate-500 hover:text-brand-primary rounded-xl transition-all active:scale-95 shadow-sm"
                         title="Refrescar"
                     >
                         <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
@@ -109,7 +109,7 @@ const UsersPage = () => {
                             setSelectedEmployee(null);
                             setIsModalOpen(true);
                         }}
-                        className="flex items-center gap-2 bg-[#c5a059] hover:bg-[#b38f4a] text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-[#c5a059]/30 transition-all active:scale-95"
+                        className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary/90 text-white px-6 py-2.5 rounded-xl font-bold shadow-brand transition-all active:scale-95"
                     >
                         <Plus size={20} />
                         Nuevo Empleado
@@ -124,7 +124,7 @@ const UsersPage = () => {
                     placeholder="Buscar por nombre o email..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all text-slate-700"
+                    className="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all text-slate-700"
                 />
             </div>
 

@@ -2,6 +2,8 @@ export interface User {
   sub: string;
   enterpriseName?: string;
   enterpriseId?: number;
+  primaryColor?: string;
+  secondaryColor?: string;
   role: string;
   iat?: number;
   exp?: number;

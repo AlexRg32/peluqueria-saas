@@ -26,7 +26,7 @@ export const EmployeeTable = ({ employees, onEdit, onDelete }: EmployeeTableProp
                             <tr key={employee.id} className="hover:bg-slate-50/50 transition-colors group">
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-[#c5a059]/10 text-[#c5a059] flex items-center justify-center font-bold text-lg">
+                                        <div className="w-10 h-10 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center font-bold text-lg">
                                             {employee.name.charAt(0).toUpperCase()}
                                         </div>
                                         <div>

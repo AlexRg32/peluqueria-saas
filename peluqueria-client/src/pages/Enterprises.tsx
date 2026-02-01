@@ -21,7 +21,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 const EnterprisePage = () => {
-    const { user } = useAuth();
+    const { user, updateBranding } = useAuth();
     const [enterprise, setEnterprise] = useState<Enterprise | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -55,6 +55,12 @@ const EnterprisePage = () => {
         try {
             const updated = await enterpriseService.update(user.enterpriseId, enterprise);
             setEnterprise(updated);
+            
+            // Immediate branding update
+            if (updated.primaryColor || updated.secondaryColor) {
+                updateBranding(updated.primaryColor, updated.secondaryColor);
+            }
+
             setMessage({ type: 'success', text: 'Cambios guardados correctamente' });
             setTimeout(() => setMessage(null), 3000);
         } catch (error) {
@@ -73,7 +79,7 @@ const EnterprisePage = () => {
     if (loading) {
         return (
             <div className="flex h-[60vh] items-center justify-center">
-                <Loader2 className="animate-spin text-[#c5a059]" size={48} />
+                <Loader2 className="animate-spin text-brand-primary" size={48} />
             </div>
         );
     }
@@ -108,7 +114,7 @@ const EnterprisePage = () => {
                 <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="flex items-center gap-2 bg-[#c5a059] hover:bg-[#b38f4a] text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-[#c5a059]/30 transition-all active:scale-95 disabled:opacity-50"
+                    className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary/90 text-white px-6 py-2.5 rounded-xl font-semibold shadow-brand transition-all active:scale-95 disabled:opacity-50"
                 >
                     {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
                     {saving ? 'Guardando...' : 'Guardar Cambios'}
@@ -173,7 +179,7 @@ const EnterprisePage = () => {
                                                 type="text"
                                                 value={enterprise.name}
                                                 onChange={(e) => handleChange('name', e.target.value)}
-                                                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
+                                                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
                                                 placeholder="Ej. Barbería El Elegante"
                                             />
                                         </div>
@@ -185,7 +191,7 @@ const EnterprisePage = () => {
                                             type="text"
                                             value={enterprise.cif}
                                             onChange={(e) => handleChange('cif', e.target.value)}
-                                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
+                                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
                                         />
                                     </div>
 
@@ -197,7 +203,7 @@ const EnterprisePage = () => {
                                                 type="text"
                                                 value={enterprise.phone}
                                                 onChange={(e) => handleChange('phone', e.target.value)}
-                                                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
+                                                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
                                             />
                                         </div>
                                     </div>
@@ -210,7 +216,7 @@ const EnterprisePage = () => {
                                                 type="email"
                                                 value={enterprise.email}
                                                 onChange={(e) => handleChange('email', e.target.value)}
-                                                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
+                                                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
                                             />
                                         </div>
                                     </div>
@@ -223,7 +229,7 @@ const EnterprisePage = () => {
                                                 type="text"
                                                 value={enterprise.website || ''}
                                                 onChange={(e) => handleChange('website', e.target.value)}
-                                                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
+                                                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
                                                 placeholder="https://tupeluqueria.com"
                                             />
                                         </div>
@@ -237,7 +243,7 @@ const EnterprisePage = () => {
                                                 type="text"
                                                 value={enterprise.address}
                                                 onChange={(e) => handleChange('address', e.target.value)}
-                                                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
+                                                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
                                                 placeholder="Calle Ejemplo 123, Ciudad"
                                             />
                                         </div>
@@ -249,7 +255,7 @@ const EnterprisePage = () => {
                                             value={enterprise.description || ''}
                                             onChange={(e) => handleChange('description', e.target.value)}
                                             rows={3}
-                                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all resize-none"
+                                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all resize-none"
                                             placeholder="Cuenta un poco sobre tu negocio..."
                                         />
                                     </div>
@@ -270,7 +276,7 @@ const EnterprisePage = () => {
                                             type="text"
                                             value={enterprise.logo || ''}
                                             onChange={(e) => handleChange('logo', e.target.value)}
-                                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
+                                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
                                             placeholder="https://..."
                                         />
                                         <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Dimesiones recomendadas: 512x512px</p>
@@ -282,7 +288,7 @@ const EnterprisePage = () => {
                                             type="text"
                                             value={enterprise.banner || ''}
                                             onChange={(e) => handleChange('banner', e.target.value)}
-                                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
+                                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
                                             placeholder="https://..."
                                         />
                                         <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Dimesiones recomendadas: 1920x450px</p>
@@ -361,7 +367,7 @@ const EnterprisePage = () => {
                                             type="text"
                                             value={enterprise.instagram || ''}
                                             onChange={(e) => handleChange('instagram', e.target.value)}
-                                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
+                                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
                                             placeholder="ej. mi_barberia"
                                         />
                                     </div>
@@ -375,31 +381,31 @@ const EnterprisePage = () => {
                                             type="text"
                                             value={enterprise.facebook || ''}
                                             onChange={(e) => handleChange('facebook', e.target.value)}
-                                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
+                                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
                                         />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-slate-700 ml-1">TikTok</label>
-                                    <input
-                                        type="text"
-                                        value={enterprise.tiktok || ''}
-                                        onChange={(e) => handleChange('tiktok', e.target.value)}
-                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
-                                        placeholder="@mi_cuenta"
-                                    />
+                                        <input
+                                            type="text"
+                                            value={enterprise.tiktok || ''}
+                                            onChange={(e) => handleChange('tiktok', e.target.value)}
+                                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+                                            placeholder="@mi_cuenta"
+                                        />
                                 </div>
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-slate-700 ml-1">WhatsApp (Teléfono internacional)</label>
-                                    <input
-                                        type="text"
-                                        value={enterprise.whatsapp || ''}
-                                        onChange={(e) => handleChange('whatsapp', e.target.value)}
-                                        className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#c5a059]/20 focus:border-[#c5a059] outline-none transition-all"
-                                        placeholder="+34600111222"
-                                    />
+                                        <input
+                                            type="text"
+                                            value={enterprise.whatsapp || ''}
+                                            onChange={(e) => handleChange('whatsapp', e.target.value)}
+                                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
+                                            placeholder="+34600111222"
+                                        />
                                 </div>
                             </motion.div>
                         )}

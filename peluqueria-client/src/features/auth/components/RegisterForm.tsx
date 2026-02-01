@@ -75,7 +75,7 @@ export const RegisterForm: React.FC = () => {
             {...register('name')}
             className={`mt-1 block w-full px-4 py-3 bg-slate-900/50 border ${
               errors.name ? 'border-red-500' : 'border-slate-700'
-            } rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#c5a059] transition-all duration-200`}
+            } rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all duration-200`}
             placeholder="Juan Pérez"
           />
           {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
@@ -91,7 +91,7 @@ export const RegisterForm: React.FC = () => {
             {...register('email')}
             className={`mt-1 block w-full px-4 py-3 bg-slate-900/50 border ${
               errors.email ? 'border-red-500' : 'border-slate-700'
-            } rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#c5a059] transition-all duration-200`}
+            } rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all duration-200`}
             placeholder="correo@ejemplo.com"
           />
           {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
@@ -107,7 +107,7 @@ export const RegisterForm: React.FC = () => {
             {...register('enterpriseName')}
             className={`mt-1 block w-full px-4 py-3 bg-slate-900/50 border ${
               errors.enterpriseName ? 'border-red-500' : 'border-slate-700'
-            } rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#c5a059] transition-all duration-200`}
+            } rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all duration-200`}
             placeholder="Nombre de tu peluquería"
           />
           {errors.enterpriseName && <p className="mt-1 text-xs text-red-500">{errors.enterpriseName.message}</p>}
@@ -123,7 +123,7 @@ export const RegisterForm: React.FC = () => {
             {...register('password')}
             className={`mt-1 block w-full px-4 py-3 bg-slate-900/50 border ${
               errors.password ? 'border-red-500' : 'border-slate-700'
-            } rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#c5a059] transition-all duration-200`}
+            } rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all duration-200`}
             placeholder="••••••••"
           />
           {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>}
@@ -139,7 +139,7 @@ export const RegisterForm: React.FC = () => {
             {...register('confirmPassword')}
             className={`mt-1 block w-full px-4 py-3 bg-slate-900/50 border ${
               errors.confirmPassword ? 'border-red-500' : 'border-slate-700'
-            } rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#c5a059] transition-all duration-200`}
+            } rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all duration-200`}
             placeholder="••••••••"
           />
           {errors.confirmPassword && <p className="mt-1 text-xs text-red-500">{errors.confirmPassword.message}</p>}
@@ -148,7 +148,7 @@ export const RegisterForm: React.FC = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-[#0f172a] bg-[#c5a059] hover:bg-[#b08d4a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#c5a059] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-slate-900 bg-brand-primary hover:bg-brand-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? (
             <div className="w-5 h-5 border-2 border-[#0f172a] border-t-transparent rounded-full animate-spin"></div>
@@ -161,7 +161,7 @@ export const RegisterForm: React.FC = () => {
       <div className="text-center pt-4">
         <p className="text-sm text-slate-400">
           ¿Ya tienes cuenta?{' '}
-          <Link to="/login" className="font-semibold text-[#c5a059] hover:text-[#b08d4a] transition-colors">
+          <Link to="/login" className="font-semibold text-brand-primary hover:opacity-80 transition-colors">
             Inicia sesión
           </Link>
         </p>

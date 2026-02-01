@@ -77,7 +77,7 @@ const ServicesPage = () => {
                 {isAdmin && (
                     <button 
                         onClick={() => setIsModalOpen(true)}
-                        className="flex items-center gap-2 bg-[#c5a059] hover:bg-[#b38f4a] text-white px-6 py-2.5 rounded-xl font-semibold shadow-lg shadow-[#c5a059]/30 transition-all active:scale-95"
+                        className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary/90 text-white px-6 py-2.5 rounded-xl font-semibold shadow-brand transition-all active:scale-95"
                     >
                         <Plus size={18} />
                         Nuevo Servicio
