@@ -20,6 +20,15 @@ export const LoginForm: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Check for session expiration errors
+  React.useEffect(() => {
+    const authError = localStorage.getItem('auth_error');
+    if (authError) {
+      setError(authError);
+      localStorage.removeItem('auth_error');
+    }
+  }, []);
+
   const from = location.state?.from?.pathname || '/empresas';
 
   const {

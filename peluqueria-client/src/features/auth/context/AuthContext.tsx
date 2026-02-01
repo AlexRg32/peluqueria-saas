@@ -38,13 +38,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('token');
   }, []);
 
-  // Initialize auth state
+  // Initialize auth state and handle unauthorized global events
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
       processToken(storedToken);
     }
     setIsLoading(false);
+
+    const handleUnauthorized = () => {
+      logout();
+      localStorage.setItem('auth_error', 'Su sesión ha expirado o no tiene permisos. Por favor, identifíquese de nuevo.');
+    };
+
+    window.addEventListener('auth-unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('auth-unauthorized', handleUnauthorized);
   }, [processToken, logout]);
 
   const login = async (data: LoginPayload) => {

@@ -46,6 +46,12 @@ public class User implements UserDetails {
   @JoinColumn(name = "enterprise_id", nullable = true)
   private Enterprise enterprise;
 
+  private String phone;
+
+  @Builder.Default
+  @Column(columnDefinition = "boolean default true")
+  private Boolean active = true;
+
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));

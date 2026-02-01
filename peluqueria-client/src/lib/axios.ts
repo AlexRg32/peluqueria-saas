@@ -23,8 +23,8 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      window.dispatchEvent(new Event('auth-unauthorized'));
     }
     return Promise.reject(error);
   }

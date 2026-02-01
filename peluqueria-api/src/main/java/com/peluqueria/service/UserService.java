@@ -15,21 +15,44 @@ public class UserService {
   @Autowired
   private UserRepository userRepository;
 
+  @Autowired
+  private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
   public List<UserResponse> getAllUsers(Long enterpriseId) {
     return userRepository.findByEnterpriseId(enterpriseId).stream()
         .map(this::mapToResponse)
         .collect(Collectors.toList());
   }
 
-  public User createUser(User user) {
+  public UserResponse createUser(User user) {
     if (userRepository.findByEmail(user.getEmail()).isPresent()) {
       throw new RuntimeException("El usuario ya existe");
     }
-    return userRepository.save(user);
+    user.setPassword(passwordEncoder.encode(user.getPassword()));
+    User savedUser = userRepository.save(user);
+    return mapToResponse(savedUser);
   }
 
   public User getUserById(Long id) {
     return userRepository.findById(id).orElse(null);
+  }
+
+  public UserResponse updateUser(Long id, User userDetails) {
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+    user.setName(userDetails.getName());
+    user.setEmail(userDetails.getEmail());
+    user.setRole(userDetails.getRole());
+    user.setPhone(userDetails.getPhone());
+    user.setActive(userDetails.getActive());
+
+    if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
+      user.setPassword(passwordEncoder.encode(userDetails.getPassword()));
+    }
+
+    User updatedUser = userRepository.save(user);
+    return mapToResponse(updatedUser);
   }
 
   public List<UserResponse> getUsersByEnterpriseId(Long enterpriseId) {
@@ -45,6 +68,8 @@ public class UserService {
         .email(user.getEmail())
         .role(user.getRole())
         .enterpriseId(user.getEnterprise() != null ? user.getEnterprise().getId() : null)
+        .phone(user.getPhone())
+        .active(user.getActive() != null ? user.getActive() : true)
         .build();
   }
 

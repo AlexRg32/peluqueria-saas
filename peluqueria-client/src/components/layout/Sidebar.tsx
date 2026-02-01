@@ -16,7 +16,7 @@ const Sidebar = ({ isMobile, onClose }: SidebarProps) => {
         { name: 'Plataforma', path: '/empresas', roles: ['EMPLEADO'] },
         { name: 'Servicios', path: '/servicios', roles: ['ADMIN', 'EMPLEADO'] },
         { name: 'Agenda', path: '/citas', roles: ['ADMIN', 'SUPER_ADMIN'] },
-        { name: 'Usuarios', path: '/usuarios', roles: ['ADMIN'] },
+        { name: 'Personal', path: '/usuarios', roles: ['ADMIN'] },
     ];
 
     const navItems = allNavItems.filter(item => 
