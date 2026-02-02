@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { CreateAppointmentRequest } from '../../services/appointmentService';
 import { enterpriseService } from '../../services/enterpriseService';
-import { userService, User } from '../../services/userService';
+import { customerService, Customer } from '../../services/customerService';
 import { serviceOfferingService } from '../../services/serviceOfferingService';
 import { X, User as UserIcon, Scissors, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -21,14 +21,14 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     const { register, handleSubmit, setValue } = useForm<CreateAppointmentRequest>();
     const [isGuest, setIsGuest] = useState(false);
     const [employees, setEmployees] = useState<any[]>([]);
-    const [customers, setCustomers] = useState<User[]>([]);
+    const [customers, setCustomers] = useState<Customer[]>([]);
     const [services, setServices] = useState<any[]>([]);
 
     useEffect(() => {
         if (isOpen) {
             Promise.all([
                 enterpriseService.getEmployees(enterpriseId),
-                userService.getUsersByEnterprise(enterpriseId),
+                customerService.getCustomersByEnterprise(enterpriseId),
                 serviceOfferingService.getAllByEnterprise(enterpriseId)
             ]).then(([emp, cust, serv]) => {
                 setEmployees(emp);
@@ -77,7 +77,7 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                             const submitData: CreateAppointmentRequest = {
                                 ...data,
                                 enterpriseId,
-                                userId: isGuest ? null : (data.userId ? Number(data.userId) : null),
+                                customerId: isGuest ? null : (data.customerId ? Number(data.customerId) : null),
                                 employeeId: Number(data.employeeId),
                                 serviceId: Number(data.serviceId),
                                 customerName: isGuest ? data.customerName : undefined,
@@ -111,11 +111,11 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                                         <div className="relative">
                                             <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                                             <select 
-                                                {...register('userId', { required: !isGuest })} 
+                                                {...register('customerId', { required: !isGuest })} 
                                                 className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all appearance-none bg-white"
                                             >
                                                 <option value="">Seleccionar Cliente</option>
-                                                {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                                {customers.map(c => <option key={c.id} value={c.id}>{c.name} {c.phone ? `(${c.phone})` : ''}</option>)}
                                             </select>
                                         </div>
                                     </div>

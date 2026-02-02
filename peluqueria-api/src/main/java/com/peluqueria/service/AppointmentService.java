@@ -48,7 +48,10 @@ public class AppointmentService {
   }
 
   private Customer getOrCreateCustomer(CreateAppointmentRequest request, Enterprise enterprise) {
-    if (request.getUserId() != null) {
+    if (request.getCustomerId() != null) {
+      return customerRepository.findById(request.getCustomerId())
+          .orElseThrow(() -> new RuntimeException("Customer not found"));
+    } else if (request.getUserId() != null) {
       // Registered User
       return customerRepository.findByEnterpriseIdAndUserId(enterprise.getId(), request.getUserId())
           .orElseGet(() -> {

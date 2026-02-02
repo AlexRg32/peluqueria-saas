@@ -21,6 +21,7 @@ export interface Appointment {
 
 export interface CreateAppointmentRequest {
     userId?: number | null;
+    customerId?: number | null;
     customerName?: string;
     customerPhone?: string;
     employeeId: number;
