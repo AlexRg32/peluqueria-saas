@@ -10,4 +10,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
   void deleteByEmployeeId(Long employeeId);
 
   void deleteByCustomerId(Long customerId);
+
+  List<Appointment> findByCustomerIdOrderByDateDesc(Long customerId);
 }
