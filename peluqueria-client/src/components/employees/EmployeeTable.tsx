@@ -1,13 +1,14 @@
 import { User } from '../../services/userService';
-import { Mail, Phone, Shield, UserCheck, UserX, MoreVertical, Edit2, Trash2 } from 'lucide-react';
+import { Mail, Phone, Shield, UserCheck, UserX, MoreVertical, Edit2, Trash2, Clock } from 'lucide-react';
 
 interface EmployeeTableProps {
     employees: User[];
     onEdit: (user: User) => void;
     onDelete: (id: number) => void;
+    onSchedule: (user: User) => void;
 }
 
-export const EmployeeTable = ({ employees, onEdit, onDelete }: EmployeeTableProps) => {
+export const EmployeeTable = ({ employees, onEdit, onDelete, onSchedule }: EmployeeTableProps) => {
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <div className="overflow-x-auto">
@@ -72,6 +73,13 @@ export const EmployeeTable = ({ employees, onEdit, onDelete }: EmployeeTableProp
                                     <div className="flex items-center justify-end">
                                         {/* Actions - visible on hover */}
                                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-2 group-hover:translate-x-0">
+                                            <button 
+                                                onClick={() => onSchedule(employee)}
+                                                className="p-2 hover:bg-brand-primary/10 hover:shadow-md rounded-lg text-brand-primary transition-all active:scale-90"
+                                                title="Configurar Horario"
+                                            >
+                                                <Clock size={16} />
+                                            </button>
                                             <button 
                                                 onClick={() => onEdit(employee)}
                                                 className="p-2 hover:bg-white hover:shadow-md rounded-lg text-slate-600 transition-all active:scale-90"

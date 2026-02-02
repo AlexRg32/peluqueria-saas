@@ -24,7 +24,8 @@ public class WorkingHour {
 
   private String endTime;
 
-  private boolean is_day_off;
+  @jakarta.persistence.Column(name = "is_day_off")
+  private boolean dayOff;
 
   private String description;
 
@@ -33,6 +34,6 @@ public class WorkingHour {
   private Enterprise enterprise;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", nullable = false)
+  @JoinColumn(name = "user_id", nullable = true)
   private User user;
 }

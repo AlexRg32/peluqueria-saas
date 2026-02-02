@@ -3,6 +3,7 @@ import { userService, User } from '../services/userService';
 import { useAuth } from '../features/auth/hooks/useAuth';
 import { EmployeeTable } from '../components/employees/EmployeeTable';
 import { EmployeeModal } from '../components/employees/EmployeeModal';
+import { EmployeeScheduleModal } from '../components/employees/EmployeeScheduleModal';
 import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { Plus, Search, Users as UsersIcon, RefreshCw } from 'lucide-react';
 
@@ -15,6 +16,8 @@ const UsersPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null);
+    const [employeeForSchedule, setEmployeeForSchedule] = useState<User | null>(null);
+    const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
     const [employeeToDelete, setEmployeeToDelete] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -185,6 +188,10 @@ const UsersPage = () => {
                         setIsModalOpen(true);
                     }}
                     onDelete={handleDelete}
+                    onSchedule={(employee) => {
+                        setEmployeeForSchedule(employee);
+                        setIsScheduleModalOpen(true);
+                    }}
                 />
             )}
 
@@ -193,6 +200,12 @@ const UsersPage = () => {
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleCreateOrUpdate}
                 employee={selectedEmployee}
+            />
+
+            <EmployeeScheduleModal 
+                isOpen={isScheduleModalOpen}
+                onClose={() => setIsScheduleModalOpen(false)}
+                employee={employeeForSchedule}
             />
 
             <ConfirmModal 

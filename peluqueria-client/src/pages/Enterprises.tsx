@@ -16,9 +16,11 @@ import {
     MapPin,
     Mail,
     Globe2,
-    Info
+    Info,
+    Clock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { WorkingHourSettings } from '@/components/settings/WorkingHourSettings';
 
 const EnterprisePage = () => {
     const { user, updateBranding } = useAuth();
@@ -26,7 +28,7 @@ const EnterprisePage = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-    const [activeTab, setActiveTab] = useState<'general' | 'branding' | 'social'>('general');
+    const [activeTab, setActiveTab] = useState<'general' | 'branding' | 'social' | 'schedule'>('general');
 
     useEffect(() => {
         if (user?.enterpriseId) {
@@ -96,6 +98,7 @@ const EnterprisePage = () => {
     const tabs = [
         { id: 'general', label: 'Información General', icon: Info },
         { id: 'branding', label: 'Imagen y Marca', icon: Palette },
+        { id: 'schedule', label: 'Horarios de Apertura', icon: Clock },
         { id: 'social', label: 'Redes Sociales', icon: Share2 },
     ];
 
@@ -406,6 +409,22 @@ const EnterprisePage = () => {
                                             className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
                                             placeholder="+34600111222"
                                         />
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {activeTab === 'schedule' && (
+                            <motion.div 
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                className="space-y-6"
+                            >
+                                <div>
+                                    <h3 className="text-xl font-bold text-slate-900">Horario de Apertura</h3>
+                                    <p className="text-slate-500 text-sm mb-6">Configura el horario base de tu peluquería. Este horario servirá de referencia para tus clientes.</p>
+                                    {user?.enterpriseId && (
+                                        <WorkingHourSettings enterpriseId={user.enterpriseId} />
+                                    )}
                                 </div>
                             </motion.div>
                         )}
