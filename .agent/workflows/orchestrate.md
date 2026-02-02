@@ -45,3 +45,4 @@ The Agent MUST pass the `$PLAN_PATH` to every sub-workflow.
 
 - **Never invoke a sub-workflow without appending the PATH.**
 - **COMPONENTIZATION**: In React, always split logic and UI into separate components whenever logical, viable, and sensible.
+- **DESTRUCTIVE ACTIONS**: Always implement a confirmation modal when deleting any resource to ensure user intent and prevent data loss.

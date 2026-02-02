@@ -37,3 +37,7 @@ Global constraints for all agents in the SaaS Orchestrator Framework.
 - No hardcoded secrets. Use env variables.
 - Write tests (TDD) before implementation.
 - Defense in depth for all API endpoints.
+
+## 5. User Experience (UX)
+
+- **DESTRUCTIVE ACTIONS**: Always show a confirmation modal before deleting any resource (User, Appointment, Service, Customer, etc.) to prevent accidental data loss. This is mandatory for all frontend implementations.

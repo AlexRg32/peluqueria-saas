@@ -224,12 +224,18 @@ export const Route = createFileRoute('/my-route/')({
 
 ---
 
-## 10. Loading & Error Handling
+## 10. User Feedback, Error Handling & Confirmation
 
 ### Absolute Rule
 
 ❌ Never return early loaders
 ✅ Always rely on Suspense boundaries
+
+### Destructive Actions (Confirmation Required)
+
+* **MANDATORY**: Any action that deletes or permanently removes data (e.g., deleting a user, appointment, service, or customer) **must** show a confirmation modal before the mutation is triggered.
+* **Content**: The modal must clearly explain what is being deleted and mention any irreversible side effects (e.g., "This will also cancel all associated appointments").
+* **Implementation**: Use a standardized confirmation dialog component that matches the premium design system.
 
 ### User Feedback & Personalized Errors
 
