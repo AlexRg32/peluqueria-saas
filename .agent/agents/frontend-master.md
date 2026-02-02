@@ -18,3 +18,4 @@
 - **Styling**: Always use **Tailwind CSS**. Avoid vanilla CSS files unless for global resets.
 - **Aesthetics**: Ensure the implementation matches the "Premium" design ethos using Tailwind utility classes.
 - **Design System**: Strictly adhere to the design system tokens defined in `src/index.css` (@theme block). Use brand colors and consistent spacing/radius to ensure visual harmony across the entire app.
+- **Usability**: For long lists (e.g., Customers, Services), always use **compact searchable selects** (Combobox) that function as dropdowns/popovers and do NOT occupy the full screen.

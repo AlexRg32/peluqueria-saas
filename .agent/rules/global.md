@@ -41,3 +41,4 @@ Global constraints for all agents in the SaaS Orchestrator Framework.
 ## 5. User Experience (UX)
 
 - **DESTRUCTIVE ACTIONS**: Always show a confirmation modal before deleting any resource (User, Appointment, Service, Customer, etc.) to prevent accidental data loss. This is mandatory for all frontend implementations.
+- **SEARCHABLE SELECTS**: For any input field that involves selecting from a potentially large list (e.g., more than 10-15 items like Customers, Services, or Employees), **MANDATORY** to use a searchable select component (Combobox/Autocomplete). These components must be **compact** (dropdown/popover style) and **NOT occupy the full screen** to maintain a clean and non-intrusive UI.

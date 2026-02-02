@@ -245,6 +245,10 @@ export const Route = createFileRoute('/my-route/')({
 * **Validation Feedback**: Inline validation errors should be shown next to the fields whenever possible, in addition to a general error snackbar.
 * **Meaningful Messages**: Avoid generic "An error occurred". Use the message provided by the API.
 
+### Input Controls & Usability
+
+* **SEARCHABLE SELECTS**: For any field where the selection list could grow beyond 10-15 items (e.g., Customers, Services, Employees), **DO NOT** use standard HTML `<select>` elements. Use a searchable select (Combobox/Autocomplete) component. These must be **compact** (dropdown/popover style) and **NOT occupy the full screen** to ensure a premium and efficient user experience.
+
 ---
 
 ## 11. Performance Defaults
