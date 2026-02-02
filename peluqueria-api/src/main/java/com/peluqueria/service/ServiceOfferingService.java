@@ -1,35 +1,62 @@
 package com.peluqueria.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 
 import com.peluqueria.model.ServiceOffering;
+import com.peluqueria.dto.ServiceOfferingResponse;
 import com.peluqueria.repository.ServiceOfferingRepository;
+import com.peluqueria.repository.EnterpriseRepository;
+import com.peluqueria.exception.ResourceNotFoundException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ServiceOfferingService {
-  @Autowired
-  private ServiceOfferingRepository serviceOfferingRepository;
 
-  public List<ServiceOffering> getAllServicesByEnterpriseId(Long enterpriseId) {
-    return serviceOfferingRepository.findByEnterpriseId(enterpriseId);
+  private final ServiceOfferingRepository serviceOfferingRepository;
+  private final EnterpriseRepository enterpriseRepository;
+
+  public List<ServiceOfferingResponse> getAllServicesByEnterpriseId(Long enterpriseId) {
+    return serviceOfferingRepository.findByEnterpriseId(enterpriseId).stream()
+        .map(this::mapToResponse)
+        .collect(Collectors.toList());
   }
 
-  public ServiceOffering createServiceOffering(ServiceOffering serviceOffering) {
-    try {
-      return serviceOfferingRepository.save(serviceOffering);
-    } catch (Exception e) {
-      throw new RuntimeException("Error al crear el servicio");
-    }
+  public ServiceOfferingResponse createServiceOffering(ServiceOffering serviceOffering, Long enterpriseId) {
+    com.peluqueria.model.Enterprise enterprise = enterpriseRepository.findById(enterpriseId)
+        .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada"));
+    serviceOffering.setEnterprise(enterprise);
+    return mapToResponse(serviceOfferingRepository.save(serviceOffering));
+  }
+
+  public ServiceOfferingResponse getServiceByIdResponse(Long id) {
+    return serviceOfferingRepository.findById(id)
+        .map(this::mapToResponse)
+        .orElseThrow(() -> new ResourceNotFoundException("Servicio no encontrado"));
   }
 
   public ServiceOffering getServiceById(Long id) {
-    return serviceOfferingRepository.findById(id).orElse(null);
+    return serviceOfferingRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Servicio no encontrado"));
   }
 
   public void deleteService(Long id) {
     serviceOfferingRepository.deleteById(id);
+  }
+
+  private ServiceOfferingResponse mapToResponse(ServiceOffering service) {
+    return ServiceOfferingResponse.builder()
+        .id(service.getId())
+        .name(service.getName())
+        .description(service.getDescription())
+        .price(service.getPrice())
+        .image(service.getImage())
+        .duration(service.getDuration())
+        .category(service.getCategory())
+        .enterpriseId(service.getEnterprise() != null ? service.getEnterprise().getId() : null)
+        .build();
   }
 }

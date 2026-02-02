@@ -1,7 +1,7 @@
 package com.peluqueria.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
@@ -11,12 +11,10 @@ import com.peluqueria.repository.UserRepository;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
-  @Autowired
-  private UserRepository userRepository;
-
-  @Autowired
-  private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+  private final UserRepository userRepository;
+  private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
   public List<UserResponse> getAllUsers(Long enterpriseId) {
     return userRepository.findByEnterpriseId(enterpriseId).stream()

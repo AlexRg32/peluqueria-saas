@@ -19,6 +19,13 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(body);
   }
 
+  @ExceptionHandler(ResourceNotFoundException.class)
+  public ResponseEntity<Map<String, String>> handleResourceNotFoundException(ResourceNotFoundException exc) {
+    Map<String, String> body = new HashMap<>();
+    body.put("message", exc.getMessage());
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+  }
+
   @ExceptionHandler(Exception.class)
   public ResponseEntity<Map<String, String>> handleGeneralException(Exception exc) {
     Map<String, String> body = new HashMap<>();
