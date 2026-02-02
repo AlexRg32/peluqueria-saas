@@ -12,4 +12,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
   void deleteByCustomerId(Long customerId);
 
   List<Appointment> findByCustomerIdOrderByDateDesc(Long customerId);
+
+  long countByEnterpriseId(Long enterpriseId);
 }
