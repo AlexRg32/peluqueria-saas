@@ -5,6 +5,7 @@ import ServicesPage from './pages/Services';
 import UsersPage from './pages/Users';
 import CalendarPage from './pages/CalendarPage';
 import CustomersPage from './pages/Customers';
+import DashboardPage from './pages/Dashboard';
 import { AuthProvider } from './features/auth/context/AuthContext';
 import RequireAuth from './features/auth/components/RequireAuth';
 import ProtectedRoute from './features/auth/components/ProtectedRoute';
@@ -23,9 +24,10 @@ function App() {
           {/* Protected Routes */}
           <Route element={<RequireAuth />}>
             <Route path="/" element={<MainLayout />}>
-              <Route index element={<Navigate to="/empresas" replace />} />
+              <Route index element={<Navigate to="/dashboard" replace />} />
               
               {/* Common Routes */}
+              <Route path="dashboard" element={<DashboardPage />} />
               <Route path="empresas" element={<EnterprisePage />} />
               
               {/* Admin & Super Admin Routes */}

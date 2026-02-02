@@ -11,6 +11,7 @@ const Sidebar = ({ isMobile, onClose }: SidebarProps) => {
     const { user } = useAuth();
 
     const allNavItems = [
+        { name: 'Dashboard', path: '/dashboard', roles: ['ADMIN', 'EMPLEADO', 'SUPER_ADMIN'] },
         { name: 'Empresas Global', path: '/superadmin/empresas', roles: ['SUPER_ADMIN'] },
         { name: 'Mi Peluquería', path: '/empresas', roles: ['ADMIN'] },
         { name: 'Plataforma', path: '/empresas', roles: ['EMPLEADO'] },
