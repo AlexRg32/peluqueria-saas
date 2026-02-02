@@ -21,7 +21,13 @@ Global constraints for all agents in the SaaS Orchestrator Framework.
 ## 3. Technology Stack
 
 - **BACKEND**: Spring Boot (Java) is the standard. Use Maven for dependency management.
-- **API**: REST is the standard for communication. **MANDATORY**: Use DTOs for all API requests and responses. Never expose entities.
+- **BACKEND ARCHITECTURE**:
+  - **Layered Architecture is MANDATORY**: `Controller → Service → Repository → Database`.
+  - **Controllers**: Handlers for HTTP requests/responses ONLY. **Zero business logic**. Coordinate calls to services.
+  - **Services**: All business logic (validation, calculations, orchestration) must reside here.
+  - **Repositories**: Data access and persistence ONLY. No business logic.
+  - **DTOs**: **MANDATORY** for all API communication. Never expose or accept JPA entities directly.
+- **API**: REST is the standard for communication.
 - **FRONTEND**: React (Vite) with TypeScript.
 - **COMPONENTIZATION**: Favor modularity. Whenever logical, viable, and sensible, split React code into separate components rather than monolithic files.
 - **DESIGN**: Use **Tailwind CSS** for all styling. Maintain premium visual aesthetics by strictly following the design system defined in `peluqueria-client/src/index.css` (@theme block). Consistently use brand colors, radius, and spacing tokens.

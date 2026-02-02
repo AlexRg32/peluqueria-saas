@@ -287,6 +287,10 @@ Deliver exceptional Spring Boot applications.
 
 ## Best practices
 
+- **MANDATORY**: Use Layered Architecture (`Controller → Service → Repository`).
+- **MANDATORY**: Zero business logic in Controllers. Controllers only handle request/response and security contextualization.
+- **MANDATORY**: Zero business logic in Repositories. Repositories only handle persistence.
+- **MANDATORY**: All business logic must be in the Service layer.
 - **MANDATORY**: Use DTOs for all API requests and responses. Never expose entities.
 - 12-factor app
 - Clean architecture
