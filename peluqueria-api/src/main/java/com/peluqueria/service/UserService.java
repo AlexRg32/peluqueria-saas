@@ -8,12 +8,17 @@ import java.util.List;
 import com.peluqueria.dto.UserResponse;
 import com.peluqueria.model.User;
 import com.peluqueria.repository.UserRepository;
+import com.peluqueria.repository.AppointmentRepository;
+import com.peluqueria.repository.CustomerRepository;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
   private final UserRepository userRepository;
+  private final AppointmentRepository appointmentRepository;
+  private final CustomerRepository customerRepository;
   private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
   public List<UserResponse> getAllUsers(Long enterpriseId) {
@@ -71,7 +76,23 @@ public class UserService {
         .build();
   }
 
+  @Transactional
   public void deleteUser(Long id) {
-    userRepository.deleteById(id);
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+    // 1. Delete appointments where user is the employee
+    appointmentRepository.deleteByEmployeeId(id);
+
+    // 2. Check if user is linked to a customer record
+    customerRepository.findByUserId(id).ifPresent(customer -> {
+      // Delete customer's appointments
+      appointmentRepository.deleteByCustomerId(customer.getId());
+      // Delete customer record
+      customerRepository.delete(customer);
+    });
+
+    // 3. Delete user
+    userRepository.delete(user);
   }
 }

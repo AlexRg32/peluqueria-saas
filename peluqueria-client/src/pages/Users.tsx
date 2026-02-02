@@ -3,6 +3,7 @@ import { userService, User } from '../services/userService';
 import { useAuth } from '../features/auth/hooks/useAuth';
 import { EmployeeTable } from '../components/employees/EmployeeTable';
 import { EmployeeModal } from '../components/employees/EmployeeModal';
+import { ConfirmModal } from '../components/ui/ConfirmModal';
 import { Plus, Search, Users as UsersIcon, RefreshCw } from 'lucide-react';
 
 const UsersPage = () => {
@@ -12,9 +13,12 @@ const UsersPage = () => {
     const [employees, setEmployees] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState<User | null>(null);
+    const [employeeToDelete, setEmployeeToDelete] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const fetchEmployees = async () => {
         if (!enterpriseId) return;
@@ -67,14 +71,25 @@ const UsersPage = () => {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!window.confirm('¿Estás seguro de que deseas eliminar este usuario?')) return;
+    const handleDelete = (id: number) => {
+        setEmployeeToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!employeeToDelete) return;
+        
         try {
-            await userService.deleteUser(id);
-            setEmployees(employees.filter(e => e.id !== id));
+            setIsDeleting(true);
+            await userService.deleteUser(employeeToDelete);
+            setEmployees(employees.filter(e => e.id !== employeeToDelete));
+            setIsDeleteModalOpen(false);
         } catch (err) {
             console.error(err);
             alert('Error al eliminar el usuario');
+        } finally {
+            setIsDeleting(false);
+            setEmployeeToDelete(null);
         }
     };
 
@@ -178,6 +193,18 @@ const UsersPage = () => {
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleCreateOrUpdate}
                 employee={selectedEmployee}
+            />
+
+            <ConfirmModal 
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={confirmDelete}
+                title="¿Eliminar usuario definitivamente?"
+                message="¡Atención! Al eliminar este usuario se eliminarán también todas sus citas asociadas y registros vinculados. Esta acción es permanente y no se puede deshacer."
+                confirmText="Eliminar permanentemente"
+                cancelText="Mantener usuario"
+                variant="danger"
+                isLoading={isDeleting}
             />
         </section>
     );

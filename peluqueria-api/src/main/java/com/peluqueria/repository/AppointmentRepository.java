@@ -6,4 +6,8 @@ import com.peluqueria.model.Appointment;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
   List<Appointment> findByEnterpriseId(Long enterpriseId);
+
+  void deleteByEmployeeId(Long employeeId);
+
+  void deleteByCustomerId(Long customerId);
 }
