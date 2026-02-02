@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { CreateAppointmentRequest } from '../../services/appointmentService';
 import { enterpriseService } from '../../services/enterpriseService';
 import { customerService, Customer } from '../../services/customerService';
 import { serviceOfferingService } from '../../services/serviceOfferingService';
 import { X, User as UserIcon, Scissors, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SearchableSelect, Option } from '../ui/SearchableSelect';
 
 interface CreateAppointmentModalProps {
     isOpen: boolean;
@@ -18,7 +19,7 @@ interface CreateAppointmentModalProps {
 export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     isOpen, onClose, onSubmit, enterpriseId, initialDate
 }) => {
-    const { register, handleSubmit, setValue } = useForm<CreateAppointmentRequest>();
+    const { register, handleSubmit, setValue, control } = useForm<CreateAppointmentRequest>();
     const [isGuest, setIsGuest] = useState(false);
     const [employees, setEmployees] = useState<any[]>([]);
     const [customers, setCustomers] = useState<Customer[]>([]);
@@ -43,6 +44,23 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
             }
         }
     }, [isOpen, enterpriseId, initialDate, setValue]);
+
+    const customerOptions: Option[] = customers.map(c => ({
+        value: c.id,
+        label: c.name,
+        subLabel: c.phone || undefined
+    }));
+
+    const employeeOptions: Option[] = employees.map(e => ({
+        value: e.id,
+        label: e.name
+    }));
+
+    const serviceOptions: Option[] = services.map(s => ({
+        value: s.id,
+        label: s.name,
+        subLabel: `${s.price}€ (${s.duration} min)`
+    }));
 
     return (
         <AnimatePresence>
@@ -106,23 +124,31 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {!isGuest ? (
-                                    <div className="space-y-2 col-span-1 md:col-span-2">
-                                        <label className="text-sm font-semibold text-slate-700 ml-1">Cliente Registrado</label>
-                                        <div className="relative">
-                                            <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                            <select 
-                                                {...register('customerId', { required: !isGuest })} 
-                                                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all appearance-none bg-white"
-                                            >
-                                                <option value="">Seleccionar Cliente</option>
-                                                {customers.map(c => <option key={c.id} value={c.id}>{c.name} {c.phone ? `(${c.phone})` : ''}</option>)}
-                                            </select>
-                                        </div>
+                                    <div className="col-span-1 md:col-span-2">
+                                        <Controller
+                                            control={control}
+                                            name="customerId"
+                                            rules={{ required: !isGuest }}
+                                            render={({ field }) => (
+                                                <SearchableSelect
+                                                    label="Cliente Registrado"
+                                                    placeholder="Seleccionar Cliente"
+                                                    icon={UserIcon}
+                                                    options={customerOptions}
+                                                    value={field.value || ''}
+                                                    onChange={field.onChange}
+                                                    required={!isGuest}
+                                                />
+                                            )}
+                                        />
                                     </div>
                                 ) : (
                                     <>
                                         <div className="space-y-2">
-                                            <label className="text-sm font-semibold text-slate-700 ml-1">Nombre Cliente</label>
+                                            <label className="text-sm font-semibold text-slate-700 ml-1 flex items-center gap-2">
+                                                <UserIcon size={14} className="text-brand-primary" />
+                                                Nombre Cliente
+                                            </label>
                                             <div className="relative">
                                                 <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                                                 <input 
@@ -134,7 +160,10 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                                             </div>
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-sm font-semibold text-slate-700 ml-1">Teléfono</label>
+                                            <label className="text-sm font-semibold text-slate-700 ml-1 flex items-center gap-2">
+                                                <UserIcon size={14} className="text-brand-primary" />
+                                                Teléfono
+                                            </label>
                                             <div className="relative">
                                                 <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                                                 <input 
@@ -148,36 +177,49 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                                     </>
                                 )}
 
-                                <div className="space-y-2 col-span-1 md:col-span-2">
-                                    <label className="text-sm font-semibold text-slate-700 ml-1">Empleado</label>
-                                    <div className="relative">
-                                        <Scissors className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                        <select 
-                                            {...register('employeeId', { required: true })} 
-                                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all appearance-none bg-white"
-                                        >
-                                            <option value="">Seleccionar empleado</option>
-                                            {employees.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
-                                        </select>
-                                    </div>
+                                <div className="col-span-1 md:col-span-2">
+                                    <Controller
+                                        control={control}
+                                        name="employeeId"
+                                        rules={{ required: true }}
+                                        render={({ field }) => (
+                                            <SearchableSelect
+                                                label="Empleado"
+                                                placeholder="Seleccionar empleado"
+                                                icon={Scissors}
+                                                options={employeeOptions}
+                                                value={field.value || ''}
+                                                onChange={field.onChange}
+                                                required
+                                            />
+                                        )}
+                                    />
+                                </div>
+
+                                <div className="col-span-1 md:col-span-2">
+                                    <Controller
+                                        control={control}
+                                        name="serviceId"
+                                        rules={{ required: true }}
+                                        render={({ field }) => (
+                                            <SearchableSelect
+                                                label="Servicio"
+                                                placeholder="Seleccionar un servicio"
+                                                icon={Scissors}
+                                                options={serviceOptions}
+                                                value={field.value || ''}
+                                                onChange={field.onChange}
+                                                required
+                                            />
+                                        )}
+                                    />
                                 </div>
 
                                 <div className="space-y-2 col-span-1 md:col-span-2">
-                                    <label className="text-sm font-semibold text-slate-700 ml-1">Servicio</label>
-                                    <div className="relative">
-                                        <Scissors className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                        <select 
-                                            {...register('serviceId', { required: true })} 
-                                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all appearance-none bg-white"
-                                        >
-                                            <option value="">Seleccionar un servicio</option>
-                                            {services.map(s => <option key={s.id} value={s.id}>{s.name} — {s.price}€ ({s.duration} min)</option>)}
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2 col-span-1 md:col-span-2">
-                                    <label className="text-sm font-semibold text-slate-700 ml-1">Fecha y Hora</label>
+                                    <label className="text-sm font-semibold text-slate-700 ml-1 flex items-center gap-2">
+                                        <Calendar size={14} className="text-brand-primary" />
+                                        Fecha y Hora
+                                    </label>
                                     <div className="relative">
                                         <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                                         <input 

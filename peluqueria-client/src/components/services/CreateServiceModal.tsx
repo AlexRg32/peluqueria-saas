@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { ServiceOffering } from '../../services/serviceOfferingService';
+import { X, Tag } from 'lucide-react';
+import { SearchableSelect, Option } from '../ui/SearchableSelect';
 
 interface CreateServiceModalProps {
     isOpen: boolean;
@@ -7,6 +9,14 @@ interface CreateServiceModalProps {
     onSubmit: (service: ServiceOffering, imageFile?: File) => Promise<void>;
     enterpriseId: number;
 }
+
+const categoryOptions: Option[] = [
+    { value: 'Corte', label: 'Corte' },
+    { value: 'Barba', label: 'Barba' },
+    { value: 'Color', label: 'Color' },
+    { value: 'Tratamiento', label: 'Tratamiento' },
+    { value: 'Otro', label: 'Otro' }
+];
 
 export const CreateServiceModal: React.FC<CreateServiceModalProps> = ({ isOpen, onClose, onSubmit, enterpriseId }) => {
     const [formData, setFormData] = useState<Partial<ServiceOffering>>({
@@ -73,7 +83,7 @@ export const CreateServiceModal: React.FC<CreateServiceModalProps> = ({ isOpen, 
                     <h2 className="text-2xl font-bold tracking-tight">Nuevo Servicio</h2>
                     <p className="text-slate-400 text-sm mt-1">Define los detalles del nuevo servicio para tu negocio.</p>
                     <button onClick={onClose} className="absolute top-6 right-6 text-slate-400 hover:text-white transition-colors">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        <X size={24} />
                     </button>
                 </div>
                 
@@ -116,20 +126,14 @@ export const CreateServiceModal: React.FC<CreateServiceModalProps> = ({ isOpen, 
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-semibold text-slate-700 ml-1">Categoría</label>
-                        <select 
-                            className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all appearance-none bg-white"
-                            value={formData.category}
-                            onChange={(e) => setFormData({...formData, category: e.target.value})}
-                        >
-                            <option value="Corte">Corte</option>
-                            <option value="Barba">Barba</option>
-                            <option value="Color">Color</option>
-                            <option value="Tratamiento">Tratamiento</option>
-                            <option value="Otro">Otro</option>
-                        </select>
-                    </div>
+                    <SearchableSelect
+                        label="Categoría"
+                        options={categoryOptions}
+                        value={formData.category || ''}
+                        onChange={(val) => setFormData({ ...formData, category: val as any })}
+                        icon={Tag}
+                        required
+                    />
 
                     <div className="space-y-2">
                         <label className="text-sm font-semibold text-slate-700 ml-1">Imagen del Servicio</label>

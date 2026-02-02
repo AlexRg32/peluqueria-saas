@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { User } from '../../services/userService';
 import { X, Save, User as UserIcon, Mail, Phone, Lock, Shield } from 'lucide-react';
+import { SearchableSelect, Option } from '../ui/SearchableSelect';
 
 interface EmployeeModalProps {
     isOpen: boolean;
@@ -8,6 +9,11 @@ interface EmployeeModalProps {
     onSubmit: (user: Partial<User>) => Promise<void>;
     employee?: User | null;
 }
+
+const roleOptions: Option[] = [
+    { value: 'EMPLEADO', label: 'Empleado (Barbero/Peluquero)' },
+    { value: 'ADMIN', label: 'Administrador' }
+];
 
 export const EmployeeModal = ({ isOpen, onClose, onSubmit, employee }: EmployeeModalProps) => {
     const [formData, setFormData] = useState<Partial<User>>({
@@ -118,20 +124,14 @@ export const EmployeeModal = ({ isOpen, onClose, onSubmit, employee }: EmployeeM
                             </div>
                         </div>
 
-                        <div className="space-y-1.5">
-                            <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                                <Shield size={14} className="text-brand-primary" />
-                                Rol en la empresa
-                            </label>
-                            <select 
-                                value={formData.role}
-                                onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
-                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all appearance-none cursor-pointer"
-                            >
-                                <option value="EMPLEADO">Empleado (Barbero/Peluquero)</option>
-                                <option value="ADMIN">Administrador</option>
-                            </select>
-                        </div>
+                        <SearchableSelect
+                            label="Rol en la empresa"
+                            options={roleOptions}
+                            value={formData.role || ''}
+                            onChange={(val) => setFormData({ ...formData, role: val as any })}
+                            icon={Shield}
+                            required
+                        />
 
                         <div className="space-y-1.5">
                             <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
