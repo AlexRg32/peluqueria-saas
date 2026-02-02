@@ -36,4 +36,5 @@ public class ServiceOffering {
   @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
   private Enterprise enterprise;
 
+  private boolean deleted = false;
 }

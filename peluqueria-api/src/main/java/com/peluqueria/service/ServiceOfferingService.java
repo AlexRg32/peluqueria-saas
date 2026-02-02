@@ -20,7 +20,7 @@ public class ServiceOfferingService {
   private final EnterpriseRepository enterpriseRepository;
 
   public List<ServiceOfferingResponse> getAllServicesByEnterpriseId(Long enterpriseId) {
-    return serviceOfferingRepository.findByEnterpriseId(enterpriseId).stream()
+    return serviceOfferingRepository.findByEnterpriseIdAndDeletedFalse(enterpriseId).stream()
         .map(this::mapToResponse)
         .collect(Collectors.toList());
   }
@@ -44,7 +44,10 @@ public class ServiceOfferingService {
   }
 
   public void deleteService(Long id) {
-    serviceOfferingRepository.deleteById(id);
+    ServiceOffering service = serviceOfferingRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Servicio no encontrado"));
+    service.setDeleted(true);
+    serviceOfferingRepository.save(service);
   }
 
   private ServiceOfferingResponse mapToResponse(ServiceOffering service) {

@@ -26,6 +26,14 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
   }
 
+  @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+  public ResponseEntity<Map<String, String>> handleDataIntegrityViolationException(
+      org.springframework.dao.DataIntegrityViolationException exc) {
+    Map<String, String> body = new HashMap<>();
+    body.put("message", "No se puede eliminar este recurso porque está siendo utilizado por otros registros.");
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+  }
+
   @ExceptionHandler(Exception.class)
   public ResponseEntity<Map<String, String>> handleGeneralException(Exception exc) {
     Map<String, String> body = new HashMap<>();

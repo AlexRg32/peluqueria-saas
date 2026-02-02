@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface ServiceOfferingRepository extends JpaRepository<ServiceOffering, Long> {
   List<ServiceOffering> findByEnterpriseId(Long enterpriseId);
+
+  List<ServiceOffering> findByEnterpriseIdAndDeletedFalse(Long enterpriseId);
 }
