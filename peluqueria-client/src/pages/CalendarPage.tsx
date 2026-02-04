@@ -4,8 +4,9 @@ import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useAuth } from '../features/auth/hooks/useAuth';
-import { appointmentService, CreateAppointmentRequest } from '../services/appointmentService';
+import { appointmentService, CreateAppointmentRequest, Appointment } from '../services/appointmentService';
 import { CreateAppointmentModal } from '../components/appointments/CreateAppointmentModal';
+import { AppointmentDetailsModal } from '../components/appointments/AppointmentDetailsModal';
 import { Plus } from 'lucide-react';
 
 const locales = {
@@ -41,14 +42,16 @@ interface CalendarEvent {
     title: string;
     start: Date;
     end: Date;
-    resource: any;
+    resource: Appointment;
 }
 
 const CalendarPage = () => {
     const { user } = useAuth();
     const [events, setEvents] = useState<CalendarEvent[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+    const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
     const [view, setView] = useState<View>(Views.WEEK);
 
     const loadAppointments = async () => {
@@ -63,6 +66,12 @@ const CalendarPage = () => {
                     resource: app
                 }));
                 setEvents(mappedEvents);
+                
+                // Refresh selected appointment if it was open
+                if (selectedAppointment) {
+                    const updated = data.find(a => a.id === selectedAppointment.id);
+                    if (updated) setSelectedAppointment(updated);
+                }
             } catch (err) {
                 console.error(err);
             }
@@ -71,11 +80,16 @@ const CalendarPage = () => {
 
     useEffect(() => {
         loadAppointments();
-    }, [user?.enterpriseId]);
+    }, [user?.enterpriseId, selectedAppointment?.id]); // Added selectedAppointment.id to dependency array to re-fetch if the selected appointment changes
 
     const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
         setSelectedDate(slotInfo.start);
         setIsModalOpen(true);
+    };
+
+    const handleSelectEvent = (event: CalendarEvent) => {
+        setSelectedAppointment(event.resource);
+        setIsDetailsOpen(true);
     };
 
     const handleCreateAppointment = async (data: CreateAppointmentRequest) => {
@@ -124,18 +138,23 @@ const CalendarPage = () => {
                         onView={setView}
                         selectable
                         onSelectSlot={handleSelectSlot}
-                        eventPropGetter={() => ({
-                            style: {
-                                backgroundColor: 'var(--color-brand-primary)',
-                                borderRadius: '10px',
-                                color: 'white',
-                                border: 'none',
-                                fontSize: '0.8rem',
-                                fontWeight: '600',
-                                padding: '4px 8px',
-                                boxShadow: 'var(--shadow-brand)'
-                            }
-                        })}
+                        onSelectEvent={handleSelectEvent}
+                        eventPropGetter={(event: CalendarEvent) => {
+                            const isPaid = event.resource.paid;
+                            return {
+                                style: {
+                                    backgroundColor: isPaid ? 'var(--color-emerald-500, #10b981)' : 'var(--color-brand-primary)',
+                                    borderRadius: '10px',
+                                    color: 'white',
+                                    border: 'none',
+                                    fontSize: '0.8rem',
+                                    fontWeight: '600',
+                                    padding: '4px 8px',
+                                    boxShadow: 'var(--shadow-brand)',
+                                    opacity: isPaid ? 0.7 : 1
+                                }
+                            };
+                        }}
                     />
                 </div>
             </div>
@@ -149,6 +168,13 @@ const CalendarPage = () => {
                     initialDate={selectedDate}
                 />
             )}
+
+            <AppointmentDetailsModal 
+                isOpen={isDetailsOpen}
+                onClose={() => setIsDetailsOpen(false)}
+                appointment={selectedAppointment}
+                onStatusUpdate={loadAppointments}
+            />
         </section>
     );
 };

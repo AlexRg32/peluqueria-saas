@@ -21,4 +21,7 @@ public class AppointmentResponse {
   private Integer duration;
   private double price;
   private String status;
+  private boolean paid;
+  private String paymentMethod;
+  private LocalDateTime paidAt;
 }

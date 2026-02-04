@@ -10,7 +10,10 @@ import lombok.Data;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 
 @Entity
 @Data
@@ -39,9 +42,17 @@ public class Appointment {
   @JoinColumn(name = "service_id", nullable = false)
   private ServiceOffering service;
 
-  @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
+  @Enumerated(EnumType.STRING)
   private AppointmentStatus status = AppointmentStatus.PENDING;
 
   private double price;
+
+  @Column(name = "paid")
+  private boolean paid = false;
+
+  @Enumerated(EnumType.STRING)
+  private PaymentMethod paymentMethod;
+
+  private LocalDateTime paidAt;
 
 }

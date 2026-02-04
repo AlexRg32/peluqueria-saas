@@ -90,6 +90,18 @@ public class AppointmentService {
         .collect(Collectors.toList());
   }
 
+  public AppointmentResponse checkout(Long id, PaymentMethod method) {
+    Appointment appointment = appointmentRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Appointment not found"));
+
+    appointment.setPaid(true);
+    appointment.setPaymentMethod(method);
+    appointment.setPaidAt(java.time.LocalDateTime.now());
+    appointment.setStatus(AppointmentStatus.COMPLETED);
+
+    return mapToResponse(appointmentRepository.save(appointment));
+  }
+
   private AppointmentResponse mapToResponse(Appointment a) {
     Customer c = a.getCustomer();
     return AppointmentResponse.builder()
@@ -102,6 +114,9 @@ public class AppointmentService {
         .duration(a.getService().getDuration())
         .price(a.getPrice())
         .status(a.getStatus().name())
+        .paid(a.isPaid())
+        .paymentMethod(a.getPaymentMethod() != null ? a.getPaymentMethod().name() : null)
+        .paidAt(a.getPaidAt())
         .build();
   }
 }

@@ -17,6 +17,9 @@ export interface Appointment {
     duration: number;
     price: number;
     status: AppointmentStatus | string;
+    paid: boolean;
+    paymentMethod?: 'CASH' | 'CARD';
+    paidAt?: string;
 }
 
 export interface CreateAppointmentRequest {
@@ -40,6 +43,13 @@ export const appointmentService = {
 
     create: async (data: CreateAppointmentRequest) => {
         const response = await apiClient.post<Appointment>('/api/appointments', data);
+        return response.data;
+    },
+
+    checkout: async (id: number, paymentMethod: 'CASH' | 'CARD') => {
+        const response = await apiClient.post<Appointment>(`/api/appointments/${id}/checkout`, {
+            paymentMethod
+        });
         return response.data;
     }
 };
