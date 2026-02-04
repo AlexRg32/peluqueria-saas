@@ -60,9 +60,9 @@ export const EmployeeModal = ({ isOpen, onClose, onSubmit, employee }: EmployeeM
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm transition-all">
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-300">
-                <div className="px-8 py-6 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm transition-all overflow-y-auto custom-scrollbar">
+            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-visible animate-in fade-in zoom-in duration-300 my-auto">
+                <div className="px-8 py-6 bg-slate-50 border-b border-slate-100 flex items-center justify-between rounded-t-[24px]">
                     <div>
                         <h2 className="text-xl font-bold text-slate-900">
                             {employee ? 'Editar Empleado' : 'Añadir Nuevo Empleado'}

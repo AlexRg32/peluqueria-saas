@@ -77,9 +77,9 @@ export const CreateServiceModal: React.FC<CreateServiceModalProps> = ({ isOpen, 
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-                <div className="bg-slate-900 px-8 py-6 text-white relative">
+        <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto custom-scrollbar">
+            <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-visible animate-in fade-in zoom-in duration-200 my-auto">
+                <div className="bg-slate-900 px-8 py-6 text-white relative rounded-t-[16px]">
                     <h2 className="text-2xl font-bold tracking-tight">Nuevo Servicio</h2>
                     <p className="text-slate-400 text-sm mt-1">Define los detalles del nuevo servicio para tu negocio.</p>
                     <button onClick={onClose} className="absolute top-6 right-6 text-slate-400 hover:text-white transition-colors">
@@ -87,7 +87,7 @@ export const CreateServiceModal: React.FC<CreateServiceModalProps> = ({ isOpen, 
                     </button>
                 </div>
                 
-                <form onSubmit={handleSubmit} className="p-8 space-y-6 max-h-[80vh] overflow-y-auto">
+                <form onSubmit={handleSubmit} className="p-8 space-y-6">
                     <div className="space-y-2">
                         <label className="text-sm font-semibold text-slate-700 ml-1">Nombre del Servicio</label>
                         <input 

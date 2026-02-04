@@ -54,7 +54,7 @@ export const ConfirmModal = ({
 
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+            <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-4 sm:p-6 overflow-y-auto custom-scrollbar">
                 {/* Overlay */}
                 <motion.div 
                     initial={{ opacity: 0 }}
@@ -69,7 +69,7 @@ export const ConfirmModal = ({
                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden z-10"
+                    className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-visible z-10 my-auto"
                 >
                     <div className="p-6">
                         <div className="flex justify-between items-start mb-6">

@@ -28,7 +28,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-[60] flex items-start sm:items-center justify-center p-4 overflow-y-auto custom-scrollbar">
                     <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -41,9 +41,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden relative z-10 border border-slate-100"
+                        className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-visible relative z-10 border border-slate-100 my-auto"
                     >
-                        <header className="bg-slate-900 px-8 py-6 text-white relative">
+                        <header className="bg-slate-900 px-8 py-6 text-white relative rounded-t-[24px]">
                             <h2 className="text-2xl font-bold tracking-tight">Cobrar Cita</h2>
                             <p className="text-slate-400 text-sm mt-1">Selecciona el método de pago para finalizar.</p>
                             <button 

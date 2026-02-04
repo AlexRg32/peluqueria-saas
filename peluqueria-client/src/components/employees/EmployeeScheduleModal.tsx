@@ -12,9 +12,9 @@ export const EmployeeScheduleModal = ({ isOpen, onClose, employee }: EmployeeSch
     if (!isOpen || !employee) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm transition-all">
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl overflow-hidden animate-in fade-in zoom-in duration-300">
-                <div className="px-8 py-6 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm transition-all overflow-y-auto custom-scrollbar">
+            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl overflow-visible animate-in fade-in zoom-in duration-300 my-auto">
+                <div className="px-8 py-6 bg-slate-50 border-b border-slate-100 flex items-center justify-between rounded-t-[24px]">
                     <div>
                         <h2 className="text-xl font-bold text-slate-900">
                             Horario de {employee.name}
@@ -29,7 +29,7 @@ export const EmployeeScheduleModal = ({ isOpen, onClose, employee }: EmployeeSch
                     </button>
                 </div>
 
-                <div className="p-8 max-h-[70vh] overflow-y-auto">
+                <div className="p-8">
                     {(employee.enterpriseId || employee.enterprise?.id) && (
                         <WorkingHourSettings 
                             enterpriseId={employee.enterpriseId || employee.enterprise!.id} 
@@ -38,7 +38,7 @@ export const EmployeeScheduleModal = ({ isOpen, onClose, employee }: EmployeeSch
                     )}
                 </div>
                 
-                <div className="px-8 py-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+                <div className="px-8 py-4 bg-slate-50 border-t border-slate-100 flex justify-end rounded-b-[24px]">
                     <button 
                         onClick={onClose}
                         className="px-6 py-2 bg-white border border-slate-200 text-slate-600 font-semibold rounded-xl hover:bg-slate-50 transition-all active:scale-95"

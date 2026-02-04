@@ -70,7 +70,7 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-4 overflow-y-auto custom-scrollbar">
                     <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -83,9 +83,9 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden relative z-10 border border-slate-100"
+                        className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-visible relative z-10 border border-slate-100 my-auto"
                     >
-                        <header className="bg-slate-900 px-8 py-6 text-white relative">
+                        <header className="bg-slate-900 px-8 py-6 text-white relative rounded-t-[22px]">
                             <h2 className="text-2xl font-bold tracking-tight">Nueva Cita</h2>
                             <p className="text-slate-400 text-sm mt-1">Completa los datos para agendar el servicio.</p>
                             <button 
@@ -110,7 +110,7 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                         })} className="p-8 space-y-6 relative">
                             
                             {isLoading && (
-                                <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-50 flex items-center justify-center rounded-b-3xl">
+                                <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-50 flex items-center justify-center rounded-b-[22px]">
                                     <div className="flex flex-col items-center gap-3">
                                         <div className="w-8 h-8 border-4 border-brand-primary border-t-transparent rounded-full animate-spin" />
                                         <p className="text-sm font-bold text-slate-600">Cargando datos...</p>

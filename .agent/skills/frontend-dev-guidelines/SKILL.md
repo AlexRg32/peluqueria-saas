@@ -251,7 +251,31 @@ export const Route = createFileRoute('/my-route/')({
 
 ---
 
-## 11. Performance Defaults
+## 11. Modal & Overlay UX Standards
+
+### 1. Scroll Management
+
+* **Overlay Scroll**: Modals and overlays should handle scroll at the **outermost level** (the backdrop/overlay container).
+* Use `overflow-y-auto` and `custom-scrollbar` on the fixed overlay.
+* Use `items-start sm:items-center` for proper responsive centering and to prevent the top of the modal from being cut off on small screens.
+
+### 2. Clipping & Overflow
+
+* **Standard Rule**: Modal main containers MUST NOT use `overflow: hidden`. Doing so clips absolute-positioned children like dropdowns, selects, or tooltips.
+* Use `overflow: visible` (default) or `overflow: clip` only if strictly necessary for animations, but always verify it doesn't break interactive overlays.
+
+### 3. Internal Form Scroll (Avoid)
+
+* Avoid `max-h-[80vh] overflow-y-auto` on the form itself within a modal. This creates "scroll-inside-scroll" and clips floating selectors. Prefer letting the whole modal scroll within the overlay.
+
+### 4. Aesthetics
+
+* **Scrollbars**: Always apply `custom-scrollbar` utility for a consistent, premium look.
+* **Rounded Corners**: Ensure internal headers and footers have explicit rounded corners if `overflow: hidden` is removed from the parent.
+
+---
+
+## 12. Performance Defaults
 
 * `useMemo` for expensive derivations
 * `useCallback` for passed handlers
@@ -263,7 +287,7 @@ Performance regressions are bugs.
 
 ---
 
-## 12. TypeScript Standards
+## 13. TypeScript Standards
 
 * Strict mode enabled
 * No implicit `any`
@@ -273,7 +297,7 @@ Performance regressions are bugs.
 
 ---
 
-## 13. Canonical File Structure
+## 14. Canonical File Structure
 
 ```text
 src/
@@ -297,7 +321,7 @@ src/
 
 ---
 
-## 14. Canonical Component Template
+## 15. Canonical Component Template
 
  ```tsx
  import React, { useState, useCallback } from 'react';
@@ -337,7 +361,7 @@ src/
 
 ---
 
-## 15. Anti-Patterns (Immediate Rejection)
+## 16. Anti-Patterns (Immediate Rejection)
 
 ❌ Early loading returns
 ❌ Feature logic in `components/`
@@ -348,7 +372,7 @@ src/
 
 ---
 
-## 16. Integration With Other Skills
+## 17. Integration With Other Skills
 
 * **frontend-design** → Visual systems & aesthetics
 * **page-cro** → Layout hierarchy & conversion logic
@@ -358,7 +382,7 @@ src/
 
 ---
 
-## 17. Operator Validation Checklist
+## 18. Operator Validation Checklist
 
 Before finalizing code:
 
@@ -372,7 +396,7 @@ Before finalizing code:
 
 ---
 
-## 18. Skill Status
+## 19. Skill Status
 
 **Status:** Stable, opinionated, and enforceable
 **Intended Use:** Production React codebases with long-term maintenance horizons
