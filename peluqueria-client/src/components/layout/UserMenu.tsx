@@ -79,7 +79,10 @@ const UserMenu = () => {
 
             <div className="p-2.5">
               <button 
-                onClick={() => {/* Navigate to settings */}}
+                onClick={() => {
+                  navigate('/empresas');
+                  setIsOpen(false);
+                }}
                 className="w-full flex items-center gap-4 px-3.5 py-3 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-colors group"
               >
                 <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center group-hover:bg-white border border-transparent group-hover:border-slate-200 transition-all">

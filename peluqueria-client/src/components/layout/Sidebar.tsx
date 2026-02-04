@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import { X } from 'lucide-react';
+import { X, Settings } from 'lucide-react';
 
 interface SidebarProps {
     isMobile?: boolean;
@@ -14,8 +14,6 @@ const Sidebar = ({ isMobile, onClose }: SidebarProps) => {
     const allNavItems = [
         { name: 'Dashboard', path: '/dashboard', roles: ['ADMIN', 'EMPLEADO', 'SUPER_ADMIN'] },
         { name: 'Empresas Global', path: '/superadmin/empresas', roles: ['SUPER_ADMIN'] },
-        { name: 'Mi Peluquería', path: '/empresas', roles: ['ADMIN'] },
-        { name: 'Plataforma', path: '/empresas', roles: ['EMPLEADO'] },
         { name: 'Servicios', path: '/servicios', roles: ['ADMIN', 'EMPLEADO'] },
         { name: 'Agenda', path: '/citas', roles: ['ADMIN', 'SUPER_ADMIN'] },
         { name: 'Clientes', path: '/clientes', roles: ['ADMIN', 'EMPLEADO'] },
@@ -78,8 +76,30 @@ const Sidebar = ({ isMobile, onClose }: SidebarProps) => {
                     ))}
                 </ul>
             </nav>
+
+            {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN' || user?.role === 'EMPLEADO') && (
+                <div className="mt-auto pt-6 border-t border-slate-700/50">
+                    <p className="text-[10px] text-slate-500 uppercase font-bold tracking-[0.2em] mb-4 px-4">Configuración</p>
+                    <NavLink
+                        to="/empresas"
+                        onClick={handleLinkClick}
+                        className={({ isActive }) =>
+                            `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 ${
+                                isActive
+                                    ? 'bg-slate-800 text-white font-semibold shadow-inner'
+                                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                            }`
+                        }
+                    >
+                        <Settings size={18} />
+                        <span className="text-sm">
+                            {user?.role === 'EMPLEADO' ? 'Info del Negocio' : 'Ajustes del Negocio'}
+                        </span>
+                    </NavLink>
+                </div>
+            )}
             
-            <div className="mt-auto pt-4 border-t border-slate-700 text-[10px] text-center text-slate-500 uppercase tracking-widest">
+            <div className="mt-4 pt-4 border-t border-slate-700 text-[10px] text-center text-slate-500 uppercase tracking-widest">
                   © 2026 Admin Panel
             </div>
         </aside>
@@ -87,4 +107,5 @@ const Sidebar = ({ isMobile, onClose }: SidebarProps) => {
 };
 
 export default Sidebar;
+
 
