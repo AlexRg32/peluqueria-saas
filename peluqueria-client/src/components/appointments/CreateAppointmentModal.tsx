@@ -25,16 +25,21 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [services, setServices] = useState<any[]>([]);
 
+    const [isLoading, setIsLoading] = useState(false);
+
     useEffect(() => {
         if (isOpen) {
+            setIsLoading(true);
             Promise.all([
                 enterpriseService.getEmployees(enterpriseId),
                 customerService.getCustomersByEnterprise(enterpriseId),
                 serviceOfferingService.getAllByEnterprise(enterpriseId)
             ]).then(([emp, cust, serv]) => {
-                setEmployees(emp);
-                setCustomers(cust);
-                setServices(serv);
+                setEmployees(emp.sort((a: any, b: any) => a.name.localeCompare(b.name)));
+                setCustomers(cust.sort((a: any, b: any) => a.name.localeCompare(b.name)));
+                setServices(serv.sort((a: any, b: any) => a.name.localeCompare(b.name)));
+            }).finally(() => {
+                setIsLoading(false);
             });
 
             if (initialDate) {
@@ -102,8 +107,17 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                                 customerPhone: isGuest ? data.customerPhone : undefined
                             };
                             onSubmit(submitData);
-                        })} className="p-8 space-y-6">
+                        })} className="p-8 space-y-6 relative">
                             
+                            {isLoading && (
+                                <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-50 flex items-center justify-center rounded-b-3xl">
+                                    <div className="flex flex-col items-center gap-3">
+                                        <div className="w-8 h-8 border-4 border-brand-primary border-t-transparent rounded-full animate-spin" />
+                                        <p className="text-sm font-bold text-slate-600">Cargando datos...</p>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Toggle Client Type */}
                             <div className="flex bg-slate-100 p-1 rounded-xl">
                                 <button

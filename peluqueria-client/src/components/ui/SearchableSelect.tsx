@@ -57,6 +57,12 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
   }, [options, search]);
 
   useEffect(() => {
+    if (!isOpen) {
+      setSearch('');
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
