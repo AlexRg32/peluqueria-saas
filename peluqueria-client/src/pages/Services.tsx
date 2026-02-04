@@ -4,6 +4,7 @@ import { ServiceCard } from '../components/services/ServiceCard';
 import { CreateServiceModal } from '../components/services/CreateServiceModal';
 import { useAuth } from '../features/auth/hooks/useAuth';
 import { Plus } from 'lucide-react';
+import { ConfirmModal } from '../components/ui/ConfirmModal';
 
 const ServicesPage = () => {
     const { user } = useAuth();
@@ -13,6 +14,9 @@ const ServicesPage = () => {
     const [services, setServices] = useState<ServiceOffering[]>([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [serviceToDelete, setServiceToDelete] = useState<number | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const fetchServices = async () => {
@@ -51,17 +55,26 @@ const ServicesPage = () => {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (!enterpriseId) return;
-        if (!window.confirm('¿Seguro que deseas eliminar este servicio?')) return;
+    const handleDelete = (id: number) => {
+        setServiceToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!enterpriseId || serviceToDelete === null) return;
         
         try {
-            await serviceOfferingService.delete(enterpriseId, id);
-            setServices(services.filter(s => s.id !== id));
+            setIsDeleting(true);
+            await serviceOfferingService.delete(enterpriseId, serviceToDelete);
+            setServices(services.filter(s => s.id !== serviceToDelete));
+            setIsDeleteModalOpen(false);
+            setServiceToDelete(null);
         } catch (err: any) {
              console.error(err);
              const message = err.response?.data?.message || "Error al eliminar el servicio";
              alert(message);
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -134,6 +147,21 @@ const ServicesPage = () => {
                     enterpriseId={enterpriseId}
                 />
             )}
+
+            <ConfirmModal 
+                isOpen={isDeleteModalOpen}
+                onClose={() => {
+                    setIsDeleteModalOpen(false);
+                    setServiceToDelete(null);
+                }}
+                onConfirm={handleConfirmDelete}
+                title="¿Eliminar servicio?"
+                message="Esta acción marcará el servicio como no disponible. Las citas existentes con este servicio se mantendrán para el registro histórico, pero no se podrán crear nuevas citas con él."
+                confirmText="Eliminar"
+                cancelText="Cancelar"
+                variant="danger"
+                isLoading={isDeleting}
+            />
         </section>
     );
 };
