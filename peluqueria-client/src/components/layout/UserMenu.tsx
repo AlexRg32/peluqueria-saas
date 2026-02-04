@@ -12,7 +12,7 @@ import {
 import { useAuth } from '@/features/auth/hooks/useAuth';
 
 const UserMenu = () => {
-  const { user, logout } = useAuth();
+  const { user, enterprise, logout } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -67,11 +67,11 @@ const UserMenu = () => {
                 </div>
               </div>
               
-              {user.enterpriseName && (
+              {(enterprise?.name || user.enterpriseName) && (
                 <div className="mt-4 flex items-center gap-2.5 px-3 py-2 bg-slate-50 rounded-xl border border-slate-100">
                   <Building2 size={14} className="text-slate-400" />
                   <span className="text-sm text-slate-600 font-semibold truncate">
-                    {user.enterpriseName}
+                    {enterprise?.name || user.enterpriseName}
                   </span>
                 </div>
               )}
