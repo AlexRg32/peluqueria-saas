@@ -1,9 +1,12 @@
+// Imports
 import { Link, Outlet } from 'react-router-dom';
-import { User, Menu, X } from 'lucide-react';
+import { User, Menu, X, LayoutDashboard } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 
 const MarketplaceLayout = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { isAuthenticated } = useAuth();
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900">
@@ -25,16 +28,29 @@ const MarketplaceLayout = () => {
                             <Link to="/search" className="text-slate-600 hover:text-brand-primary font-medium transition-colors">
                                 Explorar
                             </Link>
-                            <Link to="/register" className="text-slate-600 hover:text-brand-primary font-medium transition-colors">
-                                Soy Profesional
-                            </Link>
-                            <Link 
-                                to="/login" 
-                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-colors"
-                            >
-                                <User size={16} className="mr-2" />
-                                Iniciar Sesión
-                            </Link>
+                            
+                            {isAuthenticated ? (
+                                <Link 
+                                    to="/admin/dashboard" 
+                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-brand-primary hover:bg-brand-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary transition-colors shadow-brand"
+                                >
+                                    <LayoutDashboard size={16} className="mr-2" />
+                                    Ir al Panel
+                                </Link>
+                            ) : (
+                                <>
+                                    <Link to="/register" className="text-slate-600 hover:text-brand-primary font-medium transition-colors">
+                                        Soy Profesional
+                                    </Link>
+                                    <Link 
+                                        to="/login" 
+                                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-colors"
+                                    >
+                                        <User size={16} className="mr-2" />
+                                        Iniciar Sesión
+                                    </Link>
+                                </>
+                            )}
                         </div>
 
                         {/* Mobile menu button */}
@@ -60,20 +76,33 @@ const MarketplaceLayout = () => {
                             >
                                 Explorar
                             </Link>
-                            <Link
-                                to="/register"
-                                className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-slate-600 hover:bg-slate-50 hover:border-brand-primary hover:text-brand-primary"
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                Soy Profesional
-                            </Link>
-                            <Link
-                                to="/login"
-                                className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-slate-600 hover:bg-slate-50 hover:border-brand-primary hover:text-brand-primary"
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                Iniciar Sesión
-                            </Link>
+                            
+                            {isAuthenticated ? (
+                                <Link
+                                    to="/admin/dashboard"
+                                    className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-brand-primary font-bold hover:bg-slate-50"
+                                    onClick={() => setIsMenuOpen(false)}
+                                >
+                                    Ir al Panel
+                                </Link>
+                            ) : (
+                                <>
+                                    <Link
+                                        to="/register"
+                                        className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-slate-600 hover:bg-slate-50 hover:border-brand-primary hover:text-brand-primary"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        Soy Profesional
+                                    </Link>
+                                    <Link
+                                        to="/login"
+                                        className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-slate-600 hover:bg-slate-50 hover:border-brand-primary hover:text-brand-primary"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        Iniciar Sesión
+                                    </Link>
+                                </>
+                            )}
                         </div>
                     </div>
                 )}

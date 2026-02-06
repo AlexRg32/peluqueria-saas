@@ -18,7 +18,7 @@ const UserMenu = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
   if (!user) return null;
