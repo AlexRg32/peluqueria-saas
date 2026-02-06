@@ -33,4 +33,17 @@ public class AppointmentController {
     PaymentMethod method = PaymentMethod.valueOf(payload.get("paymentMethod"));
     return ResponseEntity.ok(appointmentService.checkout(id, method));
   }
+
+  @GetMapping("/transactions")
+  public ResponseEntity<List<AppointmentResponse>> getTransactions(
+      @RequestParam Long enterpriseId,
+      @RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime start,
+      @RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime end) {
+    return ResponseEntity.ok(appointmentService.findTransactions(enterpriseId, start, end));
+  }
+
+  @GetMapping("/billing-summary")
+  public ResponseEntity<com.peluqueria.dto.BillingSummaryDTO> getBillingSummary(@RequestParam Long enterpriseId) {
+    return ResponseEntity.ok(appointmentService.getBillingSummary(enterpriseId));
+  }
 }

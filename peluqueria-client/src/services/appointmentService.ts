@@ -22,6 +22,13 @@ export interface Appointment {
     paidAt?: string;
 }
 
+export interface BillingSummary {
+    revenueToday: number;
+    revenueThisWeek: number;
+    revenueThisMonth: number;
+    transactionsCount: number;
+}
+
 export interface CreateAppointmentRequest {
     userId?: number | null;
     customerId?: number | null;
@@ -49,6 +56,20 @@ export const appointmentService = {
     checkout: async (id: number, paymentMethod: 'CASH' | 'CARD') => {
         const response = await apiClient.post<Appointment>(`/api/appointments/${id}/checkout`, {
             paymentMethod
+        });
+        return response.data;
+    },
+
+    getTransactions: async (enterpriseId: number, start: string, end: string) => {
+        const response = await apiClient.get<Appointment[]>('/api/appointments/transactions', {
+            params: { enterpriseId, start, end }
+        });
+        return response.data;
+    },
+
+    getBillingSummary: async (enterpriseId: number) => {
+        const response = await apiClient.get<BillingSummary>('/api/appointments/billing-summary', {
+            params: { enterpriseId }
         });
         return response.data;
     }

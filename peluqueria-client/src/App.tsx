@@ -6,6 +6,7 @@ import UsersPage from './pages/Users';
 import CalendarPage from './pages/CalendarPage';
 import CustomersPage from './pages/Customers';
 import DashboardPage from './pages/Dashboard';
+import BillingPage from './pages/Billing';
 import { AuthProvider } from './features/auth/context/AuthContext';
 import RequireAuth from './features/auth/components/RequireAuth';
 import ProtectedRoute from './features/auth/components/ProtectedRoute';
@@ -36,6 +37,7 @@ function App() {
                 <Route path="usuarios" element={<UsersPage />} />
                 <Route path="citas" element={<CalendarPage />} />
                 <Route path="clientes" element={<CustomersPage />} />
+                <Route path="facturacion" element={<BillingPage />} />
               </Route>
 
               {/* Super Admin Only Routes */}

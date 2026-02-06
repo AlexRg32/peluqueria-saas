@@ -102,6 +102,30 @@ public class AppointmentService {
     return mapToResponse(appointmentRepository.save(appointment));
   }
 
+  public List<AppointmentResponse> findTransactions(Long enterpriseId, java.time.LocalDateTime start,
+      java.time.LocalDateTime end) {
+    return appointmentRepository.findTransactions(enterpriseId, start, end).stream()
+        .map(this::mapToResponse)
+        .collect(Collectors.toList());
+  }
+
+  public com.peluqueria.dto.BillingSummaryDTO getBillingSummary(Long enterpriseId) {
+    java.time.LocalDateTime todayStart = java.time.LocalDate.now().atStartOfDay();
+    java.time.LocalDateTime weekStart = java.time.LocalDate.now().minusWeeks(1).atStartOfDay();
+    java.time.LocalDateTime monthStart = java.time.LocalDate.now().withDayOfMonth(1).atStartOfDay();
+
+    Double today = appointmentRepository.sumRevenueSince(enterpriseId, todayStart);
+    Double week = appointmentRepository.sumRevenueSince(enterpriseId, weekStart);
+    Double month = appointmentRepository.sumRevenueSince(enterpriseId, monthStart);
+
+    return com.peluqueria.dto.BillingSummaryDTO.builder()
+        .revenueToday(today != null ? today : 0.0)
+        .revenueThisWeek(week != null ? week : 0.0)
+        .revenueThisMonth(month != null ? month : 0.0)
+        .transactionsCount(appointmentRepository.countByEnterpriseId(enterpriseId))
+        .build();
+  }
+
   private AppointmentResponse mapToResponse(Appointment a) {
     Customer c = a.getCustomer();
     return AppointmentResponse.builder()

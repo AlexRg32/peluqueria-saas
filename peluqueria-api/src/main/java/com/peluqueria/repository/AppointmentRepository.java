@@ -29,4 +29,10 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
   @org.springframework.data.jpa.repository.Query("SELECT CAST(a.date AS date) as date, SUM(a.price) as revenue FROM Appointment a WHERE a.enterprise.id = :enterpriseId AND a.paid = true GROUP BY CAST(a.date AS date) ORDER BY CAST(a.date AS date) ASC")
   List<Object[]> findRevenueByDate(Long enterpriseId);
+
+  @org.springframework.data.jpa.repository.Query("SELECT a FROM Appointment a WHERE a.enterprise.id = :enterpriseId AND a.status = 'COMPLETED' AND a.date BETWEEN :start AND :end ORDER BY a.date DESC")
+  List<Appointment> findTransactions(Long enterpriseId, java.time.LocalDateTime start, java.time.LocalDateTime end);
+
+  @org.springframework.data.jpa.repository.Query("SELECT SUM(a.price) FROM Appointment a WHERE a.enterprise.id = :enterpriseId AND a.paid = true AND a.date >= :start")
+  Double sumRevenueSince(Long enterpriseId, java.time.LocalDateTime start);
 }
