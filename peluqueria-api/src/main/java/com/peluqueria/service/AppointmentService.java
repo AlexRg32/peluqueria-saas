@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +27,28 @@ public class AppointmentService {
         .orElseThrow(() -> new RuntimeException("Service not found"));
     Enterprise enterprise = enterpriseRepository.findById(request.getEnterpriseId())
         .orElseThrow(() -> new RuntimeException("Enterprise not found"));
+
+    // Check for conflicts
+    LocalDateTime requestStart = request.getDate();
+    LocalDateTime requestEnd = requestStart.plusMinutes(service.getDuration());
+
+    LocalDateTime dayStart = requestStart.toLocalDate().atStartOfDay();
+    LocalDateTime dayEnd = requestStart.toLocalDate().atTime(23, 59, 59);
+
+    List<Appointment> existingAppointments = appointmentRepository.findByEmployeeIdAndDateBetween(
+        request.getEmployeeId(), dayStart, dayEnd);
+
+    boolean hasConflict = existingAppointments.stream()
+        .filter(a -> a.getStatus() != AppointmentStatus.CANCELED)
+        .anyMatch(a -> {
+          LocalDateTime existingStart = a.getDate();
+          LocalDateTime existingEnd = existingStart.plusMinutes(a.getService().getDuration());
+          return requestStart.isBefore(existingEnd) && requestEnd.isAfter(existingStart);
+        });
+
+    if (hasConflict) {
+      throw new RuntimeException("El empleado ya tiene una cita en ese horario.");
+    }
 
     Customer customer = getOrCreateCustomer(request, enterprise);
 

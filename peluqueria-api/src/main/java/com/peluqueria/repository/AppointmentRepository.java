@@ -35,4 +35,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
   @org.springframework.data.jpa.repository.Query("SELECT SUM(a.price) FROM Appointment a WHERE a.enterprise.id = :enterpriseId AND a.paid = true AND a.date >= :start")
   Double sumRevenueSince(Long enterpriseId, java.time.LocalDateTime start);
+
+  List<Appointment> findByEmployeeIdAndDateBetween(Long employeeId, java.time.LocalDateTime start,
+      java.time.LocalDateTime end);
 }

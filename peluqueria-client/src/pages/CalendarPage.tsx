@@ -70,9 +70,10 @@ const CalendarPage = () => {
             await appointmentService.create(data);
             setIsModalOpen(false);
             loadAppointments();
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            alert('Error al crear la cita');
+            const message = error.response?.data?.message || 'Error al crear la cita';
+            alert(message);
         }
     };
 

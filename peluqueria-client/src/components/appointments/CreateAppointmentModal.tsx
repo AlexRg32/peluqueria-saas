@@ -4,9 +4,11 @@ import { CreateAppointmentRequest } from '../../services/appointmentService';
 import { enterpriseService } from '../../services/enterpriseService';
 import { customerService, Customer } from '../../services/customerService';
 import { serviceOfferingService } from '../../services/serviceOfferingService';
-import { X, User as UserIcon, Scissors, Calendar } from 'lucide-react';
+import { X, User as UserIcon, Scissors } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SearchableSelect, Option } from '../ui/SearchableSelect';
+import { DateTimePicker } from '../ui/DateTimePicker';
+import { workingHourService, WorkingHour } from '../../services/workingHourService';
 
 interface CreateAppointmentModalProps {
     isOpen: boolean;
@@ -24,6 +26,7 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     const [employees, setEmployees] = useState<any[]>([]);
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [services, setServices] = useState<any[]>([]);
+    const [workingHours, setWorkingHours] = useState<WorkingHour[]>([]);
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -33,11 +36,13 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
             Promise.all([
                 enterpriseService.getEmployees(enterpriseId),
                 customerService.getCustomersByEnterprise(enterpriseId),
-                serviceOfferingService.getAllByEnterprise(enterpriseId)
-            ]).then(([emp, cust, serv]) => {
+                serviceOfferingService.getAllByEnterprise(enterpriseId),
+                workingHourService.getEnterpriseHours(enterpriseId)
+            ]).then(([emp, cust, serv, hours]) => {
                 setEmployees(emp.sort((a: any, b: any) => a.name.localeCompare(b.name)));
                 setCustomers(cust.sort((a: any, b: any) => a.name.localeCompare(b.name)));
                 setServices(serv.sort((a: any, b: any) => a.name.localeCompare(b.name)));
+                setWorkingHours(hours);
             }).finally(() => {
                 setIsLoading(false);
             });
@@ -229,19 +234,21 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                                     />
                                 </div>
 
-                                <div className="space-y-2 col-span-1 md:col-span-2">
-                                    <label className="text-sm font-semibold text-slate-700 ml-1 flex items-center gap-2">
-                                        <Calendar size={14} className="text-brand-primary" />
-                                        Fecha y Hora
-                                    </label>
-                                    <div className="relative">
-                                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                                        <input 
-                                            type="datetime-local" 
-                                            {...register('date', { required: true })} 
-                                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all"
-                                        />
-                                    </div>
+                                <div className="col-span-1 md:col-span-2">
+                                    <Controller
+                                        control={control}
+                                        name="date"
+                                        rules={{ required: true }}
+                                        render={({ field }) => (
+                                            <DateTimePicker
+                                                label="Fecha y Hora"
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                                workingHours={workingHours}
+                                                required
+                                            />
+                                        )}
+                                    />
                                 </div>
                             </div>
 
