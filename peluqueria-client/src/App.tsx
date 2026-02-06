@@ -12,20 +12,29 @@ import RequireAuth from './features/auth/components/RequireAuth';
 import ProtectedRoute from './features/auth/components/ProtectedRoute';
 import LoginPage from './features/auth/pages/LoginPage';
 import RegisterPage from './features/auth/pages/RegisterPage';
+import MarketplaceLayout from './components/layout/MarketplaceLayout';
+import HomePage from './pages/marketplace/HomePage';
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Public Routes */}
+          {/* Public Routes - Marketplace */}
+          <Route element={<MarketplaceLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/search" element={<div className="p-10 text-center">Buscador próximamente</div>} />
+            <Route path="/b/:slug" element={<div className="p-10 text-center">Perfil de Barbería próximamente</div>} />
+          </Route>
+
+          {/* Public Auth Routes */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* Protected Routes */}
-          <Route element={<RequireAuth />}>
-            <Route path="/" element={<MainLayout />}>
-              <Route index element={<Navigate to="/dashboard" replace />} />
+          {/* Protected Routes - Admin Panel */}
+          <Route path="/admin" element={<RequireAuth />}>
+            <Route element={<MainLayout />}>
+              <Route index element={<Navigate to="/admin/dashboard" replace />} />
               
               {/* Common Routes */}
               <Route path="dashboard" element={<DashboardPage />} />

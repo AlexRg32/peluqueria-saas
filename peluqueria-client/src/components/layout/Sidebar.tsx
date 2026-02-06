@@ -12,13 +12,13 @@ const Sidebar = ({ isMobile, onClose }: SidebarProps) => {
     const enterpriseName = enterprise?.name || user?.enterpriseName || 'Peluquería SaaS';
 
     const allNavItems = [
-        { name: 'Dashboard', path: '/dashboard', roles: ['ADMIN', 'EMPLEADO', 'SUPER_ADMIN'] },
-        { name: 'Empresas Global', path: '/superadmin/empresas', roles: ['SUPER_ADMIN'] },
-        { name: 'Servicios', path: '/servicios', roles: ['ADMIN', 'EMPLEADO'] },
-        { name: 'Agenda', path: '/citas', roles: ['ADMIN', 'SUPER_ADMIN'] },
-        { name: 'Clientes', path: '/clientes', roles: ['ADMIN', 'EMPLEADO'] },
-        { name: 'Facturación', path: '/facturacion', roles: ['ADMIN', 'SUPER_ADMIN'] },
-        { name: 'Personal', path: '/usuarios', roles: ['ADMIN'] },
+        { name: 'Dashboard', path: '/admin/dashboard', roles: ['ADMIN', 'EMPLEADO', 'SUPER_ADMIN'] },
+        { name: 'Empresas Global', path: '/admin/superadmin/empresas', roles: ['SUPER_ADMIN'] },
+        { name: 'Servicios', path: '/admin/servicios', roles: ['ADMIN', 'EMPLEADO'] },
+        { name: 'Agenda', path: '/admin/citas', roles: ['ADMIN', 'SUPER_ADMIN'] },
+        { name: 'Clientes', path: '/admin/clientes', roles: ['ADMIN', 'EMPLEADO'] },
+        { name: 'Facturación', path: '/admin/facturacion', roles: ['ADMIN', 'SUPER_ADMIN'] },
+        { name: 'Personal', path: '/admin/usuarios', roles: ['ADMIN'] },
     ];
 
     const navItems = allNavItems.filter(item => 
@@ -82,7 +82,7 @@ const Sidebar = ({ isMobile, onClose }: SidebarProps) => {
                 <div className="mt-auto pt-6 border-t border-slate-700/50">
                     <p className="text-[10px] text-slate-500 uppercase font-bold tracking-[0.2em] mb-4 px-4">Configuración</p>
                     <NavLink
-                        to="/empresas"
+                        to="/admin/empresas"
                         onClick={handleLinkClick}
                         className={({ isActive }) =>
                             `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 ${

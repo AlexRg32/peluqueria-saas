@@ -9,7 +9,7 @@ export const LoginPage: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/empresas', { replace: true });
+      navigate('/admin/empresas', { replace: true });
     }
   }, [isAuthenticated, navigate]);
 
