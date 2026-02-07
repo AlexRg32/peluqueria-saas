@@ -23,6 +23,11 @@ public class AppointmentController {
     return ResponseEntity.ok(appointmentService.create(request));
   }
 
+  @GetMapping("/me")
+  public ResponseEntity<List<AppointmentResponse>> getMyAppointments(java.security.Principal principal) {
+    return ResponseEntity.ok(appointmentService.findByUserEmail(principal.getName()));
+  }
+
   @GetMapping
   public ResponseEntity<List<AppointmentResponse>> getAll(@RequestParam Long enterpriseId) {
     return ResponseEntity.ok(appointmentService.findByEnterpriseId(enterpriseId));

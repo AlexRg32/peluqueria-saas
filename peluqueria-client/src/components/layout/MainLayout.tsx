@@ -1,8 +1,12 @@
 
 import { Outlet } from 'react-router-dom';
 import Navigation from './Navigation';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 
 const MainLayout = () => {
+    const { user } = useAuth();
+    const isClient = user?.role === 'CLIENTE' || user?.role === 'USER';
+
     return (
         <div className="flex bg-slate-50 min-h-screen text-slate-900 font-sans relative">
             <Navigation />
@@ -11,7 +15,7 @@ const MainLayout = () => {
                 <div className="max-w-7xl mx-auto bg-white p-6 lg:p-8 rounded-2xl shadow-sm border border-slate-200/60 min-h-full">
                     <header className="mb-8 pb-5 border-b border-slate-100 flex items-center justify-between">
                         <h1 className="text-2xl font-semibold text-slate-800 tracking-tight">
-                            Panel de Control
+                            {isClient ? 'Mi Portal' : 'Panel de Control'}
                         </h1>
                     </header>
                     <Outlet />

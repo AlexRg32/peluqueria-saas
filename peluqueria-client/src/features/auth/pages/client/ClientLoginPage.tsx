@@ -12,7 +12,7 @@ export const ClientLoginPage: React.FC = () => {
       if (user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') {
         navigate('/admin/dashboard', { replace: true });
       } else {
-        navigate('/', { replace: true });
+        navigate('/portal', { replace: true });
       }
     }
   }, [isAuthenticated, user, navigate]);

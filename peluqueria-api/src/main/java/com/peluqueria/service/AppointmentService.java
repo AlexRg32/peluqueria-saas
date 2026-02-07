@@ -113,6 +113,14 @@ public class AppointmentService {
         .collect(Collectors.toList());
   }
 
+  public List<AppointmentResponse> findByUserEmail(String email) {
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+    return appointmentRepository.findByCustomerUserIdOrderByDateDesc(user.getId()).stream()
+        .map(this::mapToResponse)
+        .collect(Collectors.toList());
+  }
+
   public AppointmentResponse checkout(Long id, PaymentMethod method) {
     Appointment appointment = appointmentRepository.findById(id)
         .orElseThrow(() -> new RuntimeException("Appointment not found"));

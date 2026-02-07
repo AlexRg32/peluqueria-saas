@@ -12,6 +12,7 @@ const Sidebar = ({ isMobile, onClose }: SidebarProps) => {
     const enterpriseName = enterprise?.name || user?.enterpriseName || 'Peluquería SaaS';
 
     const allNavItems = [
+        { name: 'Inicio', path: '/portal', roles: ['CLIENTE', 'USER', 'ADMIN', 'EMPLEADO', 'SUPER_ADMIN'] },
         { name: 'Dashboard', path: '/admin/dashboard', roles: ['ADMIN', 'EMPLEADO', 'SUPER_ADMIN'] },
         { name: 'Empresas Global', path: '/admin/superadmin/empresas', roles: ['SUPER_ADMIN'] },
         { name: 'Servicios', path: '/admin/servicios', roles: ['ADMIN', 'EMPLEADO'] },

@@ -13,6 +13,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
   List<Appointment> findByCustomerIdOrderByDateDesc(Long customerId);
 
+  List<Appointment> findByCustomerUserIdOrderByDateDesc(Long userId);
+
   long countByEnterpriseId(Long enterpriseId);
 
   @org.springframework.data.jpa.repository.Query("SELECT SUM(a.price) FROM Appointment a WHERE a.enterprise.id = :enterpriseId AND a.paid = true")

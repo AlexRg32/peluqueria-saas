@@ -47,6 +47,11 @@ export const appointmentService = {
         });
         return response.data;
     },
+    
+    getMine: async () => {
+        const response = await apiClient.get<Appointment[]>('/api/appointments/me');
+        return response.data;
+    },
 
     create: async (data: CreateAppointmentRequest) => {
         const response = await apiClient.post<Appointment>('/api/appointments', data);
