@@ -7,6 +7,10 @@ import HowItWorks from '../../components/marketplace/HowItWorks';
 import EnterpriseCard from '../../components/marketplace/EnterpriseCard';
 import Features from '../../components/marketplace/Features';
 import ProfessionalCTA from '../../components/marketplace/ProfessionalCTA';
+import CategorySection from '../../components/marketplace/CategorySection';
+import StatsBar from '../../components/marketplace/StatsBar';
+import Testimonials from '../../components/marketplace/Testimonials';
+import StyleGallery from '../../components/marketplace/StyleGallery';
 
 const HomePage = () => {
     const [featured, setFeatured] = useState<EnterpriseSummary[]>([]);
@@ -30,32 +34,21 @@ const HomePage = () => {
     return (
         <div className="bg-white">
             <Hero />
+            <StatsBar />
             
-            {/* How It Works Section */}
-            <section className="py-24 bg-slate-50 relative">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <SectionHeading 
-                        title="Reserva en 3 simples pasos" 
-                        subtitle="Nunca fue tan fácil encontrar y reservar tu cita en las mejores barberías."
-                        centered
-                    />
-                    <HowItWorks />
-                </div>
-            </section>
-
             {/* Featured Section */}
             <section className="py-24 bg-white overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
                         <div className="max-w-2xl">
-                            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">
+                            <h2 className="text-4xl font-black text-slate-900 tracking-tight mb-4">
                                 Barberías <span className="text-brand-primary">Destacadas</span>
                             </h2>
-                            <p className="text-lg text-slate-500">
+                            <p className="text-lg text-slate-500 font-medium">
                                 Los establecimientos mejor valorados por la comunidad de Peluquería SaaS. Calidad garantizada en cada corte.
                             </p>
                         </div>
-                        <button className="text-brand-primary font-bold flex items-center gap-2 hover:gap-3 transition-all">
+                        <button className="text-brand-primary font-black flex items-center gap-2 hover:gap-3 transition-all uppercase text-sm tracking-widest">
                             Ver todas las barberías <span>→</span>
                         </button>
                     </div>
@@ -63,7 +56,7 @@ const HomePage = () => {
                     {isLoading ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                             {[1, 2, 3, 4].map((i) => (
-                                <div key={i} className="bg-slate-50 rounded-2xl h-80 animate-pulse border border-slate-100" />
+                                <div key={i} className="bg-slate-50 rounded-3xl h-80 animate-pulse border border-slate-100" />
                             ))}
                         </div>
                     ) : (
@@ -79,6 +72,23 @@ const HomePage = () => {
                     )}
                 </div>
             </section>
+
+            <CategorySection />
+
+            {/* How It Works Section */}
+            <section className="py-24 bg-slate-50 relative">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <SectionHeading 
+                        title="Reserva en 3 simples pasos" 
+                        subtitle="Nunca fue tan fácil encontrar y reservar tu cita en las mejores barberías."
+                        centered
+                    />
+                    <HowItWorks />
+                </div>
+            </section>
+
+            <StyleGallery />
+            <Testimonials />
 
             {/* Features Section */}
             <section className="py-24 bg-slate-900/5 overflow-hidden">

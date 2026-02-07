@@ -7,20 +7,28 @@ const Hero = () => {
       {/* Background with higher opacity and better gradient */}
       <div className="absolute inset-0 z-0">
         <img
-          src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1600&auto=format&fit=crop&q=80"
+          src="/assets/marketplace/hero-bg.png"
           alt="Barbershop premium background"
-          className="w-full h-full object-cover opacity-40 mix-blend-overlay"
+          className="w-full h-full object-cover opacity-60 mix-blend-overlay"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/40 to-slate-900"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900/60 to-slate-950"></div>
         
         {/* Animated bokeh/lights */}
         <motion.div 
             animate={{ 
                 scale: [1, 1.2, 1],
-                opacity: [0.1, 0.2, 0.1]
+                opacity: [0.1, 0.3, 0.1]
             }}
             transition={{ duration: 10, repeat: Infinity }}
-            className="absolute top-1/4 right-1/4 w-96 h-96 bg-brand-primary/20 rounded-full blur-3xl"
+            className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-brand-primary/20 rounded-full blur-[120px]"
+        />
+        <motion.div 
+            animate={{ 
+                scale: [1.2, 1, 1.2],
+                opacity: [0.1, 0.2, 0.1]
+            }}
+            transition={{ duration: 12, repeat: Infinity, delay: 1 }}
+            className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-brand-secondary/10 rounded-full blur-[100px]"
         />
       </div>
       

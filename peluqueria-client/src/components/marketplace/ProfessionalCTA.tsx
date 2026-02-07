@@ -24,26 +24,28 @@ const ProfessionalCTA = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-4xl font-extrabold text-white mb-6 leading-tight">
+            <h2 className="text-4xl md:text-5xl font-black text-white mb-6 leading-tight tracking-tight">
               Lleva tu negocio al <br />
               <span className="text-brand-primary">siguiente nivel</span>
             </h2>
-            <p className="text-slate-400 text-lg mb-10 max-w-lg">
+            <p className="text-slate-400 text-lg mb-10 max-w-lg font-medium leading-relaxed">
               Únete a cientos de barberías y peluquerías que gestionan todo su negocio desde una sola plataforma. Ahorra tiempo y ofrece una experiencia premium a tus clientes.
             </p>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8 mb-12">
               {benefits.map((benefit, idx) => (
-                <div key={idx} className="flex items-center gap-3 text-white font-medium">
-                  {benefit.icon}
-                  <span>{benefit.text}</span>
+                <div key={idx} className="flex items-center gap-4 text-white/90 font-bold group">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-brand-primary/20 transition-colors">
+                    {benefit.icon}
+                  </div>
+                  <span className="text-sm tracking-tight">{benefit.text}</span>
                 </div>
               ))}
             </div>
 
             <Link 
-              to="/register" 
-              className="inline-flex items-center justify-center px-8 py-4 bg-brand-primary text-slate-900 font-bold rounded-xl hover:bg-brand-secondary transition-all hover:scale-105 shadow-xl shadow-brand/20"
+              to="/pro/register" 
+              className="inline-flex items-center justify-center px-10 py-5 bg-brand-primary text-slate-900 font-black rounded-2xl hover:bg-brand-secondary transition-all hover:scale-105 shadow-xl shadow-brand/20 uppercase tracking-widest text-sm"
             >
               Registrar mi Negocio Gratis
             </Link>
