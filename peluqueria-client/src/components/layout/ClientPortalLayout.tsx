@@ -6,12 +6,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const ClientPortalLayout = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const { user, logout } = useAuth();
+    const { user, logout, isAuthenticated } = useAuth();
     const location = useLocation();
 
     const navItems = [
-        { name: 'Inicio', path: '/portal', icon: Search },
-        { name: 'Mis Citas', path: '/portal/citas', icon: Calendar },
+        { name: 'Inicio', path: '/', icon: Search },
+        ...(isAuthenticated ? [{ name: 'Mis Citas', path: '/citas', icon: Calendar }] : []),
     ];
 
     return (
@@ -22,7 +22,7 @@ const ClientPortalLayout = () => {
                     <div className="flex justify-between items-center h-20">
                         {/* Logo */}
                         <div className="flex items-center">
-                            <Link to="/portal" className="flex items-center gap-3">
+                            <Link to="/" className="flex items-center gap-3">
                                 <div className="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center shadow-lg">
                                     <Scissors className="text-slate-900 w-6 h-6" />
                                 </div>
@@ -52,28 +52,52 @@ const ClientPortalLayout = () => {
                             })}
                         </div>
 
-                        {/* User Profile / Logout */}
+                        {/* User Profile / Auth Actions */}
                         <div className="hidden md:flex items-center gap-6 border-l border-slate-100 pl-8 ml-4">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-brand-primary border-2 border-slate-50">
-                                    {(user as any)?.name?.[0] || 'U'}
+                            {isAuthenticated ? (
+                                <>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-brand-primary border-2 border-slate-50">
+                                            {(user as any)?.name?.[0] || 'U'}
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-sm font-bold text-slate-900 leading-none">{(user as any)?.name || 'Usuario'}</span>
+                                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">Cliente</span>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={logout}
+                                        className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                        title="Cerrar Sesión"
+                                    >
+                                        <LogOut size={20} />
+                                    </button>
+                                </>
+                            ) : (
+                                <div className="flex items-center gap-3">
+                                    <Link 
+                                        to="/auth/login" 
+                                        className="text-sm font-black uppercase tracking-widest text-slate-600 hover:text-brand-primary transition-colors"
+                                    >
+                                        Acceder
+                                    </Link>
+                                    <Link 
+                                        to="/auth/register" 
+                                        className="bg-slate-900 text-white px-6 py-2.5 rounded-xl font-black text-sm uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg"
+                                    >
+                                        Registrarse
+                                    </Link>
                                 </div>
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-bold text-slate-900 leading-none">{(user as any)?.name || 'Usuario'}</span>
-                                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">Cliente</span>
-                                </div>
-                            </div>
-                            <button 
-                                onClick={logout}
-                                className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                                title="Cerrar Sesión"
-                            >
-                                <LogOut size={20} />
-                            </button>
+                            )}
                         </div>
 
                         {/* Mobile menu button */}
                         <div className="flex items-center md:hidden">
+                            {!isAuthenticated && (
+                                <Link to="/auth/login" className="mr-4 text-xs font-black uppercase tracking-widest text-slate-600">
+                                    Acceder
+                                </Link>
+                            )}
                             <button
                                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                                 className="p-2.5 rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 transition-colors"
@@ -105,15 +129,35 @@ const ClientPortalLayout = () => {
                                         {item.name}
                                     </Link>
                                 ))}
-                                <div className="pt-4 border-t border-slate-100">
-                                    <button
-                                        onClick={logout}
-                                        className="flex items-center gap-3 w-full px-4 py-4 rounded-2xl text-base font-bold text-red-500 hover:bg-red-50"
-                                    >
-                                        <LogOut size={20} />
-                                        Cerrar Sesión
-                                    </button>
-                                </div>
+                                
+                                {isAuthenticated ? (
+                                    <div className="pt-4 border-t border-slate-100">
+                                        <button
+                                            onClick={logout}
+                                            className="flex items-center gap-3 w-full px-4 py-4 rounded-2xl text-base font-bold text-red-500 hover:bg-red-50"
+                                        >
+                                            <LogOut size={20} />
+                                            Cerrar Sesión
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="pt-4 border-t border-slate-100 flex flex-col gap-2">
+                                        <Link
+                                            to="/auth/login"
+                                            className="flex items-center justify-center w-full px-4 py-4 rounded-2xl text-base font-black text-slate-900 border border-slate-200"
+                                            onClick={() => setIsMenuOpen(false)}
+                                        >
+                                            Iniciar Sesión
+                                        </Link>
+                                        <Link
+                                            to="/auth/register"
+                                            className="flex items-center justify-center w-full px-4 py-4 rounded-2xl text-base font-black text-white bg-slate-900"
+                                            onClick={() => setIsMenuOpen(false)}
+                                        >
+                                            Crear Cuenta
+                                        </Link>
+                                    </div>
+                                )}
                             </div>
                         </motion.div>
                     )}
@@ -127,27 +171,29 @@ const ClientPortalLayout = () => {
                 </div>
             </main>
 
-            {/* Simple Bottom Nav for Mobile */}
-            <div className="md:hidden fixed bottom-6 left-4 right-4 z-50">
-                <div className="bg-slate-900/90 backdrop-blur-xl rounded-[28px] p-2 flex justify-around items-center shadow-2xl border border-white/10">
-                    {navItems.map((item) => {
-                        const Icon = item.icon;
-                        const isActive = location.pathname === item.path;
-                        return (
-                            <Link 
-                                key={item.path}
-                                to={item.path}
-                                className={`flex flex-col items-center gap-1 p-3 rounded-2xl transition-all ${
-                                    isActive ? 'text-brand-primary bg-white/5' : 'text-slate-400'
-                                }`}
-                            >
-                                <Icon size={24} />
-                                <span className="text-[10px] font-black uppercase tracking-widest">{item.name}</span>
-                            </Link>
-                        );
-                    })}
+            {/* Simple Bottom Nav for Mobile - Only for Auth Users */}
+            {isAuthenticated && (
+                <div className="md:hidden fixed bottom-6 left-4 right-4 z-50">
+                    <div className="bg-slate-900/90 backdrop-blur-xl rounded-[28px] p-2 flex justify-around items-center shadow-2xl border border-white/10">
+                        {navItems.map((item) => {
+                            const Icon = item.icon;
+                            const isActive = location.pathname === item.path;
+                            return (
+                                <Link 
+                                    key={item.path}
+                                    to={item.path}
+                                    className={`flex flex-col items-center gap-1 p-3 rounded-2xl transition-all ${
+                                        isActive ? 'text-brand-primary bg-white/5' : 'text-slate-400'
+                                    }`}
+                                >
+                                    <Icon size={24} />
+                                    <span className="text-[10px] font-black uppercase tracking-widest">{item.name}</span>
+                                </Link>
+                            );
+                        })}
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Footer */}
             <footer className="bg-white border-t border-slate-200 py-12 px-4">

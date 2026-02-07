@@ -8,15 +8,19 @@ import { appointmentService, Appointment } from '@/services/appointmentService';
 import { useState, useEffect } from 'react';
 
 const ClientPortal: React.FC = () => {
-    const { user } = useAuth();
+    const { user, isAuthenticated } = useAuth();
     const [appointments, setAppointments] = useState<Appointment[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(isAuthenticated);
     
-    const userName = (user as any)?.name || user?.sub?.split('@')[0] || 'VIVE';
+    const userName = (user as any)?.name || user?.sub?.split('@')[0] || '';
 
     useEffect(() => {
-        loadData();
-    }, []);
+        if (isAuthenticated) {
+            loadData();
+        } else {
+            setLoading(false);
+        }
+    }, [isAuthenticated]);
 
     const loadData = async () => {
         try {
@@ -74,17 +78,46 @@ const ClientPortal: React.FC = () => {
                     <div className="flex items-center justify-between">
                         <h2 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
                             <Calendar className="text-brand-primary" size={32} />
-                            Mis Próximas Citas
+                            {isAuthenticated ? 'Mis Próximas Citas' : 'Tus Citas'}
                         </h2>
-                        <button className="text-brand-primary font-black hover:underline text-sm uppercase tracking-widest">Ver todas</button>
+                        {isAuthenticated && (
+                            <button className="text-brand-primary font-black hover:underline text-sm uppercase tracking-widest">Ver todas</button>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-1 gap-6">
-                        {appointments.length > 0 ? (
+                        {!isAuthenticated ? (
+                            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[32px] p-10 text-white relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-brand-primary opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl group-hover:opacity-20 transition-opacity" />
+                                <div className="relative z-10 space-y-6">
+                                    <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md">
+                                        <Calendar className="text-brand-primary" size={32} />
+                                    </div>
+                                    <div className="max-w-md">
+                                        <h3 className="text-2xl font-black tracking-tight mb-2">Gestiona tus citas fácilmente</h3>
+                                        <p className="text-slate-400 font-medium">Inicia sesión para ver tu historial, reagendar servicios y recibir notificaciones personalizadas.</p>
+                                    </div>
+                                    <div className="flex gap-4">
+                                        <button 
+                                            onClick={() => window.location.href='/auth/login'}
+                                            className="bg-brand-primary text-slate-900 px-8 py-3 rounded-2xl font-black text-sm hover:bg-brand-secondary transition-all"
+                                        >
+                                            Iniciar Sesión
+                                        </button>
+                                        <button 
+                                            onClick={() => window.location.href='/auth/register'}
+                                            className="bg-white/10 hover:bg-white/20 text-white px-8 py-3 rounded-2xl font-black text-sm transition-all border border-white/10"
+                                        >
+                                            Crear Cuenta
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : appointments.length > 0 ? (
                             appointments.map(app => (
                                 <AppointmentMiniCard 
                                     key={app.id}
-                                    salonName={app.serviceName} // Generic placeholder for salon name if missing
+                                    salonName={app.serviceName} 
                                     address="Ubicación registrada"
                                     date={new Date(app.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
                                     time={new Date(app.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}

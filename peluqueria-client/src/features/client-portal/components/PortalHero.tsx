@@ -23,10 +23,16 @@ const PortalHero: React.FC<PortalHeroProps> = ({ userName }) => {
                 className="relative z-10 max-w-2xl space-y-6"
             >
                 <h1 className="text-5xl lg:text-7xl font-black leading-tight">
-                    Hola, <span className="text-brand-primary">{userName || 'VIVE'}</span> 👋
+                    {userName ? (
+                        <>Hola, <span className="text-brand-primary">{userName}</span> 👋</>
+                    ) : (
+                        <>Encuentra tu <span className="text-brand-primary">estilo</span> perfecto</>
+                    )}
                 </h1>
                 <p className="text-xl text-slate-300 font-medium">
-                    ¿Qué servicio necesitas hoy? Encuentra las mejores peluquerías en tu zona.
+                    {userName 
+                        ? '¿Qué servicio necesitas hoy? Encuentra las mejores peluquerías en tu zona.'
+                        : 'Reserva tu cita en las mejores peluquerías y barberías de la ciudad en segundos.'}
                 </p>
 
                 <div className="flex flex-col md:flex-row gap-4 pt-4">

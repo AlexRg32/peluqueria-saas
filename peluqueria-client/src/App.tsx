@@ -16,8 +16,6 @@ import ClientLoginPage from './features/auth/pages/client/ClientLoginPage';
 import ClientRegisterPage from './features/auth/pages/client/ClientRegisterPage';
 import ProLoginPage from './features/auth/pages/pro/ProLoginPage';
 import ProRegisterPage from './features/auth/pages/pro/ProRegisterPage';
-import MarketplaceLayout from './components/layout/MarketplaceLayout';
-import HomePage from './pages/marketplace/HomePage';
 import { useAuth } from './features/auth/hooks/useAuth';
 
 const RoleRedirect = () => {
@@ -33,11 +31,16 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Public Routes - Marketplace */}
-          <Route element={<MarketplaceLayout />}>
-            <Route path="/" element={<HomePage />} />
+          {/* Unified Client Experience - Public at root */}
+          <Route element={<ClientPortalLayout />}>
+            <Route path="/" element={<ClientPortalPage />} />
             <Route path="/search" element={<div className="p-10 text-center">Buscador próximamente</div>} />
             <Route path="/b/:slug" element={<div className="p-10 text-center">Perfil de Barbería próximamente</div>} />
+            
+            {/* Protected Client Routes */}
+            <Route element={<RequireAuth />}>
+              <Route path="/citas" element={<div>Próximamente: Historial de Citas</div>} />
+            </Route>
           </Route>
 
           {/* Public Auth Routes - Clients */}
@@ -51,14 +54,7 @@ function App() {
           {/* Legacy Redirects */}
           <Route path="/login" element={<Navigate to="/auth/login" replace />} />
           <Route path="/register" element={<Navigate to="/auth/register" replace />} />
-
-          {/* Client Portal - Protected */}
-          <Route path="/portal" element={<RequireAuth />}>
-            <Route element={<ClientPortalLayout />}>
-              <Route index element={<ClientPortalPage />} />
-              <Route path="citas" element={<div>Próximamente: Historial de Citas</div>} />
-            </Route>
-          </Route>
+          <Route path="/portal" element={<Navigate to="/" replace />} />
 
           {/* Admin Panel - Protected */}
           <Route path="/admin" element={<RequireAuth />}>
@@ -86,7 +82,7 @@ function App() {
           </Route>
 
           {/* Global Redirects */}
-          <Route path="/admin/inicio" element={<Navigate to="/portal" replace />} />
+          <Route path="/admin/inicio" element={<Navigate to="/" replace />} />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
