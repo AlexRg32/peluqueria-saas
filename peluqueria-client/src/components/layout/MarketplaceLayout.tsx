@@ -54,11 +54,11 @@ const MarketplaceLayout = () => {
                                 </Link>
                             ) : (
                                 <>
-                                    <Link to="/register" className={`font-bold text-sm uppercase tracking-widest transition-colors hover:text-brand-primary ${scrolled ? 'text-slate-600' : 'text-slate-200'}`}>
+                                    <Link to="/pro/register" className={`font-bold text-sm uppercase tracking-widest transition-colors hover:text-brand-primary ${scrolled ? 'text-slate-600' : 'text-slate-200'}`}>
                                         Soy Profesional
                                     </Link>
                                     <Link 
-                                        to="/login" 
+                                        to="/auth/login" 
                                         className={`inline-flex items-center px-6 py-2.5 text-sm font-black rounded-xl transition-all hover:scale-105 shadow-lg ${
                                             scrolled 
                                             ? 'bg-slate-900 text-white hover:bg-slate-800' 
@@ -113,14 +113,14 @@ const MarketplaceLayout = () => {
                                 ) : (
                                     <>
                                         <Link
-                                            to="/register"
+                                            to="/pro/register"
                                             className="block px-4 py-3 rounded-xl text-base font-bold text-slate-600 hover:bg-slate-50"
                                             onClick={() => setIsMenuOpen(false)}
                                         >
                                             Soy Profesional
                                         </Link>
                                         <Link
-                                            to="/login"
+                                            to="/auth/login"
                                             className="block px-4 py-3 rounded-xl text-base font-black text-white bg-slate-900 text-center"
                                             onClick={() => setIsMenuOpen(false)}
                                         >

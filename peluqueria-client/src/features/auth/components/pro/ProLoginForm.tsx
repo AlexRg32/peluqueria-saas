@@ -2,18 +2,17 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../../hooks/useAuth';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
   password: z.string().min(4, 'La contraseña debe tener al menos 4 caracteres'),
-
 });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+type ProLoginFormValues = z.infer<typeof loginSchema>;
 
-export const LoginForm: React.FC = () => {
+export const ProLoginForm: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,21 +28,21 @@ export const LoginForm: React.FC = () => {
     }
   }, []);
 
-  const from = location.state?.from?.pathname || '/empresas';
+  const from = location.state?.from?.pathname || '/admin/dashboard';
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormValues>({
+  } = useForm<ProLoginFormValues>({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
+  const onSubmit = async (data: ProLoginFormValues) => {
     setIsSubmitting(true);
     setError(null);
     try {
-      await login(data);
+      await login({ ...data, requiredRole: 'ADMIN' });
       navigate(from, { replace: true });
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error al iniciar sesión. Verifica tus credenciales.');
@@ -55,8 +54,8 @@ export const LoginForm: React.FC = () => {
   return (
     <div className="w-full max-w-md p-8 space-y-6 bg-[#1e293b] rounded-2xl shadow-2xl border border-slate-700/50 backdrop-blur-sm">
       <div className="text-center">
-        <h2 className="text-3xl font-bold text-white tracking-tight">Bienvenido</h2>
-        <p className="mt-2 text-slate-400">Inicia sesión en tu cuenta</p>
+        <h2 className="text-3xl font-bold text-white tracking-tight">Acceso Profesional</h2>
+        <p className="mt-2 text-slate-400">Gestiona tu negocio de peluquería</p>
       </div>
 
       <form className="mt-8 space-y-4" onSubmit={handleSubmit(onSubmit)}>
@@ -68,7 +67,7 @@ export const LoginForm: React.FC = () => {
 
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-slate-300">
-            Email
+            Email Profesional
           </label>
           <input
             id="email"
@@ -77,7 +76,7 @@ export const LoginForm: React.FC = () => {
             className={`mt-1 block w-full px-4 py-3 bg-slate-900/50 border ${
               errors.email ? 'border-red-500' : 'border-slate-700'
             } rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all duration-200`}
-            placeholder="correo@ejemplo.com"
+            placeholder="correo@empresa.com"
           />
           {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
         </div>
@@ -106,15 +105,15 @@ export const LoginForm: React.FC = () => {
           {isSubmitting ? (
             <div className="w-5 h-5 border-2 border-[#0f172a] border-t-transparent rounded-full animate-spin"></div>
           ) : (
-            'Iniciar Sesión'
+            'Entrar al Panel'
           )}
         </button>
       </form>
 
       <div className="text-center pt-4">
         <p className="text-sm text-slate-400">
-          ¿No tienes cuenta?{' '}
-          <Link to="/register" className="font-semibold text-brand-primary hover:opacity-80 transition-colors">
+          ¿Quieres registrar tu peluquería?{' '}
+          <Link to="/pro/register" className="font-semibold text-brand-primary hover:opacity-80 transition-colors">
             Regístrate aquí
           </Link>
         </p>
@@ -123,4 +122,4 @@ export const LoginForm: React.FC = () => {
   );
 };
 
-export default LoginForm;
+export default ProLoginForm;

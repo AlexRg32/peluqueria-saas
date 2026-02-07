@@ -10,8 +10,10 @@ import BillingPage from './pages/Billing';
 import { AuthProvider } from './features/auth/context/AuthContext';
 import RequireAuth from './features/auth/components/RequireAuth';
 import ProtectedRoute from './features/auth/components/ProtectedRoute';
-import LoginPage from './features/auth/pages/LoginPage';
-import RegisterPage from './features/auth/pages/RegisterPage';
+import ClientLoginPage from './features/auth/pages/client/ClientLoginPage';
+import ClientRegisterPage from './features/auth/pages/client/ClientRegisterPage';
+import ProLoginPage from './features/auth/pages/pro/ProLoginPage';
+import ProRegisterPage from './features/auth/pages/pro/ProRegisterPage';
 import MarketplaceLayout from './components/layout/MarketplaceLayout';
 import HomePage from './pages/marketplace/HomePage';
 
@@ -27,9 +29,17 @@ function App() {
             <Route path="/b/:slug" element={<div className="p-10 text-center">Perfil de Barbería próximamente</div>} />
           </Route>
 
-          {/* Public Auth Routes */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          {/* Public Auth Routes - Clients */}
+          <Route path="/auth/login" element={<ClientLoginPage />} />
+          <Route path="/auth/register" element={<ClientRegisterPage />} />
+
+          {/* Public Auth Routes - Professionals */}
+          <Route path="/pro/login" element={<ProLoginPage />} />
+          <Route path="/pro/register" element={<ProRegisterPage />} />
+
+          {/* Legacy Redirects */}
+          <Route path="/login" element={<Navigate to="/auth/login" replace />} />
+          <Route path="/register" element={<Navigate to="/auth/register" replace />} />
 
           {/* Protected Routes - Admin Panel */}
           <Route path="/admin" element={<RequireAuth />}>
@@ -55,7 +65,6 @@ function App() {
               </Route>
             </Route>
           </Route>
-
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />

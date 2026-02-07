@@ -17,6 +17,7 @@ export interface AuthResponse {
 export interface LoginPayload {
   email: string;
   password: string;
+  requiredRole?: string;
 }
 
 export interface RegisterPayload {
