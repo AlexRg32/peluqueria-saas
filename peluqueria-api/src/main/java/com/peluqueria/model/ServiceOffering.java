@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Data
-@Table(name = "services")
+@Table(name = "service_offerings")
 public class ServiceOffering {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
