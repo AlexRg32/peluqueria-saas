@@ -60,6 +60,7 @@ public class UserService {
 
   public List<UserResponse> getUsersByEnterpriseId(Long enterpriseId) {
     return userRepository.findByEnterpriseId(enterpriseId).stream()
+        .filter(user -> user.getRole() != com.peluqueria.model.Role.CLIENTE)
         .map(this::mapToResponse)
         .collect(Collectors.toList());
   }

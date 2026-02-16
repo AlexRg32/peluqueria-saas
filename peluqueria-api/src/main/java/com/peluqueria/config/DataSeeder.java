@@ -1,91 +1,215 @@
 package com.peluqueria.config;
 
-import com.peluqueria.model.Enterprise;
-import com.peluqueria.model.Role;
-import com.peluqueria.model.ServiceOffering;
-import com.peluqueria.model.User;
-import com.peluqueria.repository.EnterpriseRepository;
-import com.peluqueria.repository.ServiceOfferingRepository;
-import com.peluqueria.repository.UserRepository;
+import com.peluqueria.model.*;
+import com.peluqueria.repository.*;
+import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
+import net.datafaker.Faker;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Configuration
+@RequiredArgsConstructor
 public class DataSeeder {
 
+  private final PortfolioSeederService seederService;
+
   @Bean
-  CommandLineRunner initDatabase(EnterpriseRepository enterpriseRepository,
-      ServiceOfferingRepository serviceOfferingRepository,
-      UserRepository userRepository,
-      PasswordEncoder passwordEncoder) {
+  CommandLineRunner initDatabase() {
     return args -> {
-      if (enterpriseRepository.count() == 0) {
-        // 1. MACIA BARBER
-        Enterprise macia = new Enterprise();
-        macia.setName("Macia Barber");
-        macia.setCif("B11111111");
-        macia.setAddress("Calle Peluquería 1");
-        enterpriseRepository.save(macia);
-
-        createUser("Joel", "joel@maciabarber.com", macia, userRepository, passwordEncoder);
-        createUser("Alejandro", "alejandro@maciabarber.com", macia, userRepository, passwordEncoder);
-
-        createService("Corte Clásico", 15.0, 30, macia, serviceOfferingRepository);
-        createService("Corte Degradado", 20.0, 45, macia, serviceOfferingRepository);
-
-        // 2. BARBERÍA SERGIO
-        Enterprise sergioEnt = new Enterprise();
-        sergioEnt.setName("Barbería Sergio");
-        sergioEnt.setCif("B22222222");
-        sergioEnt.setAddress("Avenida Barbero 22");
-        enterpriseRepository.save(sergioEnt);
-
-        createUser("Sergio", "sergio@barberiasergio.com", sergioEnt, userRepository, passwordEncoder);
-        createUser("Juaki", "juaki@barberiasergio.com", sergioEnt, userRepository, passwordEncoder);
-        createUser("Giovanny", "giovanny@barberiasergio.com", sergioEnt, userRepository, passwordEncoder);
-
-        createService("Corte Clásico", 15.0, 30, sergioEnt, serviceOfferingRepository);
-        createService("Barba Premium", 12.0, 25, sergioEnt, serviceOfferingRepository);
-
-        // 3. BARBERÍA HB
-        Enterprise hb = new Enterprise();
-        hb.setName("Barbería HB");
-        hb.setCif("B33333333");
-        hb.setAddress("Plaza HB 3");
-        enterpriseRepository.save(hb);
-
-        createUser("Jamid", "jamid@barberiahb.com", hb, userRepository, passwordEncoder);
-        createUser("Joel", "joel@barberiahb.com", hb, userRepository, passwordEncoder);
-
-        createService("Corte + Barba", 25.0, 60, hb, serviceOfferingRepository);
-        createService("Corte Infantil", 12.0, 20, hb, serviceOfferingRepository);
-
-        System.out.println("Base de datos inicializada con Macia Barber, Barbería Sergio y Barbería HB.");
+      String seedFlag = System.getProperty("seed.portfolio", System.getenv("SEED_PORTFOLIO"));
+      if ("true".equalsIgnoreCase(seedFlag)) {
+        seederService.seed();
       }
     };
   }
 
-  private void createUser(String name, String email, Enterprise enterprise, UserRepository userRepository,
-      PasswordEncoder passwordEncoder) {
-    User user = new User();
-    user.setName(name);
-    user.setEmail(email);
-    user.setPassword(passwordEncoder.encode("123456"));
-    user.setRole(Role.EMPLEADO);
-    user.setEnterprise(enterprise);
-    userRepository.save(user);
-  }
+  @Service
+  @RequiredArgsConstructor
+  public static class PortfolioSeederService {
+    private final EnterpriseRepository enterpriseRepository;
+    private final UserRepository userRepository;
+    private final ServiceOfferingRepository serviceOfferingRepository;
+    private final CustomerRepository customerRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final WorkingHourRepository workingHourRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final EntityManager entityManager;
 
-  private void createService(String name, double price, int duration, Enterprise enterprise,
-      ServiceOfferingRepository repo) {
-    ServiceOffering s = new ServiceOffering();
-    s.setName(name);
-    s.setPrice(price);
-    s.setDuration(duration);
-    s.setCategory("General");
-    s.setEnterprise(enterprise);
-    repo.save(s);
+    private final Faker faker = new Faker(new Locale("es"));
+    private final Random random = new Random();
+
+    @Transactional
+    public void seed() {
+      // 1. LIMPIEZA TOTAL (Nuclear Reset)
+      // Eliminamos restricciones y truncamos para un reinicio limpio
+      try {
+        // Primero eliminamos todas las foreign keys (residuos de esquemas antiguos)
+        entityManager.createNativeQuery(
+            "DO $$ DECLARE r RECORD; " +
+                "BEGIN " +
+                "  FOR r IN (SELECT constraint_name, table_name FROM information_schema.table_constraints WHERE constraint_type = 'FOREIGN KEY' AND table_schema = 'public') LOOP "
+                +
+                "    EXECUTE 'ALTER TABLE ' || quote_ident(r.table_name) || ' DROP CONSTRAINT ' || quote_ident(r.constraint_name); "
+                +
+                "  END LOOP; " +
+                "END $$;")
+            .executeUpdate();
+
+        // Ahora truncamos todas las tablas
+        entityManager.createNativeQuery(
+            "DO $$ DECLARE r RECORD; " +
+                "BEGIN " +
+                "  FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename NOT LIKE 'pg_%' AND tablename NOT LIKE 'sql_%') LOOP "
+                +
+                "    EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' RESTART IDENTITY CASCADE'; " +
+                "  END LOOP; " +
+                "END $$;")
+            .executeUpdate();
+        entityManager.flush();
+      } catch (Exception e) {
+        // Silent
+      }
+
+      // 2. CREAR EMPRESAS
+      Enterprise mainEnterprise = createEnterprise("Peluking Premium ✨", "B12345678",
+          "Calle de la Estética 12, Madrid");
+
+      // 3. CREAR USUARIOS DE PRUEBA
+      User admin = userRepository.save(User.builder()
+          .name("Admin Peluquería")
+          .email("admin@peluqueria.com")
+          .password(passwordEncoder.encode("password123"))
+          .role(Role.ADMIN)
+          .enterprise(mainEnterprise)
+          .phone("600111222")
+          .active(true)
+          .build());
+
+      User employee = userRepository.save(User.builder()
+          .name("Juan Cortes")
+          .email("trabajador@peluqueria.com")
+          .password(passwordEncoder.encode("password123"))
+          .role(Role.EMPLEADO)
+          .enterprise(mainEnterprise)
+          .phone("600333444")
+          .active(true)
+          .build());
+
+      userRepository.save(User.builder()
+          .name("Alberto Cliente")
+          .email("cliente@peluqueria.com")
+          .password(passwordEncoder.encode("password123"))
+          .role(Role.CLIENTE)
+          .phone("600555666")
+          .active(true)
+          .build());
+
+      userRepository.save(User.builder()
+          .name("Super Administrador")
+          .email("superadmin@peluqueria.com")
+          .password(passwordEncoder.encode("password123"))
+          .role(Role.SUPER_ADMIN)
+          .active(true)
+          .build());
+
+      // 4. CREAR SERVICIOS
+      List<ServiceOffering> services = new ArrayList<>();
+      services.add(createService("Corte Moderno", "Corte", 18.50, 30, mainEnterprise));
+      services.add(createService("Arreglo de Barba", "Barba", 12.00, 20, mainEnterprise));
+      services.add(createService("Corte + Barba Premium", "Combo", 28.00, 60, mainEnterprise));
+      services.add(createService("Tratamiento Capilar", "Tratamiento", 35.00, 45, mainEnterprise));
+      services.add(createService("Corte Infantil", "Corte", 14.50, 25, mainEnterprise));
+      services.add(createService("Degradado Extremo", "Corte", 22.00, 40, mainEnterprise));
+      serviceOfferingRepository.saveAll(services);
+
+      // 5. HORARIOS
+      seedWorkingHours(mainEnterprise, admin);
+      seedWorkingHours(mainEnterprise, employee);
+
+      // 6. CLIENTES
+      List<Customer> customers = new ArrayList<>();
+      for (int i = 0; i < 20; i++) {
+        customers.add(Customer.builder()
+            .name(faker.name().fullName())
+            .email(faker.internet().emailAddress())
+            .phone(faker.phoneNumber().phoneNumber())
+            .enterprise(mainEnterprise)
+            .visitsCount(random.nextInt(0, 10))
+            .build());
+      }
+      customerRepository.saveAll(customers);
+
+      // 7. CITAS
+      seedAppointments(mainEnterprise, List.of(admin, employee), services, customers);
+    }
+
+    private Enterprise createEnterprise(String name, String cif, String address) {
+      Enterprise e = new Enterprise();
+      e.setName(name);
+      e.setCif(cif);
+      e.setAddress(address);
+      return enterpriseRepository.save(e);
+    }
+
+    private ServiceOffering createService(String name, String cat, double price, int duration, Enterprise ent) {
+      ServiceOffering s = new ServiceOffering();
+      s.setName(name);
+      s.setCategory(cat);
+      s.setPrice(price);
+      s.setDuration(duration);
+      s.setEnterprise(ent);
+      return s;
+    }
+
+    private void seedWorkingHours(Enterprise ent, User user) {
+      String[] days = { "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado" };
+      for (String day : days) {
+        WorkingHour wh = new WorkingHour();
+        wh.setDay(day);
+        wh.setStartTime("09:00");
+        wh.setEndTime(day.equals("Sábado") ? "14:00" : "20:00");
+        wh.setDayOff(false);
+        wh.setEnterprise(ent);
+        wh.setUser(user);
+        workingHourRepository.save(wh);
+      }
+    }
+
+    private void seedAppointments(Enterprise ent, List<User> employees, List<ServiceOffering> services,
+        List<Customer> customers) {
+      for (int i = 0; i < 50; i++) {
+        Appointment a = new Appointment();
+        int randomDays = random.nextInt(-30, 15);
+        int randomHour = random.nextInt(9, 19);
+        LocalDateTime date = LocalDateTime.now().plusDays(randomDays).withHour(randomHour).withMinute(0).withSecond(0)
+            .withNano(0);
+
+        a.setDate(date);
+        a.setEnterprise(ent);
+        a.setEmployee(employees.get(random.nextInt(employees.size())));
+        ServiceOffering service = services.get(random.nextInt(services.size()));
+        a.setService(service);
+        a.setPrice(service.getPrice());
+        a.setCustomer(customers.get(random.nextInt(customers.size())));
+
+        if (date.isBefore(LocalDateTime.now())) {
+          a.setStatus(AppointmentStatus.COMPLETED);
+          a.setPaid(true);
+          a.setPaymentMethod(PaymentMethod.CARD);
+          a.setPaidAt(date);
+        } else {
+          a.setStatus(AppointmentStatus.PENDING);
+        }
+        appointmentRepository.save(a);
+      }
+    }
   }
 }
