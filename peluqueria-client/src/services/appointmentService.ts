@@ -53,6 +53,11 @@ export const appointmentService = {
         return response.data;
     },
 
+    getByEmployee: async (employeeId: number) => {
+        const response = await apiClient.get<Appointment[]>(`/api/appointments/employee/${employeeId}`);
+        return response.data;
+    },
+
     create: async (data: CreateAppointmentRequest) => {
         const response = await apiClient.post<Appointment>('/api/appointments', data);
         return response.data;

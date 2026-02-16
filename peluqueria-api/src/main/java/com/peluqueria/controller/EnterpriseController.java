@@ -2,6 +2,7 @@ package com.peluqueria.controller;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import lombok.RequiredArgsConstructor;
 
 import com.peluqueria.service.EnterpriseService;
@@ -25,6 +26,7 @@ public class EnterpriseController {
   }
 
   @PostMapping
+  @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
   public ResponseEntity<EnterpriseResponse> create(@RequestBody Enterprise enterprise) {
     return ResponseEntity.ok(enterpriseService.save(enterprise));
   }
@@ -35,6 +37,7 @@ public class EnterpriseController {
   }
 
   @PutMapping("/{id}")
+  @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
   public ResponseEntity<EnterpriseResponse> update(@PathVariable Long id, @RequestBody Enterprise enterprise) {
     return ResponseEntity.ok(enterpriseService.update(id, enterprise));
   }

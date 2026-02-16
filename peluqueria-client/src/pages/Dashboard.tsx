@@ -20,6 +20,7 @@ import {
     Tooltip, 
     ResponsiveContainer
 } from 'recharts';
+import EmployeeDashboard from '@/components/dashboard/EmployeeDashboard';
 
 const StatCard = ({ title, value, icon: Icon, color, subtitle, delay = 0 }: any) => (
     <motion.div
@@ -46,6 +47,16 @@ const StatCard = ({ title, value, icon: Icon, color, subtitle, delay = 0 }: any)
 );
 
 const Dashboard = () => {
+    const { user } = useAuth();
+
+    if (user?.role === 'EMPLEADO') {
+        return <EmployeeDashboard />;
+    }
+
+    return <AdminDashboard />;
+};
+
+const AdminDashboard = () => {
     const { user } = useAuth();
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [loading, setLoading] = useState(true);

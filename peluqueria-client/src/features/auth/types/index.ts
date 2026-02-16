@@ -1,5 +1,6 @@
 export interface User {
   sub: string;
+  userId?: number;
   enterpriseName?: string;
   enterpriseId?: number;
   primaryColor?: string;

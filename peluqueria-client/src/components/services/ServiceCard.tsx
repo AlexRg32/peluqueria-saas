@@ -27,7 +27,9 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service, onDelete, isA
                          <span className="text-xs font-semibold tracking-wider text-brand-primary uppercase bg-brand-primary/10 px-2 py-1 rounded-full">{service.category}</span>
                          <h3 className="mt-2 text-lg font-bold text-slate-900 group-hover:text-brand-primary transition-colors">{service.name}</h3>
                     </div>
-                    <span className="text-xl font-bold text-slate-800">${service.price}</span>
+                    {isAdmin && (
+                        <span className="text-xl font-bold text-slate-800">${service.price}</span>
+                    )}
                 </div>
                 
                 <p className="text-slate-500 text-sm line-clamp-3 mb-4 flex-1">

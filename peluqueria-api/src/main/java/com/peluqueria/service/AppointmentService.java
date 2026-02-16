@@ -113,6 +113,12 @@ public class AppointmentService {
         .collect(Collectors.toList());
   }
 
+  public List<AppointmentResponse> findByEmployeeId(Long employeeId) {
+    return appointmentRepository.findByEmployeeIdOrderByDateDesc(employeeId).stream()
+        .map(this::mapToResponse)
+        .collect(Collectors.toList());
+  }
+
   public List<AppointmentResponse> findByUserEmail(String email) {
     User user = userRepository.findByEmail(email)
         .orElseThrow(() -> new RuntimeException("User not found"));

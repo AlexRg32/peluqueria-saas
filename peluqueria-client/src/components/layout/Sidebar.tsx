@@ -12,11 +12,11 @@ const Sidebar = ({ isMobile, onClose }: SidebarProps) => {
     const enterpriseName = enterprise?.name || user?.enterpriseName || 'Peluquería SaaS';
 
     const allNavItems = [
-        { name: 'Inicio', path: '/portal', roles: ['CLIENTE', 'USER', 'ADMIN', 'EMPLEADO', 'SUPER_ADMIN'] },
+        { name: 'Inicio', path: '/portal', roles: ['CLIENTE', 'USER', 'ADMIN', 'SUPER_ADMIN'] },
         { name: 'Dashboard', path: '/admin/dashboard', roles: ['ADMIN', 'EMPLEADO', 'SUPER_ADMIN'] },
         { name: 'Empresas Global', path: '/admin/superadmin/empresas', roles: ['SUPER_ADMIN'] },
+        { name: 'Agenda', path: '/admin/citas', roles: ['ADMIN', 'SUPER_ADMIN', 'EMPLEADO'] },
         { name: 'Servicios', path: '/admin/servicios', roles: ['ADMIN', 'EMPLEADO'] },
-        { name: 'Agenda', path: '/admin/citas', roles: ['ADMIN', 'SUPER_ADMIN'] },
         { name: 'Clientes', path: '/admin/clientes', roles: ['ADMIN', 'EMPLEADO'] },
         { name: 'Facturación', path: '/admin/facturacion', roles: ['ADMIN', 'SUPER_ADMIN'] },
         { name: 'Personal', path: '/admin/usuarios', roles: ['ADMIN'] },
@@ -72,14 +72,14 @@ const Sidebar = ({ isMobile, onClose }: SidebarProps) => {
                                     }`
                                 }
                             >
-                                {item.name}
+                                {item.name === 'Agenda' && user?.role === 'EMPLEADO' ? 'Mi Agenda' : item.name}
                             </NavLink>
                         </li>
                     ))}
                 </ul>
             </nav>
 
-            {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN' || user?.role === 'EMPLEADO') && (
+            {(user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') && (
                 <div className="mt-auto pt-6 border-t border-slate-700/50">
                     <p className="text-[10px] text-slate-500 uppercase font-bold tracking-[0.2em] mb-4 px-4">Configuración</p>
                     <NavLink
@@ -94,9 +94,7 @@ const Sidebar = ({ isMobile, onClose }: SidebarProps) => {
                         }
                     >
                         <Settings size={18} />
-                        <span className="text-sm">
-                            {user?.role === 'EMPLEADO' ? 'Info del Negocio' : 'Ajustes del Negocio'}
-                        </span>
+                        <span className="text-sm">Ajustes del Negocio</span>
                     </NavLink>
                 </div>
             )}

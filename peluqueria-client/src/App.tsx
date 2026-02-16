@@ -20,10 +20,18 @@ import { useAuth } from './features/auth/hooks/useAuth';
 
 const RoleRedirect = () => {
   const { user } = useAuth();
-  if (user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') {
+  if (user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN' || user?.role === 'EMPLEADO') {
     return <Navigate to="/admin/dashboard" replace />;
   }
   return <Navigate to="/portal" replace />;
+};
+
+const SmartHome = () => {
+  const { user, isAuthenticated } = useAuth();
+  if (isAuthenticated && (user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN' || user?.role === 'EMPLEADO')) {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+  return <ClientPortalPage />;
 };
 
 function App() {
@@ -33,7 +41,7 @@ function App() {
         <Routes>
           {/* Unified Client Experience - Public at root */}
           <Route element={<ClientPortalLayout />}>
-            <Route path="/" element={<ClientPortalPage />} />
+            <Route path="/" element={<SmartHome />} />
             <Route path="/search" element={<div className="p-10 text-center">Buscador próximamente</div>} />
             <Route path="/b/:slug" element={<div className="p-10 text-center">Perfil de Barbería próximamente</div>} />
             
@@ -56,21 +64,22 @@ function App() {
           <Route path="/register" element={<Navigate to="/auth/register" replace />} />
           <Route path="/portal" element={<Navigate to="/" replace />} />
 
-          {/* Admin Panel - Protected */}
           <Route path="/admin" element={<RequireAuth />}>
             <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPER_ADMIN', 'EMPLEADO']} />}>
               <Route element={<MainLayout />}>
                 <Route index element={<RoleRedirect />} />
                 <Route path="dashboard" element={<DashboardPage />} />
-                <Route path="empresas" element={<EnterprisePage />} />
                 
-                {/* Admin & Super Admin Routes */}
+                {/* Shared Routes: ADMIN, SUPER_ADMIN, EMPLEADO */}
+                <Route path="citas" element={<CalendarPage />} />
+                <Route path="servicios" element={<ServicesPage />} />
+                <Route path="clientes" element={<CustomersPage />} />
+                
+                {/* Admin & Super Admin Only Routes */}
                 <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'SUPER_ADMIN']} />}>
-                  <Route path="servicios" element={<ServicesPage />} />
                   <Route path="usuarios" element={<UsersPage />} />
-                  <Route path="citas" element={<CalendarPage />} />
-                  <Route path="clientes" element={<CustomersPage />} />
                   <Route path="facturacion" element={<BillingPage />} />
+                  <Route path="empresas" element={<EnterprisePage />} />
                 </Route>
 
                 {/* Super Admin Only Routes */}

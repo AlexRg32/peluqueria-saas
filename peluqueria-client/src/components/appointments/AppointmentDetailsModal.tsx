@@ -11,10 +11,11 @@ interface AppointmentDetailsModalProps {
     onClose: () => void;
     appointment: Appointment | null;
     onStatusUpdate: () => void;
+    isAdmin?: boolean;
 }
 
 export const AppointmentDetailsModal: React.FC<AppointmentDetailsModalProps> = ({
-    isOpen, onClose, appointment, onStatusUpdate
+    isOpen, onClose, appointment, onStatusUpdate, isAdmin = true
 }) => {
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
@@ -162,34 +163,36 @@ export const AppointmentDetailsModal: React.FC<AppointmentDetailsModalProps> = (
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between p-6 bg-slate-900 text-white rounded-3xl">
-                                    <div className="space-y-1">
-                                        <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Estado del Pago</p>
-                                        <div className="flex items-center gap-2">
-                                            {appointment.paid ? (
-                                                <>
-                                                    <CheckCircle size={18} className="text-emerald-400" />
-                                                    <span className="text-emerald-400 font-bold uppercase text-sm">Pagada</span>
-                                                    <span className="text-slate-400 text-xs">
-                                                        ({appointment.paymentMethod === 'CASH' ? 'Efectivo' : 'Tarjeta'})
-                                                    </span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Clock size={18} className="text-amber-400" />
-                                                    <span className="text-amber-400 font-bold uppercase text-sm">Pendiente</span>
-                                                </>
-                                            )}
+                                {isAdmin && (
+                                    <div className="flex items-center justify-between p-6 bg-slate-900 text-white rounded-3xl">
+                                        <div className="space-y-1">
+                                            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Estado del Pago</p>
+                                            <div className="flex items-center gap-2">
+                                                {appointment.paid ? (
+                                                    <>
+                                                        <CheckCircle size={18} className="text-emerald-400" />
+                                                        <span className="text-emerald-400 font-bold uppercase text-sm">Pagada</span>
+                                                        <span className="text-slate-400 text-xs">
+                                                            ({appointment.paymentMethod === 'CASH' ? 'Efectivo' : 'Tarjeta'})
+                                                        </span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Clock size={18} className="text-amber-400" />
+                                                        <span className="text-amber-400 font-bold uppercase text-sm">Pendiente</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Precio</p>
+                                            <p className="text-3xl font-black text-brand-primary">{appointment.price}€</p>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Precio</p>
-                                        <p className="text-3xl font-black text-brand-primary">{appointment.price}€</p>
-                                    </div>
-                                </div>
+                                )}
 
                                 <div className="flex flex-col gap-3">
-                                    {!appointment.paid ? (
+                                    {isAdmin && !appointment.paid ? (
                                         <button 
                                             onClick={() => setIsCheckoutOpen(true)}
                                             className="w-full py-4 bg-brand-primary hover:bg-brand-primary/90 text-slate-900 rounded-2xl font-black text-lg shadow-brand transition-all active:scale-95 flex items-center justify-center gap-2"
@@ -197,7 +200,7 @@ export const AppointmentDetailsModal: React.FC<AppointmentDetailsModalProps> = (
                                             <CheckCircle size={20} />
                                             COBRAR Y FINALIZAR
                                         </button>
-                                    ) : (
+                                    ) : isAdmin && appointment.paid ? (
                                         <button 
                                             onClick={handleGeneratePDF}
                                             className="w-full py-4 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
@@ -205,7 +208,7 @@ export const AppointmentDetailsModal: React.FC<AppointmentDetailsModalProps> = (
                                             <Printer size={20} />
                                             VER TICKET (PDF)
                                         </button>
-                                    )}
+                                    ) : null}
                                     <button 
                                         onClick={onClose}
                                         className="w-full py-3 text-slate-400 font-bold text-sm hover:text-slate-600 transition-colors"

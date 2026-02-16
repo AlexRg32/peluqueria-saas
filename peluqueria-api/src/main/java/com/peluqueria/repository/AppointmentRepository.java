@@ -40,4 +40,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
   List<Appointment> findByEmployeeIdAndDateBetween(Long employeeId, java.time.LocalDateTime start,
       java.time.LocalDateTime end);
+
+  List<Appointment> findByEmployeeIdOrderByDateDesc(Long employeeId);
 }

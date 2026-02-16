@@ -12,6 +12,7 @@ import { getEmployeeColor } from '../utils/colors';
 
 const CalendarPage = () => {
     const { user } = useAuth();
+    const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
     const [events, setEvents] = useState<any[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -19,35 +20,42 @@ const CalendarPage = () => {
     const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
 
     const loadAppointments = useCallback(async () => {
-        if (user?.enterpriseId) {
-            try {
-                const data = await appointmentService.getAll(user.enterpriseId);
-                const mappedEvents = data.map(app => {
-                    const color = getEmployeeColor(app.employeeName);
-                    return {
-                        id: app.id.toString(),
-                        title: `${app.customerName} - ${app.serviceName}`,
-                        start: app.date,
-                        end: new Date(new Date(app.date).getTime() + (app.duration || 30) * 60000),
-                        backgroundColor: color,
-                        borderColor: color,
-                        allDay: false,
-                        extendedProps: {
-                            ...app
-                        }
-                    };
-                });
-                setEvents(mappedEvents);
-                
-                if (selectedAppointment) {
-                    const updated = data.find(a => a.id === selectedAppointment.id);
-                    if (updated) setSelectedAppointment(updated);
-                }
-            } catch (err) {
-                console.error(err);
+        try {
+            let data: Appointment[];
+            if (!isAdmin && user?.userId) {
+                // Employee: only their appointments
+                data = await appointmentService.getByEmployee(user.userId);
+            } else if (user?.enterpriseId) {
+                // Admin: all enterprise appointments
+                data = await appointmentService.getAll(user.enterpriseId);
+            } else {
+                return;
             }
+            const mappedEvents = data.map(app => {
+                const color = getEmployeeColor(app.employeeName);
+                return {
+                    id: app.id.toString(),
+                    title: `${app.customerName} - ${app.serviceName}`,
+                    start: app.date,
+                    end: new Date(new Date(app.date).getTime() + (app.duration || 30) * 60000),
+                    backgroundColor: color,
+                    borderColor: color,
+                    allDay: false,
+                    extendedProps: {
+                        ...app
+                    }
+                };
+            });
+            setEvents(mappedEvents);
+            
+            if (selectedAppointment) {
+                const updated = data.find(a => a.id === selectedAppointment.id);
+                if (updated) setSelectedAppointment(updated);
+            }
+        } catch (err) {
+            console.error(err);
         }
-    }, [user?.enterpriseId, selectedAppointment]);
+    }, [user?.enterpriseId, user?.userId, isAdmin, selectedAppointment]);
 
     useEffect(() => {
         loadAppointments();
@@ -82,20 +90,22 @@ const CalendarPage = () => {
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
-                        Agenda de Citas
+                        {isAdmin ? 'Agenda de Citas' : 'Mi Agenda'}
                     </h1>
                     <p className="text-slate-500 mt-1">
-                        Gestión profesional de turnos para tu negocio.
+                        {isAdmin ? 'Gestión profesional de turnos para tu negocio.' : 'Tus citas programadas.'}
                     </p>
                 </div>
                 
-                <button
-                    onClick={() => { setSelectedDate(new Date()); setIsModalOpen(true); }}
-                    className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary/90 text-white px-6 py-2.5 rounded-xl font-semibold shadow-brand transition-all active:scale-95"
-                >
-                    <Plus size={18} />
-                    Nueva Cita
-                </button>
+                {isAdmin && (
+                    <button
+                        onClick={() => { setSelectedDate(new Date()); setIsModalOpen(true); }}
+                        className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary/90 text-white px-6 py-2.5 rounded-xl font-semibold shadow-brand transition-all active:scale-95"
+                    >
+                        <Plus size={18} />
+                        Nueva Cita
+                    </button>
+                )}
             </header>
 
             <div className="bg-white rounded-3xl p-6 shadow-xl shadow-slate-200/50 border border-slate-100 min-h-[700px]">
@@ -109,7 +119,7 @@ const CalendarPage = () => {
                     }}
                     locale="es"
                     events={events}
-                    selectable={true}
+                    selectable={isAdmin}
                     selectMirror={true}
                     dayMaxEvents={true}
                     weekends={true}
@@ -171,6 +181,7 @@ const CalendarPage = () => {
                 onClose={() => setIsDetailsOpen(false)}
                 appointment={selectedAppointment}
                 onStatusUpdate={loadAppointments}
+                isAdmin={isAdmin}
             />
 ...
             <style>{`
