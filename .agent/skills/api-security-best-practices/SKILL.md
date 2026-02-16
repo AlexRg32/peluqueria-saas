@@ -25,6 +25,7 @@ Guide developers in building secure APIs by implementing authentication, authori
 ### Step 1: Authentication & Authorization
 
 I'll help you implement secure authentication:
+
 - Choose authentication method (JWT, OAuth 2.0, API keys)
 - Implement token-based authentication
 - Set up role-based access control (RBAC)
@@ -34,6 +35,7 @@ I'll help you implement secure authentication:
 ### Step 2: Input Validation & Sanitization
 
 Protect against injection attacks:
+
 - Validate all input data
 - Sanitize user inputs
 - Use parameterized queries
@@ -43,6 +45,7 @@ Protect against injection attacks:
 ### Step 3: Rate Limiting & Throttling
 
 Prevent abuse and DDoS attacks:
+
 - Implement rate limiting per user/IP
 - Set up API throttling
 - Configure request quotas
@@ -52,6 +55,7 @@ Prevent abuse and DDoS attacks:
 ### Step 4: Data Protection
 
 Secure sensitive data:
+
 - Encrypt data in transit (HTTPS/TLS)
 - Encrypt sensitive data at rest
 - Implement proper error handling (no data leaks)
@@ -61,12 +65,12 @@ Secure sensitive data:
 ### Step 5: API Security Testing
 
 Verify security implementation:
+
 - Test authentication and authorization
 - Perform penetration testing
 - Check for common vulnerabilities (OWASP API Top 10)
 - Validate input handling
 - Test rate limiting
-
 
 ## Examples
 
@@ -321,7 +325,6 @@ app.post('/api/auth/refresh', async (req, res) => {
 - ✅ Implement token blacklisting for logout
 ```
 
-
 ### Example 2: Input Validation and SQL Injection Prevention
 
 ```markdown
@@ -520,7 +523,6 @@ app.post('/api/comments', authenticateToken, async (req, res) => {
 - [ ] Validate file uploads (type, size, content)
 - [ ] Use allowlists, not blocklists
 ```
-
 
 ### Example 3: Rate Limiting and DDoS Protection
 
@@ -725,6 +727,7 @@ Retry-After: 900
 ## Common Pitfalls
 
 ### Problem: JWT Secret Exposed in Code
+
 **Symptoms:** JWT secret hardcoded or committed to Git
 **Solution:**
 \`\`\`javascript
@@ -742,6 +745,7 @@ if (!JWT_SECRET) {
 \`\`\`
 
 ### Problem: Weak Password Requirements
+
 **Symptoms:** Users can set weak passwords like "password123"
 **Solution:**
 \`\`\`javascript
@@ -764,6 +768,7 @@ if (result.score < 3) {
 \`\`\`
 
 ### Problem: Missing Authorization Checks
+
 **Symptoms:** Users can access resources they shouldn't
 **Solution:**
 \`\`\`javascript
@@ -785,8 +790,8 @@ app.delete('/api/posts/:id', authenticateToken, async (req, res) => {
   
   // Check if user owns the post or is admin
   if (post.userId !== req.user.userId && req.user.role !== 'admin') {
-    return res.status(403).json({ 
-      error: 'Not authorized to delete this post' 
+    return res.status(403).json({
+      error: 'Not authorized to delete this post'
     });
   }
   
@@ -796,6 +801,7 @@ app.delete('/api/posts/:id', authenticateToken, async (req, res) => {
 \`\`\`
 
 ### Problem: Verbose Error Messages
+
 **Symptoms:** Error messages reveal system details
 **Solution:**
 \`\`\`javascript
@@ -817,7 +823,7 @@ app.post('/api/users', async (req, res) => {
     res.json(user);
   } catch (error) {
     console.error('User creation error:', error); // Log full error
-    
+
     if (error.code === 'P2002') {
       return res.status(400).json({ 
         error: 'Email already exists' 
@@ -834,6 +840,7 @@ app.post('/api/users', async (req, res) => {
 ## Security Checklist
 
 ### Authentication & Authorization
+
 - [ ] Implement strong authentication (JWT, OAuth 2.0)
 - [ ] Use HTTPS for all endpoints
 - [ ] Hash passwords with bcrypt (salt rounds >= 10)
@@ -843,6 +850,7 @@ app.post('/api/users', async (req, res) => {
 - [ ] Implement role-based access control (RBAC)
 
 ### Input Validation
+
 - [ ] Validate all user inputs
 - [ ] Use parameterized queries or ORM
 - [ ] Sanitize HTML content
@@ -850,14 +858,40 @@ app.post('/api/users', async (req, res) => {
 - [ ] Implement request schema validation
 - [ ] Use allowlists, not blocklists
 
-### Rate Limiting & DDoS Protection
-- [ ] Implement rate limiting per user/IP
-- [ ] Add stricter limits for auth endpoints
-- [ ] Use Redis for distributed rate limiting
-- [ ] Return proper rate limit headers
-- [ ] Implement request throttling
+### Rate Limiting & DDoS Protection (MANDATORY — Non-Negotiable)
+
+> **⚠️ CRITICAL: Rate limiting is NOT optional. Any auth or public endpoint without rate limiting is a security vulnerability and MUST be rejected during review.**
+
+- [ ] Implement rate limiting per IP on ALL public endpoints
+- [ ] Auth endpoints: **5 requests per 15 minutes per IP** (strict — prevents brute-force)
+- [ ] General API: **60 requests per minute per IP** (prevents DoS)
+- [ ] Rate limit filter executes BEFORE auth filters (saves CPU — no bcrypt/JWT for blocked requests)
+- [ ] Return HTTP `429 Too Many Requests` with `Retry-After` header
+- [ ] Return `X-RateLimit-Remaining` header on allowed requests
+- [ ] Use **Bucket4j** (Java/Spring Boot) or equivalent in-memory token bucket
+- [ ] For distributed deployments, consider Redis-backed rate limiting
+
+#### Spring Boot Implementation (Bucket4j)
+
+```java
+// RateLimitFilter.java — registered BEFORE UsernamePasswordAuthenticationFilter
+@Component
+public class RateLimitFilter extends OncePerRequestFilter {
+    // Auth: 5 req / 15 min per IP
+    // API:  60 req / 1 min per IP
+    // Uses ConcurrentHashMap<String, Bucket> keyed by client IP
+    // X-Forwarded-For aware for reverse proxy deployments
+}
+```
+
+#### Anti-Rationalization
+
+- ❌ "We'll add it later" → **NO. Ship rate limiting WITH the feature.**
+- ❌ "Frontend prevents spam" → **NO. Security lives server-side.**
+- ❌ "It's internal" → **NO. Internal APIs get brute-forced.**
 
 ### Data Protection
+
 - [ ] Use HTTPS/TLS for all traffic
 - [ ] Encrypt sensitive data at rest
 - [ ] Don't store sensitive data in JWT
@@ -866,6 +900,7 @@ app.post('/api/users', async (req, res) => {
 - [ ] Use security headers (Helmet.js)
 
 ### Monitoring & Logging
+
 - [ ] Log security events
 - [ ] Monitor for suspicious activity
 - [ ] Set up alerts for failed auth attempts

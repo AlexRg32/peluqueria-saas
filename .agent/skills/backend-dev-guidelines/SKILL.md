@@ -220,7 +220,51 @@ src/main/java/com/peluqueria/
 
 ---
 
-## 9. Testing Discipline
+## 9. API Security (Non-Negotiable)
+
+### Rate Limiting Is Mandatory
+
+**ANY endpoint exposed to unauthenticated users MUST have rate limiting.** This is not optional.
+
+#### Rules
+
+1. **Auth endpoints** (`/auth/login`, `/auth/register`, password reset, etc.) → **5 requests per 15 minutes per IP**. This prevents brute-force attacks and protects the expensive bcrypt hashing.
+2. **General API endpoints** → **60 requests per minute per IP**. This prevents DoS attacks from overwhelming the backend.
+3. **Static/file endpoints** (`/uploads/**`, health checks) → Exempt from rate limiting.
+4. **Rate limit filter MUST execute BEFORE Spring Security filters** — if a client is rate-limited, we skip all expensive work (JWT parsing, DB lookups, bcrypt).
+5. **Response**: Return HTTP `429 Too Many Requests` with `Retry-After` header when limit is exceeded.
+
+#### Implementation Pattern (Bucket4j)
+
+```java
+// SecurityConfig.java — Filter ordering is CRITICAL
+.addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
+.addFilterAfter(jwtAuthFilter, RateLimitFilter.class)
+```
+
+#### When to Apply
+
+* ✅ Creating ANY new auth endpoint (login, register, forgot-password, verify-email)
+* ✅ Adding new public-facing endpoints (contact forms, public APIs)
+* ✅ Every new Spring Boot project setup (rate limiting from day 1)
+
+#### Anti-Rationalization
+
+* ❌ "We'll add rate limiting later" — **NO. It ships with the feature or the feature doesn't ship.**
+* ❌ "It's just an internal API" — **NO. Internal APIs get brute-forced too.**
+* ❌ "The frontend already prevents spam" — **NO. Frontend validation is cosmetic; security lives in the backend.**
+
+### Account Lockout Awareness
+
+When implementing authentication:
+
+* Log failed authentication attempts
+* Consider temporary IP-based bans after repeated failures (handled by rate limiting)
+* Never reveal whether an email exists (use generic "Invalid credentials" messages)
+
+---
+
+## 10. Testing Discipline
 
 ### Required Tests
 
@@ -230,7 +274,7 @@ src/main/java/com/peluqueria/
 
 ---
 
-## 10. Anti-Patterns (Immediate Rejection)
+## 11. Anti-Patterns (Immediate Rejection)
 
 ❌ Business logic in controllers
 ❌ Skipping service layer
@@ -239,10 +283,13 @@ src/main/java/com/peluqueria/
 ❌ Using raw JDBC when JPA is available
 ❌ Swallow exceptions in catch blocks
 ❌ Untested business logic
+❌ **Auth endpoints without rate limiting**
+❌ **Public endpoints without rate limiting**
+❌ **Rate limit filter placed AFTER authentication filters**
 
 ---
 
-## 11. Skill Status
+## 12. Skill Status
 
 **Status:** Stable · Enforceable · Production-grade
 **Intended Use:** Spring Boot microservices for the Peluquería SaaS platform

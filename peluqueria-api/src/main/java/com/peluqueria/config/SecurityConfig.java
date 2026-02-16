@@ -1,6 +1,7 @@
 package com.peluqueria.config;
 
 import com.peluqueria.security.JwtAuthenticationFilter;
+import com.peluqueria.security.RateLimitFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +24,7 @@ import java.util.Arrays;
 public class SecurityConfig {
 
   private final JwtAuthenticationFilter jwtAuthFilter;
+  private final RateLimitFilter rateLimitFilter;
   private final AuthenticationProvider authenticationProvider;
 
   @org.springframework.beans.factory.annotation.Value("${app.cors.allowed-origins}")
@@ -40,7 +42,8 @@ public class SecurityConfig {
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authenticationProvider(authenticationProvider)
-        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
+        .addFilterAfter(jwtAuthFilter, RateLimitFilter.class)
         .exceptionHandling(exception -> exception
             .authenticationEntryPoint((request, response, authException) -> {
               response.setStatus(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED);
