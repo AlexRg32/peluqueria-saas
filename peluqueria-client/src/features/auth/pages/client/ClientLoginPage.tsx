@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import ClientLoginForm from '../../components/client/ClientLoginForm';
 import { useAuth } from '../../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 
 export const ClientLoginPage: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
@@ -19,6 +20,16 @@ export const ClientLoginPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] px-4 overflow-hidden relative">
+      <Link 
+        to="/" 
+        className="absolute top-6 left-6 lg:top-10 lg:left-10 z-50 flex items-center gap-2 font-bold text-slate-500 hover:text-slate-900 transition-colors group"
+      >
+        <div className="p-2 rounded-xl bg-slate-100 group-hover:bg-slate-200 transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+        </div>
+        <span className="hidden sm:inline">Volver al inicio</span>
+      </Link>
+
       {/* Elementos decorativos de fondo */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-primary/10 rounded-full blur-[120px]"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-brand-primary/5 rounded-full blur-[120px]"></div>

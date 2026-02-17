@@ -52,58 +52,58 @@ export const ProLoginForm: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-md p-8 space-y-6 bg-[#1e293b] rounded-2xl shadow-2xl border border-slate-700/50 backdrop-blur-sm">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold text-white tracking-tight">Acceso Profesional</h2>
-        <p className="mt-2 text-slate-400">Gestiona tu negocio de peluquería</p>
+    <div className="w-full max-w-md p-8 bg-[#1e293b]/70 backdrop-blur-xl rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-slate-700/50">
+      <div className="text-center mb-10">
+        <h2 className="text-4xl font-black text-white tracking-tight mb-2">Acceso Profesional</h2>
+        <p className="text-slate-400 font-medium">Gestiona tu negocio de peluquería</p>
       </div>
 
-      <form className="mt-8 space-y-4" onSubmit={handleSubmit(onSubmit)}>
+      <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
         {error && (
-          <div className="p-3 text-sm text-red-400 bg-red-400/10 border border-red-400/20 rounded-lg">
+          <div className="p-4 text-sm text-red-400 bg-red-400/10 border border-red-400/20 rounded-2xl">
             {error}
           </div>
         )}
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-slate-300">
+          <label htmlFor="email" className="block text-sm font-bold text-slate-300 ml-1 mb-1">
             Email Profesional
           </label>
           <input
             id="email"
             type="email"
             {...register('email')}
-            className={`mt-1 block w-full px-4 py-3 bg-slate-900/50 border ${
+            className={`block w-full px-5 py-4 bg-slate-900/50 border ${
               errors.email ? 'border-red-500' : 'border-slate-700'
-            } rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all duration-200`}
+            } rounded-2xl text-white focus:outline-none focus:ring-4 focus:ring-brand-primary/10 transition-all duration-200 placeholder:text-slate-500`}
             placeholder="correo@empresa.com"
           />
-          {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
+          {errors.email && <p className="mt-1.5 text-xs font-bold text-red-500 pr-2 text-right">{errors.email.message}</p>}
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-slate-300">
+          <label htmlFor="password" className="block text-sm font-bold text-slate-300 ml-1 mb-1">
             Contraseña
           </label>
           <input
             id="password"
             type="password"
             {...register('password')}
-            className={`mt-1 block w-full px-4 py-3 bg-slate-900/50 border ${
+            className={`block w-full px-5 py-4 bg-slate-900/50 border ${
               errors.password ? 'border-red-500' : 'border-slate-700'
-            } rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-brand-primary transition-all duration-200`}
+            } rounded-2xl text-white focus:outline-none focus:ring-4 focus:ring-brand-primary/10 transition-all duration-200 placeholder:text-slate-500`}
             placeholder="••••••••"
           />
-          {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>}
+          {errors.password && <p className="mt-1.5 text-xs font-bold text-red-500 pr-2 text-right">{errors.password.message}</p>}
         </div>
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-slate-900 bg-brand-primary hover:bg-brand-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full flex justify-center py-4 px-6 border border-transparent rounded-2xl shadow-xl text-lg font-bold text-slate-900 bg-brand-primary hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-brand-primary/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? (
-            <div className="w-5 h-5 border-2 border-[#0f172a] border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-6 h-6 border-3 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
           ) : (
             'Entrar al Panel'
           )}
