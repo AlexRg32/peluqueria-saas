@@ -42,3 +42,13 @@ Global constraints for all agents in the SaaS Orchestrator Framework.
 
 - **DESTRUCTIVE ACTIONS**: Always show a confirmation modal before deleting any resource (User, Appointment, Service, Customer, etc.) to prevent accidental data loss. This is mandatory for all frontend implementations.
 - **SEARCHABLE SELECTS**: For any input field that involves selecting from a potentially large list (e.g., more than 10-15 items like Customers, Services, or Employees), **MANDATORY** to use a searchable select component (Combobox/Autocomplete). These components must be **compact** (dropdown/popover style) and **NOT occupy the full screen** to maintain a clean and non-intrusive UI.
+
+## 6. Documentation Standard
+
+- **SINGLE SOURCE OF TRUTH**: The `docs/` folder is the canonical source of truth for the project.
+- **ALWAYS UP-TO-DATE**: Every PR or feature implementation MUST update the relevant documentation files:
+  - `04-backend.md`: For new APIs, DTOs, or Controller changes.
+  - `05-frontend.md`: For new UI Components, Routes, or Stores.
+  - `06-base-de-datos.md`: For Schema changes or new Entities.
+  - `02-guia-usuario.md`: For new user-facing features.
+- **FORMAT**: Use GitHub-flavored Markdown. Maintain the existing structure and index.
