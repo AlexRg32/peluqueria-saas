@@ -7,6 +7,15 @@ Una plataforma SaaS profesional de nivel empresarial diseñada para gestionar m�
 ![React](https://img.shields.io/badge/React-18.x-blue)
 ![Docker](https://img.shields.io/badge/Docker-Listo-blue)
 
+## 📚 Documentación Completa
+
+Puede consultar la documentación técnica, manuales de usuario y guías de desarrollo en la carpeta **[`/docs`](./docs/00-index.md)**.
+
+- [Visión General](./docs/01-vision-general.md)
+- [Guía de Usuario](./docs/02-guia-usuario.md)
+- [Arquitectura Técnica](./docs/03-arquitectura-tecnica.md)
+- [Backend](./docs/04-backend.md) y [Frontend](./docs/05-frontend.md)
+
 ## 🌟 Resumen
 
 Este proyecto es una aplicación multi-empresa (multi-tenant) que permite a dueños de negocios gestionar sus empresas (barberías o salones de belleza), servicios, empleados y citas. Incluye un CRM completo para la gestión de clientes y un dashboard basado en datos para obtener información clave del negocio.
