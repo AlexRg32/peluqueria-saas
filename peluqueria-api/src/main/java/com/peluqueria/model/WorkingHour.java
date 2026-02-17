@@ -18,6 +18,7 @@ public class WorkingHour {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @jakarta.persistence.Column(name = "\"day\"")
   private String day;
 
   private String startTime;

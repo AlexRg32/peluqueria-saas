@@ -361,7 +361,39 @@ src/
 
 ---
 
-## 16. Anti-Patterns (Immediate Rejection)
+## 16. Testing Discipline (Non-Negotiable)
+
+### Required Tests
+
+* **Component tests** for all non-trivial components (using Vitest + React Testing Library)
+* **Hook tests** for custom hooks with business logic
+* **Integration tests** for features that combine multiple components
+* **API layer tests** for request/response handling and error cases
+
+### Test Commands
+
+```bash
+# Run all frontend tests
+cd peluqueria-client && npm test
+
+# Run specific test
+cd peluqueria-client && npx vitest run ComponentName.test.tsx
+```
+
+### Test File Convention
+
+* Tests live next to the file they test: `MyComponent.tsx` → `MyComponent.test.tsx`
+* Test factories in `src/utils/testUtils.tsx`
+
+### Anti-Rationalization
+
+* ❌ "It's just a simple component" — **NO. Simple components get simple tests.**
+* ❌ "Testing UI is hard" — **NO. Test behavior (user interactions), not pixels.**
+* ❌ "I'll add tests later" — **NO. Test FIRST, then implement.**
+
+---
+
+## 17. Anti-Patterns (Immediate Rejection)
 
 ❌ Early loading returns
 ❌ Feature logic in `components/`
@@ -369,20 +401,23 @@ src/
 ❌ Inline API calls
 ❌ Untyped responses
 ❌ Multiple responsibilities in one component
+❌ **Untested components or features**
+❌ **Pushing code without running `npm test`**
 
 ---
 
-## 17. Integration With Other Skills
+## 18. Integration With Other Skills
 
 * **frontend-design** → Visual systems & aesthetics
 * **page-cro** → Layout hierarchy & conversion logic
 * **analytics-tracking** → Event instrumentation
 * **backend-dev-guidelines** → API contract alignment
 * **error-tracking** → Runtime observability
+* **testing-patterns** → Test factories, mocking, TDD workflow
 
 ---
 
-## 18. Operator Validation Checklist
+## 19. Operator Validation Checklist
 
 Before finalizing code:
 
@@ -393,10 +428,11 @@ Before finalizing code:
 * [ ] Types explicit and correct
 * [ ] Lazy loading applied
 * [ ] Performance safe
+* [ ] **Tests exist and pass**
 
 ---
 
-## 19. Skill Status
+## 20. Skill Status
 
 **Status:** Stable, opinionated, and enforceable
 **Intended Use:** Production React codebases with long-term maintenance horizons
