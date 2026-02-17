@@ -30,5 +30,9 @@ export interface EnterpriseSummary {
     name: string;
     city: string;
     rating: number;
+    reviewCount: number;
     thumbnail: string;
+    services: string[];
+    priceRange: string;
+    distance?: string;
 }

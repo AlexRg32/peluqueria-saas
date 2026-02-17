@@ -3,6 +3,7 @@ import { Menu, X, Scissors, Calendar, Search, LogOut } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
+import BottomTabBar from './BottomTabBar';
 
 const ClientPortalLayout = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -17,16 +18,16 @@ const ClientPortalLayout = () => {
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900">
             {/* Top Navbar */}
-            <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
+            <nav className="bg-white/80 backdrop-blur-xl border-b border-slate-200/80 sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-20">
+                    <div className="flex justify-between items-center h-16 sm:h-20">
                         {/* Logo */}
                         <div className="flex items-center">
-                            <Link to="/" className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center shadow-lg">
-                                    <Scissors className="text-slate-900 w-6 h-6" />
+                            <Link to="/" className="flex items-center gap-2.5">
+                                <div className="w-9 h-9 bg-brand-primary rounded-xl flex items-center justify-center shadow-lg">
+                                    <Scissors className="text-slate-900 w-5 h-5" />
                                 </div>
-                                <span className="font-black text-2xl tracking-tighter hidden sm:block">
+                                <span className="font-black text-xl tracking-tighter hidden sm:block">
                                     Peluquería<span className="text-brand-primary">SaaS</span>
                                 </span>
                             </Link>
@@ -38,9 +39,9 @@ const ClientPortalLayout = () => {
                                 const Icon = item.icon;
                                 const isActive = location.pathname === item.path;
                                 return (
-                                    <Link 
+                                    <Link
                                         key={item.path}
-                                        to={item.path} 
+                                        to={item.path}
                                         className={`flex items-center gap-2 font-bold text-sm uppercase tracking-widest transition-all hover:text-brand-primary ${
                                             isActive ? 'text-brand-primary' : 'text-slate-500'
                                         }`}
@@ -56,34 +57,41 @@ const ClientPortalLayout = () => {
                         <div className="hidden md:flex items-center gap-6 border-l border-slate-100 pl-8 ml-4">
                             {isAuthenticated ? (
                                 <>
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-brand-primary border-2 border-slate-50">
+                                    <Link
+                                        to="/perfil"
+                                        className="flex items-center gap-3 px-3 py-2 -mx-3 -my-2 rounded-xl hover:bg-slate-50 transition-all duration-200 group"
+                                    >
+                                        <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center font-bold text-sm text-brand-primary border-2 border-slate-50 group-hover:border-brand-primary/30 group-hover:bg-brand-primary/10 transition-all duration-200">
                                             {(user as any)?.name?.[0] || 'U'}
                                         </div>
                                         <div className="flex flex-col">
-                                            <span className="text-sm font-bold text-slate-900 leading-none">{(user as any)?.name || 'Usuario'}</span>
-                                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">Cliente</span>
+                                            <span className="text-sm font-bold text-slate-900 leading-none group-hover:text-brand-primary transition-colors">
+                                                {(user as any)?.name || 'Usuario'}
+                                            </span>
+                                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">
+                                                Cliente
+                                            </span>
                                         </div>
-                                    </div>
-                                    <button 
+                                    </Link>
+                                    <button
                                         onClick={logout}
-                                        className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
                                         title="Cerrar Sesión"
                                     >
-                                        <LogOut size={20} />
+                                        <LogOut size={18} />
                                     </button>
                                 </>
                             ) : (
                                 <div className="flex items-center gap-3">
-                                    <Link 
-                                        to="/auth/login" 
-                                        className="text-sm font-black uppercase tracking-widest text-slate-600 hover:text-brand-primary transition-colors"
+                                    <Link
+                                        to="/auth/login"
+                                        className="text-sm font-bold text-slate-600 hover:text-brand-primary transition-colors"
                                     >
                                         Acceder
                                     </Link>
-                                    <Link 
-                                        to="/auth/register" 
-                                        className="bg-slate-900 text-white px-6 py-2.5 rounded-xl font-black text-sm uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg"
+                                    <Link
+                                        to="/auth/register"
+                                        className="bg-slate-900 text-white px-5 py-2 rounded-xl font-bold text-sm hover:bg-slate-800 transition-all shadow-lg"
                                     >
                                         Registrarse
                                     </Link>
@@ -94,15 +102,18 @@ const ClientPortalLayout = () => {
                         {/* Mobile menu button */}
                         <div className="flex items-center md:hidden">
                             {!isAuthenticated && (
-                                <Link to="/auth/login" className="mr-4 text-xs font-black uppercase tracking-widest text-slate-600">
+                                <Link
+                                    to="/auth/login"
+                                    className="mr-3 text-xs font-bold text-slate-600"
+                                >
                                     Acceder
                                 </Link>
                             )}
                             <button
                                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                className="p-2.5 rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 transition-colors"
+                                className="p-2 rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 transition-colors"
                             >
-                                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                                {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
                             </button>
                         </div>
                     </div>
@@ -111,7 +122,7 @@ const ClientPortalLayout = () => {
                 {/* Mobile Menu */}
                 <AnimatePresence>
                     {isMenuOpen && (
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: 'auto' }}
                             exit={{ opacity: 0, height: 0 }}
@@ -122,19 +133,19 @@ const ClientPortalLayout = () => {
                                     <Link
                                         key={item.path}
                                         to={item.path}
-                                        className="flex items-center gap-3 px-4 py-4 rounded-2xl text-base font-bold text-slate-700 hover:bg-slate-50"
+                                        className="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-bold text-slate-700 hover:bg-slate-50"
                                         onClick={() => setIsMenuOpen(false)}
                                     >
                                         <item.icon size={20} className="text-brand-primary" />
                                         {item.name}
                                     </Link>
                                 ))}
-                                
+
                                 {isAuthenticated ? (
                                     <div className="pt-4 border-t border-slate-100">
                                         <button
                                             onClick={logout}
-                                            className="flex items-center gap-3 w-full px-4 py-4 rounded-2xl text-base font-bold text-red-500 hover:bg-red-50"
+                                            className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-base font-bold text-red-500 hover:bg-red-50"
                                         >
                                             <LogOut size={20} />
                                             Cerrar Sesión
@@ -144,14 +155,14 @@ const ClientPortalLayout = () => {
                                     <div className="pt-4 border-t border-slate-100 flex flex-col gap-2">
                                         <Link
                                             to="/auth/login"
-                                            className="flex items-center justify-center w-full px-4 py-4 rounded-2xl text-base font-black text-slate-900 border border-slate-200"
+                                            className="flex items-center justify-center w-full px-4 py-3 rounded-xl text-base font-bold text-slate-900 border border-slate-200"
                                             onClick={() => setIsMenuOpen(false)}
                                         >
                                             Iniciar Sesión
                                         </Link>
                                         <Link
                                             to="/auth/register"
-                                            className="flex items-center justify-center w-full px-4 py-4 rounded-2xl text-base font-black text-white bg-slate-900"
+                                            className="flex items-center justify-center w-full px-4 py-3 rounded-xl text-base font-bold text-white bg-slate-900"
                                             onClick={() => setIsMenuOpen(false)}
                                         >
                                             Crear Cuenta
@@ -165,48 +176,27 @@ const ClientPortalLayout = () => {
             </nav>
 
             {/* Main Content */}
-            <main className="flex-grow p-4 md:p-10">
+            <main className="flex-grow px-4 py-6 md:px-6 md:py-8 lg:px-10">
                 <div className="max-w-7xl mx-auto">
                     <Outlet />
                 </div>
             </main>
 
-            {/* Simple Bottom Nav for Mobile - Only for Auth Users */}
-            {isAuthenticated && (
-                <div className="md:hidden fixed bottom-6 left-4 right-4 z-50">
-                    <div className="bg-slate-900/90 backdrop-blur-xl rounded-[28px] p-2 flex justify-around items-center shadow-2xl border border-white/10">
-                        {navItems.map((item) => {
-                            const Icon = item.icon;
-                            const isActive = location.pathname === item.path;
-                            return (
-                                <Link 
-                                    key={item.path}
-                                    to={item.path}
-                                    className={`flex flex-col items-center gap-1 p-3 rounded-2xl transition-all ${
-                                        isActive ? 'text-brand-primary bg-white/5' : 'text-slate-400'
-                                    }`}
-                                >
-                                    <Icon size={24} />
-                                    <span className="text-[10px] font-black uppercase tracking-widest">{item.name}</span>
-                                </Link>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
+            {/* Bottom Tab Bar - Mobile only, always visible */}
+            <BottomTabBar />
 
-            {/* Footer */}
-            <footer className="bg-white border-t border-slate-200 py-12 px-4">
+            {/* Footer - Desktop only */}
+            <footer className="hidden md:block bg-white border-t border-slate-200 py-8 px-4">
                 <div className="max-w-7xl mx-auto text-center">
-                    <div className="flex items-center justify-center gap-3 mb-6">
-                        <div className="w-8 h-8 bg-brand-primary/10 rounded-lg flex items-center justify-center">
-                            <Scissors size={18} className="text-brand-primary" />
+                    <div className="flex items-center justify-center gap-2.5 mb-4">
+                        <div className="w-7 h-7 bg-brand-primary/10 rounded-lg flex items-center justify-center">
+                            <Scissors size={16} className="text-brand-primary" />
                         </div>
-                        <span className="font-black text-lg tracking-tighter">
+                        <span className="font-black text-base tracking-tighter">
                             Peluquería<span className="text-brand-primary">SaaS</span>
                         </span>
                     </div>
-                    <p className="text-slate-400 text-sm font-medium">
+                    <p className="text-slate-400 text-xs font-medium">
                         &copy; 2026 Peluquería SaaS. Tu centro de belleza personal.
                     </p>
                 </div>

@@ -9,6 +9,8 @@ import CustomersPage from './pages/Customers';
 import DashboardPage from './pages/Dashboard';
 import ClientPortalPage from './pages/ClientPortal';
 import BillingPage from './pages/Billing';
+import SearchPage from './pages/SearchPage';
+import ProfilePlaceholder from './pages/ProfilePlaceholder';
 import { AuthProvider } from './features/auth/context/AuthContext';
 import RequireAuth from './features/auth/components/RequireAuth';
 import ProtectedRoute from './features/auth/components/ProtectedRoute';
@@ -42,12 +44,13 @@ function App() {
           {/* Unified Client Experience - Public at root */}
           <Route element={<ClientPortalLayout />}>
             <Route path="/" element={<SmartHome />} />
-            <Route path="/search" element={<div className="p-10 text-center">Buscador próximamente</div>} />
+            <Route path="/search" element={<SearchPage />} />
             <Route path="/b/:slug" element={<div className="p-10 text-center">Perfil de Barbería próximamente</div>} />
             
             {/* Protected Client Routes */}
             <Route element={<RequireAuth />}>
               <Route path="/citas" element={<div>Próximamente: Historial de Citas</div>} />
+              <Route path="/perfil" element={<ProfilePlaceholder />} />
             </Route>
           </Route>
 
