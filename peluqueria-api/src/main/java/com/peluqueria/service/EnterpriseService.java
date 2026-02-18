@@ -43,6 +43,12 @@ public class EnterpriseService {
     return mapToResponse(findById(id));
   }
 
+  public EnterpriseResponse findBySlug(String slug) {
+    Enterprise enterprise = enterpriseRepository.findBySlug(slug)
+        .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada: " + slug));
+    return mapToResponse(enterprise);
+  }
+
   public EnterpriseResponse update(Long id, Enterprise enterpriseDetails) {
     Enterprise enterprise = findById(id);
 
@@ -86,6 +92,7 @@ public class EnterpriseService {
     return EnterpriseResponse.builder()
         .id(enterprise.getId())
         .name(enterprise.getName())
+        .slug(enterprise.getSlug())
         .cif(enterprise.getCif())
         .address(enterprise.getAddress())
         .phone(enterprise.getPhone())

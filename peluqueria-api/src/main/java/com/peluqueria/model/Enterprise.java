@@ -46,4 +46,7 @@ public class Enterprise {
   private String secondaryColor;
 
   private String description;
+
+  @Column(unique = true)
+  private String slug;
 }

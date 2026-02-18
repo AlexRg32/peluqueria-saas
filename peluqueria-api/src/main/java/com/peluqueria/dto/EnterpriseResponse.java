@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class EnterpriseResponse {
   private Long id;
   private String name;
+  private String slug;
   private String cif;
   private String address;
   private String phone;

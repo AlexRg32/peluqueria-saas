@@ -8,4 +8,6 @@ public interface EnterpriseRepository extends JpaRepository<Enterprise, Long> {
   Optional<Enterprise> findByCif(String cif);
 
   Optional<Enterprise> findByName(String name);
+
+  Optional<Enterprise> findBySlug(String slug);
 }
