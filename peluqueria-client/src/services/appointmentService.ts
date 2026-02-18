@@ -20,6 +20,9 @@ export interface Appointment {
     paid: boolean;
     paymentMethod?: 'CASH' | 'CARD';
     paidAt?: string;
+    enterpriseId?: number;
+    enterpriseName?: string;
+    enterpriseSlug?: string;
 }
 
 export interface BillingSummary {

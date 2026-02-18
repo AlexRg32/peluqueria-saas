@@ -33,5 +33,10 @@ export const enterpriseService = {
     getEmployees: async (id: number) => {
         const response = await apiClient.get<any[]>(`/api/enterprises/${id}/employees`);
         return response.data;
+    },
+
+    getBySlug: async (slug: string) => {
+        const response = await apiClient.get<Enterprise>(`/api/public/enterprises/slug/${slug}`);
+        return response.data;
     }
 };

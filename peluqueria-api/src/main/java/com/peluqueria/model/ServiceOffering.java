@@ -11,8 +11,15 @@ import lombok.Data;
 import jakarta.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 @Entity
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "service_offerings")
 public class ServiceOffering {
   @Id

@@ -82,7 +82,7 @@ const UpcomingAppointments = ({ appointments, loading, isAuthenticated }: Upcomi
                     <AppointmentCard
                         key={app.id}
                         serviceName={app.serviceName}
-                        salonName={app.employeeName}
+                        salonName={app.enterpriseName || app.employeeName}
                         date={new Date(app.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
                         time={new Date(app.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                         status={app.status}

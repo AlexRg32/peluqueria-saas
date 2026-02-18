@@ -26,8 +26,10 @@ public class DataSeeder {
   @Bean
   CommandLineRunner initDatabase() {
     return args -> {
-      String seedFlag = System.getProperty("seed.portfolio", System.getenv("SEED_PORTFOLIO"));
-      if ("true".equalsIgnoreCase(seedFlag)) {
+      boolean seedRequested = Arrays.asList(args).contains("--seed.portfolio=true") ||
+          "true".equalsIgnoreCase(System.getProperty("seed.portfolio")) ||
+          "true".equalsIgnoreCase(System.getenv("SEED_PORTFOLIO"));
+      if (seedRequested) {
         seederService.seed();
       }
     };
@@ -50,10 +52,9 @@ public class DataSeeder {
 
     @Transactional
     public void seed() {
+      System.out.println("🚀 SEEDING PORTFOLIO DATA...");
       // 1. LIMPIEZA TOTAL (Nuclear Reset)
-      // Eliminamos restricciones y truncamos para un reinicio limpio
       try {
-        // Primero eliminamos todas las foreign keys (residuos de esquemas antiguos)
         entityManager.createNativeQuery(
             "DO $$ DECLARE r RECORD; " +
                 "BEGIN " +
@@ -65,7 +66,6 @@ public class DataSeeder {
                 "END $$;")
             .executeUpdate();
 
-        // Ahora truncamos todas las tablas
         entityManager.createNativeQuery(
             "DO $$ DECLARE r RECORD; " +
                 "BEGIN " +
@@ -82,7 +82,9 @@ public class DataSeeder {
 
       // 2. CREAR EMPRESAS
       Enterprise mainEnterprise = createEnterprise("Peluking Premium ✨", "B12345678",
-          "Calle de la Estética 12, Madrid");
+          "Calle de la Estética 12, Madrid", "peluking-premium");
+
+      createEnterprise("Barbería Paco", "B87654321", "Calle del Peinado 5, Madrid", "barberia-paco");
 
       // 3. CREAR USUARIOS DE PRUEBA
       User admin = userRepository.save(User.builder()
@@ -149,15 +151,29 @@ public class DataSeeder {
       }
       customerRepository.saveAll(customers);
 
+      // Create a customer link for the test client
+      User clientUser = userRepository.findByEmail("cliente@peluqueria.com").get();
+      Customer linkedCustomer = customerRepository.save(Customer.builder()
+          .name(clientUser.getName())
+          .email(clientUser.getEmail())
+          .phone(clientUser.getPhone())
+          .enterprise(mainEnterprise)
+          .user(clientUser)
+          .visitsCount(3)
+          .build());
+      customers.add(linkedCustomer);
+
       // 7. CITAS
       seedAppointments(mainEnterprise, List.of(admin, employee), services, customers);
+      System.out.println("✅ SEEDING COMPLETED SUCCESSFULLY!");
     }
 
-    private Enterprise createEnterprise(String name, String cif, String address) {
+    private Enterprise createEnterprise(String name, String cif, String address, String slug) {
       Enterprise e = new Enterprise();
       e.setName(name);
       e.setCif(cif);
       e.setAddress(address);
+      e.setSlug(slug);
       return enterpriseRepository.save(e);
     }
 

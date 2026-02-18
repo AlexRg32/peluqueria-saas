@@ -24,4 +24,7 @@ public class AppointmentResponse {
   private boolean paid;
   private String paymentMethod;
   private LocalDateTime paidAt;
+  private Long enterpriseId;
+  private String enterpriseName;
+  private String enterpriseSlug;
 }

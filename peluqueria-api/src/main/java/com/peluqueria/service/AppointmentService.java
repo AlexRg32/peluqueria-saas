@@ -178,6 +178,9 @@ public class AppointmentService {
         .paid(a.isPaid())
         .paymentMethod(a.getPaymentMethod() != null ? a.getPaymentMethod().name() : null)
         .paidAt(a.getPaidAt())
+        .enterpriseId(a.getEnterprise().getId())
+        .enterpriseName(a.getEnterprise().getName())
+        .enterpriseSlug(a.getEnterprise().getSlug())
         .build();
   }
 }

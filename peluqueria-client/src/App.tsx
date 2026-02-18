@@ -11,6 +11,8 @@ import ClientPortalPage from './pages/ClientPortal';
 import BillingPage from './pages/Billing';
 import SearchPage from './pages/SearchPage';
 import ProfilePlaceholder from './pages/ProfilePlaceholder';
+import BarbershopProfilePage from './pages/BarbershopProfilePage';
+import AppointmentHistoryPage from './pages/AppointmentHistoryPage';
 import { AuthProvider } from './features/auth/context/AuthContext';
 import RequireAuth from './features/auth/components/RequireAuth';
 import ProtectedRoute from './features/auth/components/ProtectedRoute';
@@ -45,11 +47,11 @@ function App() {
           <Route element={<ClientPortalLayout />}>
             <Route path="/" element={<SmartHome />} />
             <Route path="/search" element={<SearchPage />} />
-            <Route path="/b/:slug" element={<div className="p-10 text-center">Perfil de Barbería próximamente</div>} />
+            <Route path="/b/:slug" element={<BarbershopProfilePage />} />
             
             {/* Protected Client Routes */}
             <Route element={<RequireAuth />}>
-              <Route path="/citas" element={<div>Próximamente: Historial de Citas</div>} />
+              <Route path="/citas" element={<AppointmentHistoryPage />} />
               <Route path="/perfil" element={<ProfilePlaceholder />} />
             </Route>
           </Route>
