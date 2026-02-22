@@ -13,21 +13,28 @@ import com.peluqueria.model.ServiceOffering;
 import com.peluqueria.dto.ServiceOfferingResponse;
 import com.peluqueria.service.ServiceOfferingService;
 import com.peluqueria.service.StorageService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/services")
 @RequiredArgsConstructor
+@Tag(name = "6. Servicios", description = "Catálogo de servicios que ofrece la empresa.")
+@SecurityRequirement(name = "bearerAuth")
 public class ServiceOfferingController {
 
   private final ServiceOfferingService serviceOfferingService;
   private final StorageService storageService;
   private final ObjectMapper objectMapper;
 
+  @Operation(summary = "Listar servicios por empresa", description = "Devuelve el catálogo de servicios ofrecidos por una empresa concreta.")
   @GetMapping("/{enterpriseId}")
   public List<ServiceOfferingResponse> getAllServicesByEnterpriseId(@PathVariable Long enterpriseId) {
     return serviceOfferingService.getAllServicesByEnterpriseId(enterpriseId);
   }
 
+  @Operation(summary = "Crear nuevo servicio", description = "Crea un nuevo servicio en la base de datos subiendo además su imagen ilustrativa.")
   @PostMapping
   @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
   public ResponseEntity<ServiceOfferingResponse> createServiceOffering(
@@ -49,12 +56,14 @@ public class ServiceOfferingController {
     return ResponseEntity.ok(serviceOfferingService.createServiceOffering(serviceOffering, enterpriseId));
   }
 
+  @Operation(summary = "Obtener servicio por ID", description = "Recupera la información completa de un servicio activo.")
   @GetMapping("/{enterpriseId}/{id}")
   public ResponseEntity<ServiceOfferingResponse> getServiceById(@PathVariable Long enterpriseId,
       @PathVariable Long id) {
     return ResponseEntity.ok(serviceOfferingService.getServiceByIdResponse(id));
   }
 
+  @Operation(summary = "Eliminar servicio", description = "Borra un servicio existente indicando su ID y la empresa asociada.")
   @DeleteMapping("/{enterpriseId}/{id}")
   @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
   public ResponseEntity<Void> deleteService(@PathVariable Long enterpriseId, @PathVariable Long id) {
