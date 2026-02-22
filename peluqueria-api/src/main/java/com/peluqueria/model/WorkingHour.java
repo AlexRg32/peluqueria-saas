@@ -12,8 +12,9 @@ import jakarta.persistence.Table;
 
 @Entity
 @Data
+@lombok.EqualsAndHashCode(callSuper = true)
 @Table(name = "working_hours")
-public class WorkingHour {
+public class WorkingHour extends AuditableEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;

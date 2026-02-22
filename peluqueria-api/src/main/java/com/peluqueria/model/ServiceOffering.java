@@ -17,11 +17,12 @@ import lombok.AllArgsConstructor;
 
 @Entity
 @Data
+@lombok.EqualsAndHashCode(callSuper = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "service_offerings")
-public class ServiceOffering {
+public class ServiceOffering extends AuditableEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;

@@ -8,11 +8,12 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@lombok.EqualsAndHashCode(callSuper = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "customers")
-public class Customer {
+public class Customer extends AuditableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

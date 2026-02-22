@@ -23,11 +23,12 @@ import java.util.List;
 
 @Entity
 @Data
+@lombok.EqualsAndHashCode(callSuper = true)
 @Table(name = "app_users")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class User implements UserDetails {
+public class User extends AuditableEntity implements UserDetails {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;

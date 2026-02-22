@@ -17,8 +17,9 @@ import jakarta.persistence.EnumType;
 
 @Entity
 @Data
+@lombok.EqualsAndHashCode(callSuper = true)
 @Table(name = "appointments")
-public class Appointment {
+public class Appointment extends AuditableEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
