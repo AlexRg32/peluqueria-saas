@@ -51,9 +51,19 @@ La seguridad está gestionada por **Spring Security**.
 
 - `GET /api/users/employees`: Listar empleados de la empresa.
 
-## 💾 Modelado de Datos
+## 💾 Modelado y Migraciones de Datos
 
-El sistema utiliza JPA (Java Persistence API) con Hibernate como implementación.
+El sistema utiliza JPA (Java Persistence API) con Hibernate como implementación para el modelado.
+
+### Migraciones con Flyway
+
+Las migraciones de bases de datos son controladas por **Flyway**.
+
+- **Ruta de los scripts**: `src/main/resources/db/migration/`
+- **Baseline**: La propiedad `spring.flyway.baseline-on-migrate=true` está configurada para crear automáticamente la tabla del historial (`flyway_schema_history`) sobre instalaciones previas sin requerir un vaciado de la base de datos.
+- **Validación estricta**: El proyecto utiliza `spring.jpa.hibernate.ddl-auto=validate` para garantizar que el modelo de datos coincida siempre exactamente con el esquema SQL, deshabilitando actualizaciones de esquema automáticas e inseguras en producción.
+
+### Detalles de JPA
 
 - **Estrategia de Ids**: `GenerationType.IDENTITY` (Auto-increment).
 - **Relaciones**:
