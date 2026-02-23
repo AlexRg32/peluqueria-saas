@@ -33,41 +33,45 @@ services:
 - **Tirar abajo**: `docker-compose down`
 - **Logs**: `docker-compose logs -f app`
 
-## 🌍 Entornos de Producción
+## 🌍 Entornos y Despliegue (Staging & Producción)
 
-En producción, los componentes se desacoplan para mejor rendimiento y escalabilidad.
+Para una gestión profesional y segura, el sistema debe estar dividido en dos entornos completamente independientes. **Nunca se debe desarrollar o probar directamente contra el entorno de Producción.**
 
-### 1. Base de Datos (Cloud SQL)
+### 1. Entorno de Staging (Pre-producción)
 
-Recomendado usar un servicio gestionado como **Supabase** o **AWS RDS**.
+Es una réplica exacta del entorno de producción pero con datos de prueba. Aquí se validan las nuevas funcionalidades antes de lanzarlas a los clientes reales.
 
-- **Seguridad**: Solo permitir conexiones SSL.
-- **Acceso**: IP restringida a los servicios backend.
+*Estrategia para evitar costes (Límite de 2 proyectos en Supabase Free):*
 
-### 2. Backend API (Container Platform)
+- **Base de Datos (Neon / Render PostgreSQL / ElephantSQL)**: Ya que Supabase gratuito limita a 2 proyectos, puedes alojar temporalmente tu base de datos de Staging en una alternativa 100% gratuita como **Neon.tech** (Serverless Postgres) o crear un servicio gratuito en el propio **Render**.
+- **Backend API (Render Staging)**: Web service conectado a la base de datos de Staging. Escucha la rama `staging`.
+- **Frontend (Vercel Staging)**: Entorno "Preview" de Vercel conectado al Backend Staging. Escucha la rama `staging`.
 
-Desplegado en servicios PaaS como **Render**, **Railway** o **AWS ECS**.
+### 2. Entorno de Producción
 
-- **Variables de Entorno Críticas**:
-  - `SPRING_DATASOURCE_URL`: String de conexión JDBC.
-  - `JWT_SECRET`: Clave secreta larga para firmar tokens.
-  - `CORS_ALLOWED_ORIGINS`: URLs permitidas (frontend).
+Es el entorno real que usan los clientes. Debe ser altamente estable.
 
-### 3. Frontend (Static Hosting/CDN)
+- **Base de Datos (Supabase Prod)**: Tu proyecto principal (`peluqueria-saas`). Solo almacena datos reales. Copias de seguridad automáticas activadas.
+- **Backend API (Render Prod)**: Tu web service principal (`peluqueria-saas`). Escucha la rama `main`.
+- **Frontend (Vercel Prod)**: Tu sitio web principal (`peluqueria-saas`). Escucha la rama `main`.
 
-Desplegado en redes globales como **Vercel** o **Netlify**.
+---
 
-- **Optimizaciones**: Gzip/Brotli, Caché en el borde (Edge Caching).
-- **Variables de Entorno**:
-  - `VITE_API_BASE_URL`: URL del backend en producción.
+## 🚀 Flujo de Trabajo Profesional (Git Branching)
 
-## 🚀 Pipeline CI/CD
+El ciclo de vida del código sigue una estrategia basada en **GitHub Flow** adaptada para dos entornos, conviviendo con tu entorno local Docker:
 
-El flujo de entrega continua recomendado es:
+1. **Desarrollo (Local + Docker)**:
+   - Se crea una nueva rama desde `staging` para trabajar en una tarea: `git checkout -b feat/nueva-funcion`.
+   - El desarrollo se prueba localmente conectándose a tu base de datos PostgreSQL en Docker.
 
-1. **Commit a `main`**: Dispara GitHub Actions.
-2. **Lint & Test**: Ejecuta `npm test` y `./mvnw test`.
-3. **Build**: Crea imágenes Docker `peluqueria-api:latest`.
-4. **Deploy**: Sube la imagen a ECR/Docker Hub y actualiza el servicio en Render.
+2. **Validación (Pull Request a Staging)**:
+   - Se abre un Pull Request (PR) en GitHub empujando los cambios de la rama `feat/nueva-funcion` a la rama `staging`.
+   - Al unirse (Merge) a `staging`, Render y Vercel despliegan la aplicación automáticamente.
+   - Verificas en tu URL de Staging que todo funciona correctamente interconectado con la base de datos de prueba de Supabase.
+
+3. **Lanzamiento a Producción (Release a Main)**:
+   - Cuando todos los cambios en Staging son validados y estabilizados, se crea un **Pull Request de `staging` hacia `main`**.
+   - Al aprobarse y hacer Merge a `main`, Vercel y Render despliegan la versión final a los clientes reales usando la BD principal de Supabase.
 
 > [Siguiente: Guía de Contribución](./08-guia-contribucion.md)
