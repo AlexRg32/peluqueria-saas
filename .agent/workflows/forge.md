@@ -106,7 +106,7 @@ Answer these five questions:
 
 ### 1D — Checkpoint
 
-Update `$PLAN_PATH/status.md` → Investigation: `done`. Run: `git add . && git commit -m "checkpoint: investigation-complete"`.
+Update `$PLAN_PATH/status.md` → Investigation: `done`. Run: `git add .`.
 
 ## Phase 2: Design (Enhanced)
 
@@ -156,7 +156,7 @@ Update `$PLAN_PATH/status.md` → Investigation: `done`. Run: `git add . && git 
 
 ### 2C — Checkpoint
 
-Update `$PLAN_PATH/status.md` → Design: `done`. Run: `git add . && git commit -m "checkpoint: design-complete"`.
+Update `$PLAN_PATH/status.md` → Design: `done`. Run: `git add .`.
 
 ## Phase 3: Planning (Enhanced)
 
@@ -203,7 +203,7 @@ Each task MUST be:
 
 ### 3C — Checkpoint
 
-Update `$PLAN_PATH/status.md` → Plan: `done`. Run: `git add . && git commit -m "checkpoint: plan-complete"`.
+Update `$PLAN_PATH/status.md` → Plan: `done`. Run: `git add .`.
 
 ## Phase 4: Implementation (Enhanced)
 
@@ -266,7 +266,7 @@ Append to `$PATH/implementation.md`:
 
 ### 4E — Checkpoint
 
-Update `$PLAN_PATH/status.md` → Implementation: `done`. Run: `git add . && git commit -m "checkpoint: implementation-complete"`.
+Update `$PLAN_PATH/status.md` → Implementation: `done`. Run: `git add .`.
 
 ## Phase 5: Wrap-Up
 
