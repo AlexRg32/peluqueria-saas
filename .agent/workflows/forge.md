@@ -13,8 +13,8 @@ description: Full-cycle forge — codebase awareness, structured templates, chec
 2. **Initialize Git Branch**:
 
     ```bash
-    git checkout main && \
-    git pull origin main && \
+    git checkout staging && \
+    git pull origin staging && \
     export BRANCH_NAME="<TYPE>/<SLUG>-$(date +'%H%M')" && \
     git checkout -b "$BRANCH_NAME"
     ```

@@ -3,7 +3,7 @@ description: ship — commits and pushes with pre-flight checks, interactive com
 ---
 # Ship Workflow
 
-**Goal**: Ship code from the current feature branch to main with pre-flight validation, interactive commit message, build verification, and safe merge.
+**Goal**: Ship code from the current feature branch to staging with pre-flight validation, interactive commit message, build verification, and safe merge.
 
 *Uses: `git-commit-formatter` skill (Conventional Commits)*
 
@@ -29,7 +29,7 @@ CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD) && \
 echo "Current branch: $CURRENT_BRANCH"
 ```
 
-- If `CURRENT_BRANCH` is `main` → **ABORT**. Tell the user: "You are already on main. Ship is meant to merge a feature branch into main. Please switch to a feature branch first."
+- If `CURRENT_BRANCH` is `staging` or `main` → **ABORT**. Tell the user: "You are on a protected branch ($CURRENT_BRANCH). Ship is meant to merge a feature branch into staging. Please switch to a feature branch first."
 
 ### 1B — Working Tree Check
 
@@ -70,13 +70,13 @@ git commit -m "$COMMIT_MSG"
 
 *Note: If nothing to commit (all changes already committed via checkpoints), skip to Step 3.*
 
-## Step 3: Merge into Main
+## Step 3: Merge into Staging
 
 // turbo
 
 ```bash
-git checkout main && \
-git pull origin main
+git checkout staging && \
+git pull origin staging
 ```
 
 ### 3A — Squash Merge & Commit
@@ -95,7 +95,7 @@ git commit -m "$COMMIT_MSG"
 // turbo
 
 ```bash
-git push origin main
+git push origin staging
 ```
 
 - If push fails (e.g., remote rejected) → Report the error. Suggest `git pull --rebase origin main` and retry.
@@ -117,9 +117,9 @@ Present a clear summary to the user:
 ```text
 ✅ Ship Complete (Squash Merge)!
 ─────────────────────────────
-  Branch:  <CURRENT_BRANCH> → main (collapsing checkpoints)
+  Branch:  <CURRENT_BRANCH> → staging (collapsing checkpoints)
   Commit:  <COMMIT_MSG>
-  Push:    origin/main ✓
+  Push:    origin/staging ✓
   Cleanup: branch <CURRENT_BRANCH> force-deleted ✓
 ─────────────────────────────
 ```
@@ -129,7 +129,7 @@ Present a clear summary to the user:
 Always include rollback guidance after shipping:
 "If you need to undo this ship:
 `git revert HEAD`    # creates a new commit undoing the merge
-`git push origin main`"
+`git push origin staging`"
 
 ## Rules
 

@@ -41,8 +41,10 @@ El proyecto utiliza un stack moderno y robusto, priorizando el tipado estático 
 
 ### Infraestructura
 
-- **Contenedores**: Docker & Docker Compose
-- **Hosting (Demo)**: Render (Backend) + Vercel (Frontend) + Supabase (DB)
+- **Contenedores**: Docker & Docker Compose para desarrollo local.
+- **Entornos de Despliegue**:
+  - **Staging**: Render (API/DB) + Vercel (Frontend) para pruebas.
+  - **Producción**: Render (API) + Supabase (DB) + Vercel (Frontend) para uso real.
 
 ---
 

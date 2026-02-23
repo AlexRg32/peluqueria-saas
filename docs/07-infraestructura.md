@@ -33,45 +33,51 @@ services:
 - **Tirar abajo**: `docker-compose down`
 - **Logs**: `docker-compose logs -f app`
 
-## 🌍 Entornos y Despliegue (Staging & Producción)
+## 🌍 Entornos de Despliegue
 
-Para una gestión profesional y segura, el sistema debe estar dividido en dos entornos completamente independientes. **Nunca se debe desarrollar o probar directamente contra el entorno de Producción.**
+El proyecto cuenta con dos entornos totalmente aislados para garantizar la estabilidad de la producción.
 
-### 1. Entorno de Staging (Pre-producción)
+| Característica | **Staging** (Pre-producción) | **Production** (Producción) |
+| :--- | :--- | :--- |
+| **Rama Git** | `staging` | `main` |
+| **Base de Datos** | PostgreSQL (Render) | PostgreSQL (Supabase) |
+| **Backend API** | Render (Staging Project) | Render (Production Project) |
+| **Frontend** | Vercel (Staging Deployment) | Vercel (Production Deployment) |
+| **Propósito** | Pruebas y validación | Uso por clientes reales |
 
-Es una réplica exacta del entorno de producción pero con datos de prueba. Aquí se validan las nuevas funcionalidades antes de lanzarlas a los clientes reales.
+### 1. Base de Datos
 
-*Estrategia para evitar costes (Límite de 2 proyectos en Supabase Free):*
+- **Staging**: Ubicada en Render para pruebas rápidas y datos de prueba.
+- **Producción**: Ubicada en Supabase para alta disponibilidad y backups gestionados.
+- **Seguridad**: Solo permiten conexiones SSL y el acceso está restringido a las IPs de los servicios de Render.
 
-- **Base de Datos (Neon / Render PostgreSQL / ElephantSQL)**: Ya que Supabase gratuito limita a 2 proyectos, puedes alojar temporalmente tu base de datos de Staging en una alternativa 100% gratuita como **Neon.tech** (Serverless Postgres) o crear un servicio gratuito en el propio **Render**.
-- **Backend API (Render Staging)**: Web service conectado a la base de datos de Staging. Escucha la rama `staging`.
-- **Frontend (Vercel Staging)**: Entorno "Preview" de Vercel conectado al Backend Staging. Escucha la rama `staging`.
+### 2. Backend API
 
-### 2. Entorno de Producción
+Desplegado en Render mediante contenedores.
 
-Es el entorno real que usan los clientes. Debe ser altamente estable.
+- **Variables de Entorno Críticas**:
+  - `SPRING_DATASOURCE_URL`: String de conexión JDBC (específico de cada entorno).
+  - `JWT_SECRET`: Clave secreta (debe ser distinta en cada entorno).
+  - `CORS_ALLOWED_ORIGINS`: URLs permitidas del frontend correspondiente.
 
-- **Base de Datos (Supabase Prod)**: Tu proyecto principal (`peluqueria-saas`). Solo almacena datos reales. Copias de seguridad automáticas activadas.
-- **Backend API (Render Prod)**: Tu web service principal (`peluqueria-saas`). Escucha la rama `main`.
-- **Frontend (Vercel Prod)**: Tu sitio web principal (`peluqueria-saas`). Escucha la rama `main`.
+### 3. Frontend
 
----
+Desplegado en Vercel.
 
-## 🚀 Flujo de Trabajo Profesional (Git Branching)
+- **Variables de Entorno**:
+  - `VITE_API_BASE_URL`: URL del backend (Staging o Producción).
 
-El ciclo de vida del código sigue una estrategia basada en **GitHub Flow** adaptada para dos entornos, conviviendo con tu entorno local Docker:
+## 🚀 Estrategia de Ramas y CI/CD
 
-1. **Desarrollo (Local + Docker)**:
-   - Se crea una nueva rama desde `staging` para trabajar en una tarea: `git checkout -b feat/nueva-funcion`.
-   - El desarrollo se prueba localmente conectándose a tu base de datos PostgreSQL en Docker.
+El flujo de trabajo sigue el modelo de promoción de entornos:
 
-2. **Validación (Pull Request a Staging)**:
-   - Se abre un Pull Request (PR) en GitHub empujando los cambios de la rama `feat/nueva-funcion` a la rama `staging`.
-   - Al unirse (Merge) a `staging`, Render y Vercel despliegan la aplicación automáticamente.
-   - Verificas en tu URL de Staging que todo funciona correctamente interconectado con la base de datos de prueba de Supabase.
-
-3. **Lanzamiento a Producción (Release a Main)**:
-   - Cuando todos los cambios en Staging son validados y estabilizados, se crea un **Pull Request de `staging` hacia `main`**.
-   - Al aprobarse y hacer Merge a `main`, Vercel y Render despliegan la versión final a los clientes reales usando la BD principal de Supabase.
+1. **Desarrollo**: Se crean ramas `feat/`, `fix/`, etc. a partir de `staging`.
+2. **Promoción a Staging**: Al terminar una tarea, se integra en `staging` mediante el comando `/ship`.
+3. **Validación**: Los cambios se prueban en el entorno de Staging.
+4. **Promoción a Producción**: Una vez validados, los cambios se integran de `staging` a `main` (Despliegue automático a producción).
+5. **Pipeline**:
+   - **Commit a staging/main**: Dispara GitHub Actions.
+   - **Lint & Test**: Ejecuta `npm test` y `./mvnw test`.
+   - **Build & Deploy**: Crea imágenes Docker y las despliega en el servicio correspondiente de Render.
 
 > [Siguiente: Guía de Contribución](./08-guia-contribucion.md)
