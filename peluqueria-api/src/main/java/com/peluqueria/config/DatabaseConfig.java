@@ -62,8 +62,17 @@ public class DatabaseConfig {
         if (path != null) {
           jdbcUrlBuilder.append(path);
         }
-        if (query != null) {
-          jdbcUrlBuilder.append("?").append(query);
+
+        // Clean user/password from query params if credentials come from userInfo
+        String cleanQuery = query;
+        if (userInfo != null && cleanQuery != null) {
+          cleanQuery = java.util.Arrays.stream(cleanQuery.split("&"))
+              .filter(p -> !p.startsWith("user=") && !p.startsWith("password="))
+              .reduce((a, b) -> a + "&" + b)
+              .orElse(null);
+        }
+        if (cleanQuery != null && !cleanQuery.isEmpty()) {
+          jdbcUrlBuilder.append("?").append(cleanQuery);
         }
         workingUrl = jdbcUrlBuilder.toString();
 
