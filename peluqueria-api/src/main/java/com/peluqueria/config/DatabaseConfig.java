@@ -45,8 +45,14 @@ public class DatabaseConfig {
         // Strip jdbc: prefix if present for URI class processing
         String uriToParse = workingUrl.startsWith("jdbc:") ? workingUrl.substring(5) : workingUrl;
         URI uri = new URI(uriToParse);
-
         String host = uri.getHost();
+
+        if (host != null && host.endsWith("supabase.co") && !host.contains("pooler")) {
+          logger.warn(
+              "DIRECT SUPABASE HOST DETECTED: [{}]. This often causes connectivity issues (UnknownHostException) in some cloud environments like Render (due to IPv6-only records). Consider using the Transaction Pooler host instead: [*.pooler.supabase.com].",
+              host);
+        }
+
         int port = uri.getPort();
         String path = uri.getPath();
         String query = uri.getQuery();
