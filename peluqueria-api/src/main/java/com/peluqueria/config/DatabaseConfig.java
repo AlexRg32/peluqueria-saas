@@ -29,47 +29,67 @@ public class DatabaseConfig {
   @Bean
   @Primary
   public DataSource dataSource() {
-    if (datasourceUrl.startsWith("jdbc:postgresql://") && datasourceUrl.contains("@")) {
-      try {
-        logger.info("Detected URI-style JDBC URL. Attempting to parse credentials.");
+    String workingUrl = datasourceUrl;
+    String user = username;
+    String pass = password;
 
-        // Strip "jdbc:" prefix
-        String uriString = datasourceUrl.substring(5);
-        URI uri = new URI(uriString);
+    // Use a flag to check if we should parse as URI
+    boolean isUriStyle = (workingUrl.startsWith("jdbc:postgresql://") && workingUrl.contains("@")) ||
+        workingUrl.startsWith("postgresql://") ||
+        workingUrl.startsWith("postgres://");
+
+    if (isUriStyle) {
+      try {
+        logger.info("Detected URI-style connection URL. Re-parsing for robustness.");
+
+        // Strip jdbc: prefix if present for URI class processing
+        String uriToParse = workingUrl.startsWith("jdbc:") ? workingUrl.substring(5) : workingUrl;
+        URI uri = new URI(uriToParse);
 
         String host = uri.getHost();
         int port = uri.getPort();
         String path = uri.getPath();
+        String query = uri.getQuery();
         String userInfo = uri.getUserInfo();
 
-        String cleanUrl = "jdbc:postgresql://" + host + (port != -1 ? ":" + port : "") + path;
-        String user = username;
-        String pass = password;
+        // Reconstruct JDBC URL preserving path and query parameters (CRITICAL for
+        // Supabase SSL)
+        StringBuilder jdbcUrlBuilder = new StringBuilder("jdbc:postgresql://");
+        jdbcUrlBuilder.append(host != null ? host : "localhost");
+        if (port != -1) {
+          jdbcUrlBuilder.append(":").append(port);
+        }
+        if (path != null) {
+          jdbcUrlBuilder.append(path);
+        }
+        if (query != null) {
+          jdbcUrlBuilder.append("?").append(query);
+        }
+        workingUrl = jdbcUrlBuilder.toString();
 
         if (userInfo != null && userInfo.contains(":")) {
           String[] parts = userInfo.split(":", 2);
           user = parts[0];
           pass = parts[1];
-          logger.info("Extracted username and password from JDBC URL.");
+          logger.info("Credentials extracted from URL.");
         }
-
-        return DataSourceBuilder.create()
-            .url(cleanUrl)
-            .username(user)
-            .password(pass)
-            .driverClassName("org.postgresql.Driver")
-            .build();
-
       } catch (URISyntaxException | IndexOutOfBoundsException e) {
-        logger.warn("Failed to parse URI-style JDBC URL. Falling back to default configuration. Error: {}",
-            e.getMessage());
+        logger.warn("Failed to parse URI-style URL [{}]. Using default logic. Error: {}", workingUrl, e.getMessage());
       }
+    } else if (!workingUrl.startsWith("jdbc:")) {
+      // Basic prefix normalization if it's a simple postgres://host/db without creds
+      workingUrl = "jdbc:" + workingUrl;
     }
 
+    // Security: Mask password in logs
+    String maskedUrl = workingUrl.replaceAll(":([^/@?]+)@", ":****@")
+        .replaceAll("password=[^&]*", "password=****");
+    logger.info("Final DataSource URL: {}", maskedUrl);
+
     return DataSourceBuilder.create()
-        .url(datasourceUrl)
-        .username(username)
-        .password(password)
+        .url(workingUrl)
+        .username(user)
+        .password(pass)
         .driverClassName("org.postgresql.Driver")
         .build();
   }
