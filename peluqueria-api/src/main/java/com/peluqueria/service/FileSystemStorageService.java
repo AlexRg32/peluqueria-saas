@@ -13,18 +13,20 @@ import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 import jakarta.annotation.PostConstruct;
 
-@Service
 public class FileSystemStorageService implements StorageService {
 
   private final Path rootLocation;
+  private final String baseUrl;
 
-  public FileSystemStorageService(@Value("${app.upload.dir:uploads}") String uploadDir) {
+  public FileSystemStorageService(
+      @Value("${app.upload.dir:uploads}") String uploadDir,
+      @Value("${app.api.base-url:http://localhost:8080}") String baseUrl) {
     this.rootLocation = Paths.get(uploadDir);
+    this.baseUrl = baseUrl;
   }
 
   @Override
@@ -98,6 +100,16 @@ public class FileSystemStorageService implements StorageService {
     } catch (MalformedURLException e) {
       throw new RuntimeException("Could not read file: " + filename, e);
     }
+  }
+
+  @Override
+  public String getPublicUrl(String filename) {
+    if (filename == null || filename.isEmpty()) {
+      return null;
+    }
+    // Construction: {baseUrl}/uploads/{filename}
+    String base = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
+    return base + "/uploads/" + filename;
   }
 
   @Override

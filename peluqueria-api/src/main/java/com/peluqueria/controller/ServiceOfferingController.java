@@ -45,8 +45,7 @@ public class ServiceOfferingController {
 
     if (image != null && !image.isEmpty()) {
       String filename = storageService.store(image);
-      // TODO: Move base URL to properties
-      serviceOffering.setImage("http://localhost:8080/uploads/" + filename);
+      serviceOffering.setImage(storageService.getPublicUrl(filename));
     }
 
     // Extract enterpriseId from DTO or use a separate header/path param

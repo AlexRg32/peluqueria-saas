@@ -17,6 +17,8 @@ public interface StorageService {
 
   Resource loadAsResource(String filename);
 
+  String getPublicUrl(String filename);
+
   void deleteAll();
 
 }
