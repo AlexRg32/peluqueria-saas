@@ -19,10 +19,16 @@ services:
     ports: ["8080:8080"]
     depends_on: [db]
     environment:
-      - DATABASE_URL=jdbc:postgresql://db:5432/peluqueria_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/peluqueria_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000
       
   client:
-    build: ./peluqueria-client
+    build: 
+      context: ./peluqueria-client
+      args:
+        - VITE_API_BASE_URL=http://localhost:8080
     ports: ["3000:80"]
     depends_on: [app]
 ```
