@@ -52,6 +52,16 @@ Bienvenido a la documentación oficial del proyecto **Peluquería SaaS**. Este r
 - Estándares de código y buenas prácticas.
 - Ejecución de pruebas.
 
+### 9. [Sistema de Diseño](./09-design-system.md)
+
+- Paleta de colores y variables.
+- Componentes base de la UI.
+
+### 10. [Contratos de API](./10-api-contract.md)
+
+- Todos los endpoints expuestos del backend.
+- Flujos de autenticación y respuestas esperadas.
+
 ---
 
 ## 🏗 Arquitectura de Alto Nivel

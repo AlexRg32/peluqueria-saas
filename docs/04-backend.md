@@ -29,27 +29,11 @@ La seguridad está gestionada por **Spring Security**.
 - `SecurityConfig.java`: Configuración de cadenas de filtros de seguridad.
 - `JwtService.java`: Generación y validación de tokens JWT.
 
-## 📡 API Endpoints Principales
+## 📡 API Endpoints y Contratos
 
-### Auth (`AuthController`)
+Los contratos detallados (Endopoints, Métodos, Requests, Responses) se han abstraído en un documento exhaustivo propio.
 
-- `POST /api/auth/register`: Registrar nueva empresa y administrador.
-- `POST /api/auth/login`: Obtener token de acceso.
-
-### Citas (`AppointmentController`)
-
-- `GET /api/appointments`: Listar citas (filtradas por fecha/empleado).
-- `POST /api/appointments`: Crear nueva cita.
-- `PUT /api/appointments/{id}/status`: Cambiar estado (CONFIRMED, CANCELLED).
-
-### Servicios (`ServiceOfferingController`)
-
-- `GET /api/services`: Listar catálogo de servicios.
-- `POST /api/services`: Añadir servicio (solo Admin).
-
-### Usuarios (`UserController`)
-
-- `GET /api/users/employees`: Listar empleados de la empresa.
+🔗 **[Ver Contratos de API](./10-api-contract.md)**
 
 ## 💾 Modelado y Migraciones de Datos
 
