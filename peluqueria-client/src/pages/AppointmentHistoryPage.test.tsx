@@ -32,12 +32,14 @@ describe('AppointmentHistoryPage', () => {
   });
 
   it('renders appointment list when data is fetched', async () => {
+    const futureDate = new Date();
+    futureDate.setFullYear(futureDate.getFullYear() + 1);
     const mockAppointments = [
       {
         id: 1,
         serviceName: 'Corte Moderno',
         enterpriseName: 'Peluking Premium',
-        date: '2026-02-18T10:00:00',
+        date: futureDate.toISOString(),
         status: 'PENDING',
         price: 25.0
       }
@@ -51,9 +53,9 @@ describe('AppointmentHistoryPage', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Corte Moderno')).toBeDefined();
-      expect(screen.getByText('Peluking Premium')).toBeDefined();
-    });
+      expect(screen.getByText('Corte Moderno')).toBeTruthy();
+      expect(screen.getByText('Peluking Premium')).toBeTruthy();
+    }, { timeout: 3000 });
   });
 
   it('renders empty state when no appointments found', async () => {

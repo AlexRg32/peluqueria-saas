@@ -44,5 +44,6 @@ public class ServiceOffering extends AuditableEntity {
   @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
   private Enterprise enterprise;
 
+  @Builder.Default
   private boolean deleted = false;
 }
