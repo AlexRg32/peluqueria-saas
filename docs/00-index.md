@@ -43,6 +43,7 @@ Bienvenido a la documentación oficial del proyecto **Peluquería SaaS**. Este r
 
 - Contenerización con Docker.
 - Despliegue en producción (Render/Vercel).
+- **Render Blueprints** e Infraestructura como Código (IaC).
 - Pipelines y CI/CD.
 
 ### 8. [Guía de Contribución](./08-guia-contribucion.md)

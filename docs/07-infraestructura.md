@@ -60,6 +60,32 @@ Desplegado en Render mediante contenedores.
   - `JWT_SECRET`: Clave secreta (debe ser distinta en cada entorno).
   - `CORS_ALLOWED_ORIGINS`: URLs permitidas del frontend correspondiente.
 
+### 4. Configuración del Monorepo (Importante)
+
+Al ser un monorepo, Render requiere configuraciones específicas para encontrar el código del backend:
+
+- **Root Directory**: Debe establecerse en `peluqueria-api`.
+- **Dockerfile Path**: Render lo buscará dentro del `rootDir`, por lo que el path relativo debe ser `./Dockerfile` (si está en la raíz de `peluqueria-api`).
+
+#### Troubleshooting: Error de Lectura de Dockerfile
+
+Si el despliegue falla con: `error: failed to solve: failed to read dockerfile: open Dockerfile: no such file or directory`, verifica que el **Root Directory** en el dashboard de Render no esté vacío.
+
+### 5. Render Blueprints (`render.yaml`)
+
+El proyecto utiliza **Infrastructure as Code (IaC)** mediante el archivo `render.yaml` en la raíz para unificar la configuración de los entornos.
+
+```yaml
+services:
+  - type: web
+    name: peluqueria-saas-prod-fra
+    runtime: docker
+    rootDir: peluqueria-api # Crucial para el monorepo
+    # ... resto de la configuración
+```
+
+Para aplicar cambios globales a la infraestructura, se recomienda editar este archivo en lugar de usar el dashboard manual.
+
 ### 3. Frontend
 
 Desplegado en Vercel.
