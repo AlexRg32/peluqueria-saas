@@ -41,8 +41,8 @@ El proyecto cuenta con dos entornos totalmente aislados para garantizar la estab
 | :--- | :--- | :--- |
 | **Rama Git** | `staging` | `main` |
 | **Base de Datos** | PostgreSQL (Render) | PostgreSQL (Supabase) |
-| **Backend API** | Render (Staging Project) | Render (Production Project) |
-| **Frontend** | Vercel (Staging Deployment) | Vercel (Production Deployment) |
+| **Backend API** | Render (Frankfurt-fra) | Render (Frankfurt-fra) |
+| **Frontend** | Vercel (Staging) | Vercel (Production) |
 | **Propósito** | Pruebas y validación | Uso por clientes reales |
 
 ### 1. Base de Datos
@@ -81,7 +81,7 @@ services:
     name: peluqueria-saas-prod-fra
     runtime: docker
     rootDir: peluqueria-api # Crucial para el monorepo
-    # ... resto de la configuración
+    region: frankfurt
 ```
 
 Para aplicar cambios globales a la infraestructura, se recomienda editar este archivo en lugar de usar el dashboard manual.
