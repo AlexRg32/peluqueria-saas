@@ -37,6 +37,7 @@ description: Full-cycle forge — codebase awareness, structured templates, chec
     | Design         | pending |
     | Plan           | pending |
     | Implementation | pending |
+    | Documentation  | pending |
 
     Branch: `<BRANCH_NAME>`
     Created: <ISO_TIMESTAMP>
@@ -215,6 +216,7 @@ Work is **NOT COMPLETE** until:
 1. Every task in `$PATH/plan.md` is `[x]` or `[-]`. No `[ ]` allowed.
 2. `$PATH/implementation.md` contains a log of all actions.
 3. The project builds without errors.
+4. **MANDATORY**: All relevant files in `docs/` have been updated to reflect the changes.
 
 ### 4A — Initialize `$PATH/implementation.md`
 
@@ -268,12 +270,24 @@ Append to `$PATH/implementation.md`:
 
 Update `$PLAN_PATH/status.md` → Implementation: `done`. Run: `git add .`.
 
-## Phase 5: Wrap-Up
+## Phase 5: Documentation Update (NON-NEGOTIABLE)
+
+After the implementation is technically complete, you MUST update the project documentation.
+
+1. **Scan `docs/`**: Review existing documentation files.
+2. **Update/Create**: Modify existing docs or create new ones in `docs/` to reflect the changes made in this branch (API changes, new features, architecture shifts, etc.).
+3. **Verify Index**: Ensure `docs/00-index.md` or equivalent index is up to date if new files were added.
+
+### 5A — Checkpoint
+
+Update `$PLAN_PATH/status.md` → Documentation: `done`. Run: `git add .`.
+
+## Phase 6: Wrap-Up
 
 After all phases complete, present to the user:
 
 - **Branch**: `$BRANCH_NAME` — ready for review.
-- **Files changed**: List of created/modified files.
+- **Files changed**: List of created/modified files (including documentation in `docs/`).
 - **Skipped items**: Any `[-]` tasks with reasons.
 - **Next step**: Suggest `"/ship '<commit message>'"` when ready.
 

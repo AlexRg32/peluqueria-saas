@@ -12,9 +12,9 @@ description: ship — commits and pushes with pre-flight checks, interactive com
 1. If the user invoked `/ship "some message"`, use that message as-is and store as `$COMMIT_MSG`.
 2. If no commit message was provided:
     - Analyze staged/unstaged changes using `git status` and `git diff`.
-    - Suggest a message using the `git-commit-formatter` skill (Conventional Commits format: `<type>[scope]: <description>`).
-    - **Prompt the user**: "I detected the following changes: [summary]. Suggested commit message: `feat(scope): description`. Would you like to use this message, or provide your own?"
-    - **WAIT** for user confirmation/input. Do NOT proceed until `$COMMIT_MSG` is confirmed.
+    - Generate a commit message using the `git-commit-formatter` skill (Conventional Commits format).
+    - **Default Action**: Use the generated message automatically as `$COMMIT_MSG`.
+    - Inform the user: "No commit message provided. Automatically generating standard message: `$COMMIT_MSG`".
 
 ## Step 1: Pre-Flight Checks
 
@@ -134,7 +134,7 @@ Always include rollback guidance after shipping:
 ## Rules
 
 1. Never invoke this workflow automatically. It must be triggered by the user.
-2. **Never skip Step 0**. The commit message must be confirmed before any git operations.
+2. **Commit Message Generation**: If the user doesn't provide a message, the system will automatically generate one using the `git-commit-formatter` skill.
 3. Never force-push. If `git push` fails, report and let the user decide.
 4. Cleanup after shipping. Use `git branch -D` to ensure the feature branch is removed.
 5. Always use Conventional Commits format for the commit message.

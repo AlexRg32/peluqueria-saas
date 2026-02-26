@@ -40,10 +40,10 @@ The Agent MUST pass the `$PLAN_PATH` to every sub-workflow.
   - **IF** any `[ ]` exists:
     - **FAIL**: "Implementation incomplete. Tasks pending."
     - **ADVISE**: "Rerunning /implementation to finish tasks."
-  - **Check Documentation**:
+  - **Check Documentation (MANDATORY)**:
     - **IF** code changed but `docs/` files were NOT modified:
-      - **WARN**: "Documentation might be outdated."
-      - **ACTION**: Review changes and update `docs/*.md` if necessary.
+      - **FAIL**: "Documentation NOT updated. This is non-negotiable."
+      - **ACTION**: Review changes and update/create files in `docs/` before proceeding.
 
 ### Step E: Test Gate (MANDATORY — DO NOT SKIP)
 

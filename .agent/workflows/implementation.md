@@ -16,8 +16,9 @@ Work is **NOT COMPLETE** until:
 1. Every task in `$PATH/plan.md` matches `[x]` or `[-]`. No `[ ]` allowed.
 2. `$PATH/implementation.md` contains a log of actions.
 3. **ALL tests pass.** Both backend (`./mvnw test`) and frontend (`npm test`) must exit 0.
+4. **MANDATORY**: The `docs/` folder has been updated to reflect all changes.
 
-**IF YOU SKIP TESTS OR UPDATING THESE FILES, YOU HAVE FAILED.**
+**IF YOU SKIP TESTS OR UPDATING DOCUMENTATION, YOU HAVE FAILED.**
 
 ## Protocol
 
@@ -41,7 +42,12 @@ Work is **NOT COMPLETE** until:
         - `cd peluqueria-client && npm test`
     - **IF any test fails** → Fix it. Do NOT exit.
     - **IF all tests pass** → Append "✅ Final Test Gate: ALL TESTS PASS" to `$PATH/implementation.md`.
-4. **Verification**:
+4. **Documentation Update (NON-NEGOTIABLE)**:
+    - Go to the `docs/` folder.
+    - Analyze which documents are affected by the changes.
+    - Update them or create new ones as necessary.
+    - **Verify**: Audit the documentation against the newly implemented code.
+5. **Verification**:
     - Read `$PATH/plan.md` again.
     - Are there any `[ ]` left? -> **GO TO STEP 2**.
-    - Are they all `[x]` AND Final Test Gate passed? -> **EXIT**.
+    - Are they all `[x]` AND Final Test Gate passed AND Documentation updated? -> **EXIT**.
