@@ -40,19 +40,21 @@ public class EnterpriseController {
 
   @Operation(summary = "Obtener detalles de empresa por ID")
   @GetMapping("/{id}")
+  @PreAuthorize("@securityService.hasEnterpriseAccess(authentication, #id)")
   public ResponseEntity<EnterpriseResponse> findById(@PathVariable Long id) {
     return ResponseEntity.ok(enterpriseService.findByIdResponse(id));
   }
 
   @Operation(summary = "Actualizar información de la empresa")
   @PutMapping("/{id}")
-  @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN') and @securityService.hasEnterpriseAccess(authentication, #id)")
   public ResponseEntity<EnterpriseResponse> update(@PathVariable Long id, @RequestBody Enterprise enterprise) {
     return ResponseEntity.ok(enterpriseService.update(id, enterprise));
   }
 
   @Operation(summary = "Obtener empleados internos de la empresa")
   @GetMapping("/{id}/employees")
+  @PreAuthorize("@securityService.hasEnterpriseAccess(authentication, #id)")
   public ResponseEntity<List<UserResponse>> getEmployees(@PathVariable Long id) {
     return ResponseEntity.ok(enterpriseService.getEmployeesByEnterpriseId(id));
   }

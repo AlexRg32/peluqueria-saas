@@ -24,7 +24,7 @@ public class DashboardController {
 
   @Operation(summary = "Obtener métricas del Dashboard", description = "Calcula total de citas del día, total de ingresos estimados del mes y estadísticas demográficas.")
   @GetMapping("/stats/{enterpriseId}")
-  @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN') and @securityService.hasEnterpriseAccess(authentication, #enterpriseId)")
   public ResponseEntity<DashboardStatsDTO> getStats(@PathVariable Long enterpriseId) {
     return ResponseEntity.ok(dashboardService.getStats(enterpriseId));
   }

@@ -24,28 +24,28 @@ public class UserController {
   private final UserService userService;
 
   @Operation(summary = "Listar usuarios de una empresa", description = "Obtiene la lista de todos los usuarios (empleados/admins) asociados al ID de una empresa específica.")
-  @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
+  @PreAuthorize("(hasRole('ADMIN') or hasRole('SUPER_ADMIN')) and @securityService.hasEnterpriseAccess(authentication, #enterpriseId)")
   @GetMapping("/{enterpriseId}")
   public List<UserResponse> getAllUsers(@PathVariable Long enterpriseId) {
     return userService.getUsersByEnterpriseId(enterpriseId);
   }
 
   @Operation(summary = "Crear nuevo usuario", description = "Permite a un administrador registrar a un nuevo empleado dentro de su empresa.")
-  @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
+  @PreAuthorize("(hasRole('ADMIN') or hasRole('SUPER_ADMIN')) and @securityService.hasEnterpriseAccess(authentication, #user.enterprise?.id)")
   @PostMapping
   public ResponseEntity<UserResponse> createUser(@RequestBody User user) {
     return ResponseEntity.ok(userService.createUser(user));
   }
 
   @Operation(summary = "Actualizar usuario", description = "Actualiza los datos personales, rol o información profesional de un usuario existente.")
-  @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
+  @PreAuthorize("(hasRole('ADMIN') or hasRole('SUPER_ADMIN')) and @securityService.canManageUser(authentication, #id)")
   @PutMapping("/{id}")
   public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody User user) {
     return ResponseEntity.ok(userService.updateUser(id, user));
   }
 
   @Operation(summary = "Eliminar usuario", description = "Realiza un borrado lógico (soft delete) del usuario desvinculándolo del panel activo.")
-  @PreAuthorize("hasRole('ADMIN') or hasRole('SUPER_ADMIN')")
+  @PreAuthorize("(hasRole('ADMIN') or hasRole('SUPER_ADMIN')) and @securityService.canManageUser(authentication, #id)")
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
     userService.deleteUser(id);

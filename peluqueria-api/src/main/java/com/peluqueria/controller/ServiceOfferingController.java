@@ -13,6 +13,8 @@ import com.peluqueria.model.ServiceOffering;
 import com.peluqueria.dto.ServiceOfferingResponse;
 import com.peluqueria.service.ServiceOfferingService;
 import com.peluqueria.service.StorageService;
+import com.peluqueria.security.SecurityService;
+import org.springframework.security.core.Authentication;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,8 +29,10 @@ public class ServiceOfferingController {
   private final ServiceOfferingService serviceOfferingService;
   private final StorageService storageService;
   private final ObjectMapper objectMapper;
+  private final SecurityService securityService;
 
   @Operation(summary = "Listar servicios por empresa", description = "Devuelve el catálogo de servicios ofrecidos por una empresa concreta.")
+  @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN') and @securityService.hasEnterpriseAccess(authentication, #enterpriseId)")
   @GetMapping("/{enterpriseId}")
   public List<ServiceOfferingResponse> getAllServicesByEnterpriseId(@PathVariable Long enterpriseId) {
     return serviceOfferingService.getAllServicesByEnterpriseId(enterpriseId);
@@ -39,7 +43,8 @@ public class ServiceOfferingController {
   @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
   public ResponseEntity<ServiceOfferingResponse> createServiceOffering(
       @RequestPart("service") String serviceJson,
-      @RequestPart(value = "image", required = false) MultipartFile image) throws Exception {
+      @RequestPart(value = "image", required = false) MultipartFile image,
+      Authentication authentication) throws Exception {
 
     ServiceOffering serviceOffering = objectMapper.readValue(serviceJson, ServiceOffering.class);
 
@@ -49,13 +54,17 @@ public class ServiceOfferingController {
     }
 
     // Extract enterpriseId from DTO or use a separate header/path param
-    // For now, it's inside the JSON or we assume it's there
     Long enterpriseId = serviceOffering.getEnterprise() != null ? serviceOffering.getEnterprise().getId() : null;
+
+    if (!securityService.hasEnterpriseAccess(authentication, enterpriseId)) {
+      throw new org.springframework.security.access.AccessDeniedException("Access Denied");
+    }
 
     return ResponseEntity.ok(serviceOfferingService.createServiceOffering(serviceOffering, enterpriseId));
   }
 
   @Operation(summary = "Obtener servicio por ID", description = "Recupera la información completa de un servicio activo.")
+  @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN') and @securityService.hasEnterpriseAccess(authentication, #enterpriseId)")
   @GetMapping("/{enterpriseId}/{id}")
   public ResponseEntity<ServiceOfferingResponse> getServiceById(@PathVariable Long enterpriseId,
       @PathVariable Long id) {
@@ -64,7 +73,7 @@ public class ServiceOfferingController {
 
   @Operation(summary = "Eliminar servicio", description = "Borra un servicio existente indicando su ID y la empresa asociada.")
   @DeleteMapping("/{enterpriseId}/{id}")
-  @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN') and @securityService.hasEnterpriseAccess(authentication, #enterpriseId)")
   public ResponseEntity<Void> deleteService(@PathVariable Long enterpriseId, @PathVariable Long id) {
     serviceOfferingService.deleteService(id);
     return ResponseEntity.ok().build();
