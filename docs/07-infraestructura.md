@@ -58,7 +58,7 @@ Desplegado en Render mediante contenedores.
 - **Variables de Entorno Críticas**:
   - `SPRING_DATASOURCE_URL`: String de conexión JDBC (específico de cada entorno).
   - `JWT_SECRET`: Clave secreta (debe ser distinta en cada entorno).
-  - `CORS_ALLOWED_ORIGINS`: URLs permitidas del frontend correspondiente.
+  - `CORS_ALLOWED_ORIGINS`: URLs permitidas del frontend correspondiente. Para soportar previsualizaciones de Vercel, se recomienda usar patrones: `https://*.vercel.app,https://tu-dominio.com`.
 
 ### 4. Configuración del Monorepo (Importante)
 
