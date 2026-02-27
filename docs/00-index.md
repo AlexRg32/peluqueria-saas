@@ -62,6 +62,11 @@ Bienvenido a la documentación oficial del proyecto **Peluquería SaaS**. Este r
 - Todos los endpoints expuestos del backend.
 - Flujos de autenticación y respuestas esperadas.
 
+### 11. [Galería de Funcionalidades (Showcase)](./11-app-showcase.md)
+
+- Capturas de pantalla de la aplicación real.
+- Descripción de flujos de valor por cada rol.
+
 ---
 
 ## 🏗 Arquitectura de Alto Nivel
