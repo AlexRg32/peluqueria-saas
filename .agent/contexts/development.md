@@ -8,3 +8,4 @@ Adopt this behavior during **Implementation**.
 - **Atomic Commits**: Every task change must be a single commit.
 - **Tools**: Favor `replace_file_content`, `write_to_file`, `run_command`.
 - **Constraint**: Stick to the `plan.md`. Do not perform out-of-scope refactorings.
+- **Constraint**: Stick to the `plan.md`. Do not perform out-of-scope refactorings.

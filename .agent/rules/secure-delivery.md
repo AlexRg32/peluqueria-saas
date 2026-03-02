@@ -1,33 +1,26 @@
-# Secure Software Delivery Rules (Google Cloud Inspired)
+# Secure Software Delivery Rules
 
-These rules implement a "Shift Left" security approach following SLSA and Zero Trust principles.
+These rules implement basic security best practices for the project.
 
-## 1. Source Security (Código)
+## 1. Source Security
 
-- **SIGNED COMMITS**: Every commit MUST be signed with GPG or SSH keys.
-- **SECRET SCANNERS**: No secrets in code. Use `.env.template` and reference a secret manager (Secret Manager, Vault).
-- **DEPENDENCY AUDIT**: Before adding a library, check its "Scorecard" (OpenSSF) or run `npm audit` / `mvn dependency:analyze`.
+- **SECRET SCANNERS**: No secrets in code. Use `.env` with `.env.example` as template.
+- **DEPENDENCY AUDIT**: Before adding a library, run `npm audit` / `mvn dependency:analyze`.
 - **CODE REVIEWS**: Large architectural changes REQUIRE a review from `@architect`.
 
-## 2. Build Security (Compilación)
+## 2. Build Security
 
-- **ISOLATED BUILDS**: Build process should not have unfettered internet access.
-- **SLSA PROVENANCE**: Generate build metadata (provenance) to prove HOW and WHERE the binary was created.
-- **HERMETIC BUILDS**: Dependencies must be locked (use `pom.xml`, `package-lock.json`, `pnpm-lock.yaml`).
+- **HERMETIC BUILDS**: Dependencies must be locked (use `pom.xml`, `package-lock.json`).
+- **ISOLATED BUILDS**: Docker builds should use multi-stage to minimize final image size.
 
-## 3. Deployment & Attestations (Despliegue)
+## 3. Data Integrity & Validation
 
-- **BINARY AUTHORIZATION**: Artifacts must be signed. Only signed artifacts can be deployed to production.
-- **VULNERABILITY SCANNING**: Images in the registry must be scanned for CVEs before deployment.
-- **ATTESTATION-BASED TRUST**: Trust the cryptographic signature of the build process, not just the human developer.
+- **Server-side validation**: All domain constraints and business rules must be enforced in the Service layer.
+- **Rate limiting**: Public endpoints should be rate-limited to prevent abuse.
+- **Input validation**: All user inputs validated with Bean Validation (JSR 303) on the backend and Zod on the frontend.
 
 ## 4. Design Patterns for Security
 
-- **ZERO TRUST**: "Never trust, always verify". Every inter-service request must be authenticated (e.g., mTLS + JWT).
-- **LEAST PRIVILEGE**: Accounts and services only have the permissions they strictly need.
-- **IMMUTABLE INFRASTRUCTURE**: Do not patch running servers; redeploy from a new signed image.
-
-## 5. Continuous Validation (Run)
-
-- Monitor running containers for deviation from the "Known Good" state.
-- Automated rotation of secrets and API keys every 30-90 days.
+- **LEAST PRIVILEGE**: Database users only have the permissions they strictly need.
+- **CORS**: Properly configured to only allow the frontend origin.
+- **CSRF**: Protection enabled for state-changing operations.

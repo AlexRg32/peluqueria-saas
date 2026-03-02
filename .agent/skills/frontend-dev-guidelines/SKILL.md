@@ -233,8 +233,8 @@ export const Route = createFileRoute('/my-route/')({
 
 ### Destructive Actions (Confirmation Required)
 
-* **MANDATORY**: Any action that deletes or permanently removes data (e.g., deleting a user, appointment, service, or customer) **must** show a confirmation modal before the mutation is triggered.
-* **Content**: The modal must clearly explain what is being deleted and mention any irreversible side effects (e.g., "This will also cancel all associated appointments").
+* **MANDATORY**: Any action that deletes or permanently removes data (e.g., deleting a user, record, or setting) **must** show a confirmation modal before the mutation is triggered.
+* **Content**: The modal must clearly explain what is being deleted and mention any irreversible side effects (e.g., "This action cannot be undone").
 * **Implementation**: Use a standardized confirmation dialog component that matches the premium design system.
 
 ### User Feedback & Personalized Errors
@@ -247,7 +247,7 @@ export const Route = createFileRoute('/my-route/')({
 
 ### Input Controls & Usability
 
-* **SEARCHABLE SELECTS**: For any field where the selection list could grow beyond 10-15 items (e.g., Customers, Services, Employees), **DO NOT** use standard HTML `<select>` elements. Use a searchable select (Combobox/Autocomplete) component. These must be **compact** (dropdown/popover style) and **NOT occupy the full screen** to ensure a premium and efficient user experience.
+* **SEARCHABLE SELECTS**: For any field where the selection list could grow beyond 10-15 items, **DO NOT** use standard HTML `<select>` elements. Use a searchable select (Combobox/Autocomplete) component. These must be **compact** (dropdown/popover style) and **NOT occupy the full screen** to ensure a premium and efficient user experience.
 
 ---
 
@@ -361,39 +361,7 @@ src/
 
 ---
 
-## 16. Testing Discipline (Non-Negotiable)
-
-### Required Tests
-
-* **Component tests** for all non-trivial components (using Vitest + React Testing Library)
-* **Hook tests** for custom hooks with business logic
-* **Integration tests** for features that combine multiple components
-* **API layer tests** for request/response handling and error cases
-
-### Test Commands
-
-```bash
-# Run all frontend tests
-cd peluqueria-client && npm test
-
-# Run specific test
-cd peluqueria-client && npx vitest run ComponentName.test.tsx
-```
-
-### Test File Convention
-
-* Tests live next to the file they test: `MyComponent.tsx` → `MyComponent.test.tsx`
-* Test factories in `src/utils/testUtils.tsx`
-
-### Anti-Rationalization
-
-* ❌ "It's just a simple component" — **NO. Simple components get simple tests.**
-* ❌ "Testing UI is hard" — **NO. Test behavior (user interactions), not pixels.**
-* ❌ "I'll add tests later" — **NO. Test FIRST, then implement.**
-
----
-
-## 17. Anti-Patterns (Immediate Rejection)
+## 16. Anti-Patterns (Immediate Rejection)
 
 ❌ Early loading returns
 ❌ Feature logic in `components/`
@@ -401,23 +369,21 @@ cd peluqueria-client && npx vitest run ComponentName.test.tsx
 ❌ Inline API calls
 ❌ Untyped responses
 ❌ Multiple responsibilities in one component
-❌ **Untested components or features**
-❌ **Pushing code without running `npm test`**
 
 ---
 
-## 18. Integration With Other Skills
+## 17. Integration With Other Skills
 
+* **stitch-designs** → AI-powered premium UI/UX generation
 * **frontend-design** → Visual systems & aesthetics
 * **page-cro** → Layout hierarchy & conversion logic
 * **analytics-tracking** → Event instrumentation
 * **backend-dev-guidelines** → API contract alignment
 * **error-tracking** → Runtime observability
-* **testing-patterns** → Test factories, mocking, TDD workflow
 
 ---
 
-## 19. Operator Validation Checklist
+## 18. Operator Validation Checklist
 
 Before finalizing code:
 
@@ -428,11 +394,10 @@ Before finalizing code:
 * [ ] Types explicit and correct
 * [ ] Lazy loading applied
 * [ ] Performance safe
-* [ ] **Tests exist and pass**
 
 ---
 
-## 20. Skill Status
+## 19. Skill Status
 
 **Status:** Stable, opinionated, and enforceable
 **Intended Use:** Production React codebases with long-term maintenance horizons

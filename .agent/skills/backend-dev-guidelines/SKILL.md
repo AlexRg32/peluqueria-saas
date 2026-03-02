@@ -1,6 +1,6 @@
 ---
 name: backend-dev-guidelines
-description: Opinionated backend development standards for Spring Boot (Java) microservices. Covers layered architecture, Global Exception Handling, dependency injection, JPA repositories, JSR 303 validation, and testing discipline.
+description: Opinionated backend development standards for Spring Boot (Java) applications. Covers layered architecture, Global Exception Handling, dependency injection, JPA repositories, JSR 303 validation, and testing discipline.
 ---
 
 # Backend Development Guidelines
@@ -41,16 +41,16 @@ Before implementing or modifying a backend feature, assess feasibility.
 BFRI = (Architectural Fit + Testability) − (Complexity + Data Risk + Operational Risk)
 ```
 
-**Range:** `-10 → +10`
+**Range:** `-13 → +7`
 
 ### Interpretation
 
-| BFRI     | Meaning   | Action                 |
-| -------- | --------- | ---------------------- |
-| **6–10** | Safe      | Proceed                |
-| **3–5**  | Moderate  | Add tests + monitoring |
-| **0–2**  | Risky     | Refactor or isolate    |
-| **< 0**  | Dangerous | Redesign before coding |
+| BFRI      | Meaning   | Action                 |
+| --------- | --------- | ---------------------- |
+| **6 – 7** | Safe      | Proceed                |
+| **3 – 5** | Moderate  | Add tests + monitoring |
+| **0 – 2** | Risky     | Refactor or isolate    |
+| **< 0**   | Dangerous | Redesign before coding |
 
 ---
 
@@ -93,6 +93,20 @@ Controller → Service → Repository → Database
   * Tight coupling between the API contract and the database schema.
   * Forced lazy loading of unintended relationships.
 
+#### DTO Implementation Patterns
+
+* **Immutable DTOs (preferred)**: Use Java `record` types for request/response DTOs:
+  ```java
+  public record UserDTO(String name, @Email String email) {}
+  ```
+* **Mutable DTOs**: When mutability is needed, use Lombok `@Builder`:
+  ```java
+  @Builder
+  @Getter
+  public class UserResponseDTO { ... }
+  ```
+* ⚠️ **NEVER** use `@Data` on JPA entities — it generates `equals()`/`hashCode()` based on all fields, which breaks Hibernate identity semantics.
+
 ---
 
 ### 3. Controllers Only Route
@@ -107,9 +121,17 @@ public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserDTO userDto) {
 }
 ```
 
+```java
+// ✅ Pagination-aware controller
+@GetMapping("/users")
+public ResponseEntity<Page<UserDTO>> listUsers(Pageable pageable) {
+    return ResponseEntity.ok(userService.findAll(pageable));
+}
+```
+
 ---
 
-### 3. Controllers Coordinate, Services Decide
+### 4. Controllers Coordinate, Services Decide
 
 * Controllers:
   * Parse request (via `@RequestBody`, `@PathVariable`)
@@ -120,12 +142,12 @@ public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserDTO userDto) {
 * Services:
   * Contain business rules
   * Are framework-agnostic where possible
-  * Use Dependency Injection (Constructor-based)
+  * Use Dependency Injection (Constructor-based, via `@RequiredArgsConstructor`)
   * Are unit-testable
 
 ---
 
-### 4. Global Exception Handling
+### 5. Global Exception Handling
 
 Use `@RestControllerAdvice` to handle exceptions globally.
 
@@ -151,7 +173,7 @@ public class GlobalExceptionHandler {
 }
 ```
 
-### 5. Personalized Error Messages (Mandatory)
+### 6. Personalized Error Messages (Mandatory)
 
 * **Human-Readable**: All exceptions thrown to the user must contain a human-readable, localized (if applicable) message.
 * **No Technical Leaks**: Never show stack traces or internal db errors (e.g., "ConstraintViolationException") directly. Map them to a friendly message like "This name is already in use."
@@ -159,13 +181,15 @@ public class GlobalExceptionHandler {
 
 ---
 
-### 5. Centralized Configuration
+### 7. Centralized Configuration
 
 Use `application.yml` and `@ConfigurationProperties` for configuration.
 
+* For full-stack projects with separate frontend/backend, configure CORS explicitly via `WebMvcConfigurer` or `@CrossOrigin` — never use `allowAll()` in production.
+
 ---
 
-### 6. Validate All External Input
+### 8. Validate All External Input
 
 Use `@Valid` and JSR 303 annotations (`@NotNull`, `@Email`, etc.).
 
@@ -174,7 +198,7 @@ Use `@Valid` and JSR 303 annotations (`@NotNull`, `@Email`, etc.).
 ## 4. Directory Structure (Canonical)
 
 ```
-src/main/java/com/peluqueria/
+src/main/java/com/app/
 ├── config/              # Security, Beans, etc.
 ├── controller/          # REST Controllers
 ├── service/             # Business logic interfaces & implementations
@@ -202,6 +226,15 @@ src/main/java/com/peluqueria/
 ## 6. Dependency Injection Rules
 
 * **Constructor Injection** is mandatory. Avoid `@Autowired` on fields.
+* With Lombok, use `@RequiredArgsConstructor` + `private final` fields:
+  ```java
+  @Service
+  @RequiredArgsConstructor
+  public class UserService {
+      private final UserRepository userRepository;
+      private final PasswordEncoder passwordEncoder;
+  }
+  ```
 * No importing repositories directly inside controllers (always go through service).
 
 ---
@@ -210,6 +243,18 @@ src/main/java/com/peluqueria/
 
 * Repositories should only be accessed by Services.
 * Use `@Transactional` at the Service level for operations that require atomicity.
+* Use `@Transactional(readOnly = true)` for read-only operations — this enables Hibernate flush-mode optimizations and allows read-replicas.
+* **Pagination**: Use `Pageable` / `Page<T>` for list endpoints. Never return unbounded collections.
+  ```java
+  // Repository
+  Page<User> findByActiveTrue(Pageable pageable);
+
+  // Service
+  @Transactional(readOnly = true)
+  public Page<UserDTO> findActiveUsers(Pageable pageable) {
+      return userRepository.findByActiveTrue(pageable).map(this::toDTO);
+  }
+  ```
 
 ---
 
@@ -222,31 +267,16 @@ src/main/java/com/peluqueria/
 
 ## 9. API Security (Non-Negotiable)
 
+> 📖 For detailed implementation patterns (Bucket4j, JWT, CORS hardening), see the **`api-security-best-practices`** skill.
+
 ### Rate Limiting Is Mandatory
 
 **ANY endpoint exposed to unauthenticated users MUST have rate limiting.** This is not optional.
 
-#### Rules
-
-1. **Auth endpoints** (`/auth/login`, `/auth/register`, password reset, etc.) → **5 requests per 15 minutes per IP**. This prevents brute-force attacks and protects the expensive bcrypt hashing.
-2. **General API endpoints** → **60 requests per minute per IP**. This prevents DoS attacks from overwhelming the backend.
-3. **Static/file endpoints** (`/uploads/**`, health checks) → Exempt from rate limiting.
-4. **Rate limit filter MUST execute BEFORE Spring Security filters** — if a client is rate-limited, we skip all expensive work (JWT parsing, DB lookups, bcrypt).
-5. **Response**: Return HTTP `429 Too Many Requests` with `Retry-After` header when limit is exceeded.
-
-#### Implementation Pattern (Bucket4j)
-
-```java
-// SecurityConfig.java — Filter ordering is CRITICAL
-.addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
-.addFilterAfter(jwtAuthFilter, RateLimitFilter.class)
-```
-
-#### When to Apply
-
-* ✅ Creating ANY new auth endpoint (login, register, forgot-password, verify-email)
-* ✅ Adding new public-facing endpoints (contact forms, public APIs)
-* ✅ Every new Spring Boot project setup (rate limiting from day 1)
+* **Auth endpoints** → **5 req / 15 min per IP** (protects bcrypt).
+* **General API endpoints** → **60 req / min per IP**.
+* **Rate limit filter MUST execute BEFORE Spring Security filters.**
+* Return HTTP `429 Too Many Requests` with `Retry-After` header.
 
 #### Anti-Rationalization
 
@@ -256,11 +286,8 @@ src/main/java/com/peluqueria/
 
 ### Account Lockout Awareness
 
-When implementing authentication:
-
-* Log failed authentication attempts
-* Consider temporary IP-based bans after repeated failures (handled by rate limiting)
-* Never reveal whether an email exists (use generic "Invalid credentials" messages)
+* Log failed authentication attempts.
+* Never reveal whether an email exists (use generic "Invalid credentials" messages).
 
 ---
 
@@ -278,11 +305,14 @@ When implementing authentication:
 
 ❌ Business logic in controllers
 ❌ Skipping service layer
-❌ Field injection (@Autowired on private fields)
-❌ Missing validation (@Valid)
+❌ Field injection (`@Autowired` on private fields)
+❌ Missing validation (`@Valid`)
 ❌ Using raw JDBC when JPA is available
 ❌ Swallow exceptions in catch blocks
 ❌ Untested business logic
+❌ `@Data` on JPA entities (breaks Hibernate identity)
+❌ Missing `@Transactional` on write operations
+❌ Returning unbounded collections (use `Page<T>`)
 ❌ **Auth endpoints without rate limiting**
 ❌ **Public endpoints without rate limiting**
 ❌ **Rate limit filter placed AFTER authentication filters**
@@ -292,5 +322,5 @@ When implementing authentication:
 ## 12. Skill Status
 
 **Status:** Stable · Enforceable · Production-grade
-**Intended Use:** Spring Boot microservices for the Peluquería SaaS platform
+**Intended Use:** Spring Boot monolithic applications
 ---

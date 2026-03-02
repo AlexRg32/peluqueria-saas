@@ -22,7 +22,7 @@ This skill provides guidance for quality focused software development and archit
 
 - **ALWAYS search for existing solutions before writing custom code**
   - Check npm for existing libraries that solve the problem
-  - Evaluate existing services/SaaS solutions
+  - Evaluate existing solutions and services
   - Consider third-party APIs for common functionality
 - Use libraries instead of writing your own utils or helpers. For example, use `cockatiel` instead of writing your own retry logic.
 - **When custom code IS justified:**
