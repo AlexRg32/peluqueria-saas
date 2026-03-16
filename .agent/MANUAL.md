@@ -40,17 +40,18 @@ Usa los comandos con `/` en el chat para trabajar en 4 fases principales (o fluj
 **Objetivo:** Picar código basado en el plan consensuado.
 
 * Busca automáticamente el último plan creado por el `/think`.
-* **Crea una rama Git segura** (nunca programa en `main`).
+* **Crea una rama Git segura basada en `staging`** (nunca programa en `main` ni en `staging`).
 * Empieza a transformar las tareas del plan en código (`@backend` y `@frontend`), probando que el sistema compile.
 * *Tip: Si se corta la conexión o paras, escribe otra vez `@[/forge] execute` y seguirá por la tarea exacta donde se quedó.*
 
 ### 📦 FASE 3 - Entregar: `@[/ship] "Mensaje breve"`
 
-**Objetivo:** Hacer Commit de forma profesional.
+**Objetivo:** Hacer Commit de forma profesional y publicar en `staging` (Pre-Producción).
 
 * Analiza el código modificado.
 * Formatea tu mensaje con reglas estrictas ("Conventional Commits" -> ej. `feat: mensaje`).
-* Hace *Push* al repositorio local/remoto para que tú lo fusiones cuando quieras.
+* Hace *Push* a `staging` para validación en preproducción.
+* Cuando staging esté validado, usa `@[/promote]` para promover de `staging` a `main` (Producción).
 
 *(Atajo: Puedes usar `@[/forge] arregla el botón rojo` si es un cambio minúsculo y quieres que lo piense y lo haga todo del tirón asumiendo el riesgo).*
 
@@ -58,7 +59,7 @@ Usa los comandos con `/` en el chat para trabajar en 4 fases principales (o fluj
 
 ## 🎒 3. Reglas de Oro Internalizadas
 
-1. **Nunca se programa en `main`**: Se automatiza la creación de ramas.
+1. **Nunca se programa en ramas de integración (`main` o `staging`)**: Se automatiza la creación de ramas feature desde `staging`.
 2. **DTOs Inamovibles**: Los controladores REST de Spring Boot siempre se comunican en *DTOs*, jamás devuelven *Entities* reales.
 3. **El Diseño Manda**: La IA está obligada a documentar arquitecturas y diagramas actualizados en la carpeta `docs/` antes de dar una feature por cerrada.
 4. **Contexto de Proyecto**: Para ayudar a los agentes a entender tu lógica de negocio específica, mantén actualizado el documento en la carpeta `contexts/` o en los archivos principales de `docs/`.

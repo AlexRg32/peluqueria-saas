@@ -12,7 +12,7 @@ description: pr — commits, pushes the current branch, and provides a PR link f
 
 ## 🛑 SAFETY PROTOCOL
 - This workflow is allowed to `git push` **ONLY** to feature branches.
-- **NEVER** push to `main` using this workflow.
+- **NEVER** push to `main` or `staging` using this workflow.
 - This workflow must be triggered **MANUALLY** by a human programmer.
 
 ---
@@ -48,7 +48,7 @@ CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD) && \
 echo "Current branch: $CURRENT_BRANCH"
 ```
 
-- If `CURRENT_BRANCH` is `main` → **ABORT**. Tell the user: _"You are already on `main`. The `pr` workflow is meant to push a feature branch and create a PR. Please switch to a feature branch first."_
+- If `CURRENT_BRANCH` is `main` or `staging` → **ABORT**. Tell the user: _"You are on an integration branch (`main`/`staging`). The `pr` workflow is meant to push a feature branch and create a PR. Please switch to a feature branch first."_
 
 ### 1B — Working Tree Check
 
@@ -111,7 +111,7 @@ Identify the remote repository details and build the GitHub comparison link.
 
 ```bash
 REMOTE_URL=$(git config --get remote.origin.url | sed 's/\.git$//' | sed 's/git@github.com:/https:\/\/github.com\//') && \
-echo "PR_LINK: $REMOTE_URL/compare/main...$CURRENT_BRANCH?expand=1"
+echo "PR_LINK: $REMOTE_URL/compare/staging...$CURRENT_BRANCH?expand=1"
 ```
 
 ---
