@@ -1,4 +1,4 @@
-# ✂️ Peluquería SaaS - Sistema de Gestión Multi-cliente (Proyecto en desarrollo)
+# ✂️ Saloria - Sistema de Gestión Multi-cliente (Proyecto en desarrollo)
 
 🌐 **[Visita la Página Principal de la Aplicación](https://peluqueria-saas-three.vercel.app)**
 
