@@ -46,9 +46,7 @@ services:
       - app
     env_file:
       - .env.prod
-    volumes:
-      - ./cloudflared:/etc/cloudflared:ro
-    command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARED_TOKEN}
     networks:
       - edge
 
