@@ -53,13 +53,13 @@ Conclusion:
 1. Instala Docker con `scripts/bootstrap-host.sh`.
 2. Copia este directorio a la Raspberry.
 3. Crea `.env.prod` a partir de `.env.prod.example`.
-4. Si usas Cloudflare Tunnel, edita `cloudflared/config.yml` y copia el fichero de credenciales JSON al mismo directorio.
+4. Si usas Cloudflare Tunnel, pega el token remoto en `CLOUDFLARED_TOKEN` dentro de `.env.prod`.
 5. Manten `SPRING_DATASOURCE_URL` apuntando a Supabase.
-6. Manten `APP_STORAGE_TYPE=supabase`.
+6. Si no quieres depender de Storage externo en esta fase, usa `APP_STORAGE_TYPE=local`.
 7. Arranca con Cloudflare Tunnel:
 
 ```bash
-docker compose -f docker-compose.prod.yml --profile cloudflare up -d --build
+docker compose --env-file .env.prod -f docker-compose.prod.yml --profile cloudflare up -d --build
 ```
 
 8. Comprueba la API:
@@ -90,7 +90,7 @@ Si algo falla tras apuntar Vercel a la Raspberry:
 
 1. Reestablece `VITE_API_BASE_URL` en Vercel hacia la URL actual de Render.
 2. Redeploya el frontend.
-3. Revisa logs con `docker compose logs -f app`.
+3. Revisa logs con `docker compose --env-file .env.prod -f docker-compose.prod.yml logs -f app`.
 
 ## Notas de seguridad
 
@@ -98,3 +98,4 @@ Si algo falla tras apuntar Vercel a la Raspberry:
 - No subas `.env.prod` al repositorio.
 - Rota el `JWT_SECRET` al salir de Render.
 - Si usas Cloudflare Tunnel, evita abrir puertos en el router.
+- Cuando recrees el servicio `cloudflared`, usa `--env-file .env.prod` para que Docker Compose lea `CLOUDFLARED_TOKEN`.
