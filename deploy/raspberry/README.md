@@ -38,6 +38,8 @@ Conclusion:
 - `Caddyfile`: opcion con proxy HTTPS clasico
 - `cloudflared/config.yml`: plantilla alternativa para Cloudflare Tunnel
 - `scripts/bootstrap-host.sh`: instala Docker en Debian
+- `scripts/install-tailscale.sh`: instala Tailscale para acceso remoto privado
+- `scripts/redeploy.sh`: hace `git pull` del repo y redeploya la API
 - `scripts/backup-postgres.sh`: backup de PostgreSQL local
 - `scripts/restore-postgres.sh`: restauracion de PostgreSQL local
 - `scripts/healthcheck.sh`: comprobacion rapida de la API
@@ -51,22 +53,86 @@ Conclusion:
 ## Fase 1 recomendada
 
 1. Instala Docker con `scripts/bootstrap-host.sh`.
-2. Copia este directorio a la Raspberry.
-3. Crea `.env.prod` a partir de `.env.prod.example`.
-4. Si usas Cloudflare Tunnel, pega el token remoto en `CLOUDFLARED_TOKEN` dentro de `.env.prod`.
-5. Manten `SPRING_DATASOURCE_URL` apuntando a Supabase.
-6. Si no quieres depender de Storage externo en esta fase, usa `APP_STORAGE_TYPE=local`.
-7. Arranca con Cloudflare Tunnel:
+2. Clona este repositorio completo en la Raspberry, idealmente en `~/saloria`.
+3. Crea `deploy/raspberry/.env.prod` a partir de `deploy/raspberry/.env.prod.example`.
+4. Instala Tailscale en la Raspberry:
 
 ```bash
-docker compose --env-file .env.prod -f docker-compose.prod.yml --profile cloudflare up -d --build
+./deploy/raspberry/scripts/install-tailscale.sh
+sudo tailscale up
+tailscale ip -4
 ```
 
-8. Comprueba la API:
+5. Si usas Cloudflare Tunnel, pega el token remoto en `CLOUDFLARED_TOKEN` dentro de `.env.prod`.
+6. Manten `SPRING_DATASOURCE_URL` apuntando a Supabase.
+7. Si no quieres depender de Storage externo en esta fase, usa `APP_STORAGE_TYPE=local`.
+8. Lanza el primer despliegue:
 
 ```bash
-./scripts/healthcheck.sh https://api.tudominio.com
+./deploy/raspberry/scripts/redeploy.sh
 ```
+
+9. Si quieres ejecutarlo manualmente sin el script, el comando equivalente es:
+
+```bash
+docker compose \
+  --env-file deploy/raspberry/.env.prod \
+  -f deploy/raspberry/docker-compose.prod.yml \
+  --profile cloudflare \
+  up -d --build
+```
+
+10. Comprueba la API:
+
+```bash
+./deploy/raspberry/scripts/healthcheck.sh https://api.tudominio.com
+```
+
+## Acceso remoto recomendado: Tailscale
+
+La recomendacion operativa para acceder a la Raspberry fuera de casa es **Tailscale**. El Cloudflare Tunnel de este repo publica la API HTTP, pero no expone SSH por defecto.
+
+### Ventajas
+
+- No necesitas abrir el puerto `22` en el router.
+- GitHub Actions puede entrar por SSH usando la IP privada de Tailscale o el nombre MagicDNS.
+- El acceso queda separado de la publicacion de la API, que puede seguir en Cloudflare Tunnel.
+
+### Conexion manual desde tu portatil
+
+Una vez que la Raspberry y tu portatil estan dentro de la misma red Tailscale:
+
+```bash
+ssh <usuario>@<ip-tailscale>
+```
+
+O si tienes MagicDNS:
+
+```bash
+ssh <usuario>@raspberrypi.tailnet-name.ts.net
+```
+
+## Auto-deploy desde `main`
+
+El repositorio incluye un workflow de GitHub Actions en `.github/workflows/deploy-raspberry.yml` para redeployar la API cuando hay cambios en:
+
+- `saloria-api/**`
+- `deploy/raspberry/**`
+
+### Secretos necesarios en GitHub
+
+- `RASPBERRY_HOST`: IP de Tailscale o hostname MagicDNS de la Raspberry
+- `RASPBERRY_USER`: usuario SSH
+- `RASPBERRY_SSH_KEY`: clave privada usada por GitHub Actions
+- `RASPBERRY_PORT`: opcional, por defecto `22`
+- `RASPBERRY_APP_PATH`: opcional, por defecto `~/saloria`
+
+### Flujo
+
+1. Haces push a `main`.
+2. GitHub Actions abre una sesion SSH contra la Raspberry.
+3. La Raspberry ejecuta `deploy/raspberry/scripts/redeploy.sh`.
+4. El script hace `git pull --ff-only origin main`, reconstruye la API con Docker Compose y ejecuta el healthcheck con reintentos sobre `APP_API_BASE_URL`.
 
 ## Fase 2 opcional: PostgreSQL local
 
@@ -78,7 +144,7 @@ Cuando la fase 1 este estable:
 4. Arranca con el perfil local:
 
 ```bash
-docker compose -f docker-compose.prod.yml --profile local-db up -d
+DEPLOY_PROFILES=cloudflare,local-db ./deploy/raspberry/scripts/redeploy.sh
 ```
 
 5. Migra los datos con dump/restore.
@@ -90,7 +156,7 @@ Si algo falla tras apuntar Vercel a la Raspberry:
 
 1. Reestablece `VITE_API_BASE_URL` en Vercel hacia la URL actual de Render.
 2. Redeploya el frontend.
-3. Revisa logs con `docker compose --env-file .env.prod -f docker-compose.prod.yml logs -f app`.
+3. Revisa logs con `docker compose --env-file deploy/raspberry/.env.prod -f deploy/raspberry/docker-compose.prod.yml logs -f app`.
 
 ## Notas de seguridad
 
@@ -99,3 +165,5 @@ Si algo falla tras apuntar Vercel a la Raspberry:
 - Rota el `JWT_SECRET` al salir de Render.
 - Si usas Cloudflare Tunnel, evita abrir puertos en el router.
 - Cuando recrees el servicio `cloudflared`, usa `--env-file .env.prod` para que Docker Compose lea `CLOUDFLARED_TOKEN`.
+- Usa Tailscale para SSH remoto en lugar de abrir el puerto `22` a Internet.
+- Usa una clave SSH dedicada y limitada para el workflow de despliegue.

@@ -16,13 +16,14 @@ fi
 
 sudo usermod -aG docker "${USER}"
 
-mkdir -p "${HOME}/saloria/deploy"
+mkdir -p "${HOME}/saloria"
 
 cat <<'EOF'
 Docker is installed (or already present).
 Log out and back in before using Docker without sudo.
 Suggested next steps:
-  1. Copy deploy/raspberry into ~/saloria/deploy
-  2. Create ~/saloria/deploy/.env.prod from .env.prod.example
-  3. Run docker compose --profile cloudflare up -d --build
+  1. Clone the repo into ~/saloria (or pull the latest changes if it already exists)
+  2. Create ~/saloria/deploy/raspberry/.env.prod from .env.prod.example
+  3. Optional but recommended: run ~/saloria/deploy/raspberry/scripts/install-tailscale.sh
+  4. Run ~/saloria/deploy/raspberry/scripts/redeploy.sh
 EOF
