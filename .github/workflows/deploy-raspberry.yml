@@ -16,22 +16,13 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on:
+      - self-hosted
+      - raspberry
+      - prod
 
     steps:
-      - name: Redeploy API on Raspberry over SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.RASPBERRY_HOST }}
-          username: ${{ secrets.RASPBERRY_USER }}
-          key: ${{ secrets.RASPBERRY_SSH_KEY }}
-          port: ${{ secrets.RASPBERRY_PORT || '22' }}
-          script_stop: true
-          script: |
-            APP_PATH="${{ secrets.RASPBERRY_APP_PATH }}"
-            if [ -z "$APP_PATH" ]; then
-              APP_PATH="$HOME/saloria"
-            fi
-
-            cd "$APP_PATH"
-            ./deploy/raspberry/scripts/redeploy.sh
+      - name: Redeploy API on Raspberry
+        run: |
+          cd "$HOME/Saloria"
+          ./deploy/raspberry/scripts/redeploy.sh

@@ -49,4 +49,4 @@ Recomendacion:
 A partir de ahora, el flujo soportado es **solo `main`**. Cada vez que promociones cambios a `main`, tanto el Frontend como el Backend productivos deben quedar alineados con esa rama.
 
 - **Frontend (Vercel)**: despliegue automatico desde el proyecto conectado.
-- **Backend (Raspberry)**: despliegue automatico via GitHub Actions + SSH usando `deploy/raspberry/scripts/redeploy.sh`, preferiblemente entrando por Tailscale.
+- **Backend (Raspberry)**: despliegue automatico via GitHub Actions en un runner self-hosted de la Raspberry usando `deploy/raspberry/scripts/redeploy.sh`.

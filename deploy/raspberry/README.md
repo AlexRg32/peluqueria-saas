@@ -119,20 +119,35 @@ El repositorio incluye un workflow de GitHub Actions en `.github/workflows/deplo
 - `saloria-api/**`
 - `deploy/raspberry/**`
 
-### Secretos necesarios en GitHub
+### Modelo recomendado
 
-- `RASPBERRY_HOST`: IP de Tailscale o hostname MagicDNS de la Raspberry
-- `RASPBERRY_USER`: usuario SSH
-- `RASPBERRY_SSH_KEY`: clave privada usada por GitHub Actions
-- `RASPBERRY_PORT`: opcional, por defecto `22`
-- `RASPBERRY_APP_PATH`: opcional, por defecto `~/saloria`
+- Un runner **self-hosted** de GitHub Actions vive en la propia Raspberry.
+- Ese runner ejecuta localmente `deploy/raspberry/scripts/redeploy.sh`.
+- Tailscale sigue siendo la opcion recomendada para tu acceso SSH manual al host.
 
 ### Flujo
 
 1. Haces push a `main`.
-2. GitHub Actions abre una sesion SSH contra la Raspberry.
-3. La Raspberry ejecuta `deploy/raspberry/scripts/redeploy.sh`.
+2. GitHub encola el workflow `Deploy Raspberry API`.
+3. El runner self-hosted de la Raspberry ejecuta `deploy/raspberry/scripts/redeploy.sh`.
 4. El script hace `git pull --ff-only origin main`, reconstruye la API con Docker Compose y ejecuta el healthcheck con reintentos sobre `APP_API_BASE_URL`.
+
+### Preparacion del runner
+
+La Raspberry debe tener un runner registrado para este repositorio. Un ejemplo de instalacion:
+
+```bash
+mkdir -p ~/actions-runner-saloria
+cd ~/actions-runner-saloria
+curl -L -o actions-runner-linux-arm64-2.333.0.tar.gz \
+  https://github.com/actions/runner/releases/download/v2.333.0/actions-runner-linux-arm64-2.333.0.tar.gz
+tar xzf actions-runner-linux-arm64-2.333.0.tar.gz
+sudo ./bin/installdependencies.sh
+./config.sh --url https://github.com/AlexRg32/Saloria --token <REGISTRATION_TOKEN> \
+  --unattended --replace --name raspberry-alex-runner --labels raspberry,prod
+sudo ./svc.sh install alexrg32
+sudo ./svc.sh start
+```
 
 ## Fase 2 opcional: PostgreSQL local
 
@@ -166,4 +181,4 @@ Si algo falla tras apuntar Vercel a la Raspberry:
 - Si usas Cloudflare Tunnel, evita abrir puertos en el router.
 - Cuando recrees el servicio `cloudflared`, usa `--env-file .env.prod` para que Docker Compose lea `CLOUDFLARED_TOKEN`.
 - Usa Tailscale para SSH remoto en lugar de abrir el puerto `22` a Internet.
-- Usa una clave SSH dedicada y limitada para el workflow de despliegue.
+- Si prefieres no usar runner self-hosted, entonces si necesitaras una clave SSH dedicada para GitHub Actions.

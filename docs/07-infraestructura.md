@@ -182,7 +182,7 @@ El flujo de trabajo sigue un modelo **main-only**:
 3. **Despliegue**: La producción despliega automáticamente desde `main`.
 4. **Pipeline real observado**:
    - **Vercel**: despliegue automático asociado al proyecto y sus aliases de producción.
-   - **Raspberry Pi**: workflow `.github/workflows/deploy-raspberry.yml` abre SSH al host y ejecuta `deploy/raspberry/scripts/redeploy.sh`.
+   - **Raspberry Pi**: workflow `.github/workflows/deploy-raspberry.yml` corre en un runner self-hosted del propio host y ejecuta `deploy/raspberry/scripts/redeploy.sh`.
    - **Repositorio**: el redeploy de la API solo se dispara cuando cambian `saloria-api/**`, `deploy/raspberry/**` o el propio workflow.
 
 ## 🧭 Notas Operativas Importantes
