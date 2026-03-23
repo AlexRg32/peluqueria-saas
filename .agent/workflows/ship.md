@@ -4,15 +4,15 @@ description: ship — commits and pushes with pre-flight checks, interactive com
 
 # Ship Workflow
 
-**Goal**: Ship code from the current feature branch to `staging` (Pre-Production) with **pre-flight validation**, **interactive commit message**, **build verification**, and **safe merge**.
+**Goal**: Ship code from the current feature branch to `main` with **pre-flight validation**, **interactive commit message**, **build verification**, and **safe merge**.
 
 > Uses: `git-commit-formatter` skill (Conventional Commits)
 
 ---
 
 ## 🛑 SAFETY PROTOCOL
-**THIS IS THE ONLY WORKFLOW ALLOWED TO MERGE AND PUSH TO STAGING.**
-- No other automation (Forge, Checkpoint, etc.) is permitted to run `git push` or `git commit` on the `staging` branch.
+**THIS IS THE ONLY WORKFLOW ALLOWED TO MERGE AND PUSH TO MAIN.**
+- No other automation (Forge, Checkpoint, etc.) is permitted to run `git push` or `git commit` on the `main` branch.
 - This workflow must be triggered **MANUALLY** by a human programmer.
 
 ---
@@ -48,7 +48,7 @@ CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD) && \
 echo "Current branch: $CURRENT_BRANCH"
 ```
 
-- If `CURRENT_BRANCH` is `main` or `staging` → **ABORT**. Tell the user: _"You are on an integration branch (`main`/`staging`). Ship is meant to merge a feature branch into `staging`. Please switch to a feature branch first."_
+- If `CURRENT_BRANCH` is `main` → **ABORT**. Tell the user: _"You are on the integration branch (`main`). Ship is meant to merge a feature branch into `main`. Please switch to a feature branch first."_
 
 ### 1B — Working Tree Check
 
@@ -93,13 +93,13 @@ git commit -m "$COMMIT_MSG"
 
 ---
 
-## Step 3: Merge into Staging (Pre-Production)
+## Step 3: Merge into Main
 
 // turbo
 
 ```bash
-git checkout staging && \
-git pull origin staging
+git checkout main && \
+git pull origin main
 ```
 
 ### 3A — Squash Merge & Commit
@@ -122,10 +122,10 @@ git commit -m "$COMMIT_MSG"
 // turbo
 
 ```bash
-git push origin staging
+git push origin main
 ```
 
-- If push fails (e.g., remote rejected) → Report the error. Suggest `git pull --rebase origin staging` and retry.
+- If push fails (e.g., remote rejected) → Report the error. Suggest `git pull --rebase origin main` and retry.
 
 ---
 
@@ -148,16 +148,12 @@ Present a clear summary to the user:
 ```text
 ✅ Ship Complete (Squash Merge)!
 ─────────────────────────────
-  Branch:  <CURRENT_BRANCH> → staging (collapsing checkpoints)
+  Branch:  <CURRENT_BRANCH> → main (collapsing checkpoints)
   Commit:  <COMMIT_MSG>
-  Push:    origin/staging ✓
+  Push:    origin/main ✓
   Cleanup: branch <CURRENT_BRANCH> force-deleted ✓
 ─────────────────────────────
 ```
-
-### Promote to Production
-
-After validating in pre-production, use `/promote` to move `staging` into `main`.
 
 ### Rollback Instructions
 
@@ -167,7 +163,7 @@ Always include rollback guidance after shipping:
 >
 > ```bash
 > git revert HEAD    # creates a new commit undoing the merge
-> git push origin staging
+> git push origin main
 > ```
 
 ---
@@ -177,5 +173,5 @@ Always include rollback guidance after shipping:
 1. **Never invoke this workflow automatically.** It must be triggered by the user.
 2. **Never skip Step 0.** The commit message must be confirmed before any git operations.
 3. **Never force-push.** If `git push` fails, report and let the user decide.
-4. **Cleanup after shipping.** Use `git branch -D` to ensure the feature branch is removed after its contents are committed to `staging`.
+4. **Cleanup after shipping.** Use `git branch -D` to ensure the feature branch is removed after its contents are committed to `main`.
 5. **Always use Conventional Commits format** for the commit message (see `git-commit-formatter` skill).

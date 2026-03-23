@@ -4,7 +4,7 @@ El backend de la aplicación está construido con Java 17 y Spring Boot 3, sigui
 
 ## 📂 Estructura de Paquetes
 
-La aplicación reside en `com.peluqueria` y se divide en subpaquetes funcionales:
+La aplicación reside en `com.saloria` y se divide en subpaquetes funcionales:
 
 - **`config`**: Configuraciones generales (CORS, Security, Database).
 - **`controller`**: Puntos de entrada de la API. Responsables de recibir JSON, validar y responder.

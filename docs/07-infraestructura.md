@@ -4,30 +4,28 @@ La aplicación es un sistema **cloud-native** preparado para escalar horizontalm
 
 ## ✅ Estado Verificado del Despliegue
 
-> Última verificación manual: **2026-03-22**
+> Última verificación manual: **2026-03-23**
 
 La infraestructura activa de la aplicación queda así:
 
 | Capa | Entorno | Plataforma | Identificador / URL | Estado |
 | :--- | :--- | :--- | :--- | :--- |
-| **Frontend** | Producción | Vercel | `peluqueria-saas-three.vercel.app` | Activo |
-| **Frontend** | Staging / Preview | Vercel | `peluqueria-saas-git-staging-alexrg32s-projects.vercel.app` | Activo |
-| **Backend** | Producción | Render | `peluqueria-saas-prod-fra` → `https://peluqueria-saas-prod-fra.onrender.com` | Activo |
-| **Backend** | Staging | Render | `peluqueria-saas-staging-fra` → `https://peluqueria-saas-staging-fra.onrender.com` | Activo |
+| **Frontend** | Producción | Vercel | `saloria.vercel.app` | Activo |
+| **Backend** | Producción | Raspberry Pi + Cloudflare Tunnel | `https://api.alexrg.es` | Activo |
 | **Base de Datos** | Producción | Supabase | `peluqueria-saas` (`xwnumlcqnrwhgpbrldhf`) | Activo |
 | **Base de Datos** | Otro proyecto Supabase | Supabase | `clases-claudia` (`cvrezcodldsscprjsvas`) | Activo |
-| **Servicios antiguos** | Legacy | Render Oregon | `peluqueria-saas`, `peluqueria-saas-prod`, `peluqueria-saas-api-staging` | Suspendidos |
+| **Servicios legacy** | Legacy | Render | `peluqueria-saas-prod-fra` | Suspendido por el usuario |
 
 ### Resumen Ejecutivo
 
 - **Producción real**:
   - Frontend en **Vercel**
-  - Backend en **Render Frankfurt**
+  - Backend en **Raspberry Pi** publicado mediante **Cloudflare Tunnel**
   - Base de datos en **Supabase Frankfurt**
-- **Staging real**:
-  - Frontend en **Vercel Preview/Staging**
-  - Backend en **Render Frankfurt**
-- **Infra legacy** en Render Oregon sigue existiendo, pero está **suspendida** y no forma parte de la ruta activa.
+- **Modelo de despliegue**:
+  - Solo existe una rama de integración soportada: **`main`**
+  - No se mantiene un entorno dedicado de preproducción
+- **Infra legacy** en Render sigue existiendo como rastro histórico, pero no forma parte de la ruta activa.
 
 ## 🐳 Docker (Entorno Local)
 
@@ -42,18 +40,18 @@ services:
     volumes: [postgres_data:/var/lib/postgresql/data]
     
   app:
-    build: ./peluqueria-api
+    build: ./saloria-api
     ports: ["8080:8080"]
     depends_on: [db]
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/peluqueria_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/saloria_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - CORS_ALLOWED_ORIGINS=http://localhost:3000
       
   client:
     build: 
-      context: ./peluqueria-client
+      context: ./saloria-client
       args:
         - VITE_API_BASE_URL=http://localhost:8080
     ports: ["3000:80"]
@@ -83,14 +81,14 @@ El proyecto soporta dos formas principales de desarrollo:
 - Frontend con Vite: `npm run dev`
 - En este modo, el frontend suele correr en `http://localhost:5173`
 
-## ⚙️ Configuración Real por Entorno
+## ⚙️ Configuración Real de Despliegue
 
-El backend **no** usa archivos separados `application-staging.properties` o `application-prod.properties`.
-Actualmente, staging y producción comparten el mismo binario y se diferencian por:
+El backend **no** usa archivos separados `application-prod.properties` ni variantes por rama.
+Actualmente, la aplicación se despliega con un único flujo hacia producción y se diferencia por:
 
-- rama desplegada (`staging` o `main`)
-- variables de entorno en Render
-- URL del frontend que se conecta a cada entorno
+- rama desplegada (`main`)
+- variables de entorno del host activo
+- URL del frontend que se conecta al backend público
 - configuración de base de datos y storage
 
 Las variables más importantes son:
@@ -106,65 +104,64 @@ Las variables más importantes son:
 - `SUPABASE_KEY`
 - `SUPABASE_BUCKET`
 
-## 🌍 Entornos de Despliegue
+## 🌍 Entorno de Despliegue
 
-El proyecto cuenta con dos entornos totalmente aislados para garantizar la estabilidad de la producción.
+El proyecto mantiene un unico entorno soportado para despliegue continuo:
 
-| Característica | **Staging** (Pre-producción) | **Production** (Producción) |
-| :--- | :--- | :--- |
-| **Rama Git** | `staging` | `main` |
-| **Base de Datos** | PostgreSQL (configurada por variables de entorno) | PostgreSQL (Supabase) |
-| **Backend API** | Render (Frankfurt-fra) | Render (Frankfurt-fra) |
-| **Frontend** | Vercel (Staging) | Vercel (Production) |
-| **Propósito** | Pruebas y validación | Uso por clientes reales |
+| Característica | Producción |
+| :--- | :--- |
+| **Rama Git** | `main` |
+| **Base de Datos** | Supabase |
+| **Backend API** | Raspberry Pi + Cloudflare Tunnel |
+| **Frontend** | Vercel |
+| **Propósito** | Uso real y releases continuos |
 
 ### 1. Base de Datos
 
 - **Producción**: La base activa identificada para esta app en Supabase es `peluqueria-saas` con `project_ref` `xwnumlcqnrwhgpbrldhf`.
-- **Staging**: El código y Render permiten separar staging por variables de entorno, pero el repositorio no versiona la URL exacta del datasource de staging.
 - **Compatibilidad**: El backend soporta URLs JDBC normales y también URLs estilo `postgres://` o `postgresql://`, incluidas configuraciones de Supabase.
 
 ### 2. Backend API
 
-Desplegado en Render mediante contenedores.
+La ruta activa usa una Raspberry Pi con Docker Compose y Cloudflare Tunnel.
 
 - **Variables de Entorno Críticas**:
-  - `SPRING_DATASOURCE_URL`: String de conexión JDBC (específico de cada entorno).
-  - `JWT_SECRET`: Clave secreta (debe ser distinta en cada entorno).
-  - `CORS_ALLOWED_ORIGINS`: URLs permitidas del frontend correspondiente. Para soportar previsualizaciones de Vercel, se recomienda usar patrones: `https://*.vercel.app,https://tu-dominio.com`.
+  - `SPRING_DATASOURCE_URL`: String de conexión JDBC de Supabase o PostgreSQL externo.
+  - `JWT_SECRET`: Clave secreta de producción.
+  - `CORS_ALLOWED_ORIGINS`: URLs permitidas del frontend público y dominios asociados.
 
 ### 4. Configuración del Monorepo (Importante)
 
-Al ser un monorepo, Render requiere configuraciones específicas para encontrar el código del backend:
+Al ser un monorepo, cualquier despliegue cloud alternativo requiere configuraciones específicas para encontrar el código del backend:
 
-- **Root Directory**: Debe establecerse en `peluqueria-api`.
-- **Dockerfile Path**: Render lo buscará dentro del `rootDir`, por lo que el path relativo debe ser `./Dockerfile` (si está en la raíz de `peluqueria-api`).
+- **Root Directory**: Debe establecerse en `saloria-api`.
+- **Dockerfile Path**: Debe resolverse dentro del `rootDir`, por lo que el path relativo debe ser `./Dockerfile` (si está en la raíz de `saloria-api`).
 
 #### Troubleshooting: Error de Lectura de Dockerfile
 
 Si el despliegue falla con: `error: failed to solve: failed to read dockerfile: open Dockerfile: no such file or directory`, verifica que el **Root Directory** en el dashboard de Render no esté vacío.
 
-### 5. Render Blueprints (`render.yaml`)
+### 5. Render Blueprint (`render.yaml`)
 
-El proyecto utiliza **Infrastructure as Code (IaC)** mediante el archivo `render.yaml` en la raíz para unificar la configuración de los entornos.
+El proyecto mantiene un `render.yaml` mínimo para un posible despliegue cloud alternativo desde `main`.
 
 ```yaml
 services:
   - type: web
-    name: peluqueria-saas-prod-fra
+    name: saloria-prod-fra
     runtime: docker
-    rootDir: peluqueria-api # Crucial para el monorepo
+    rootDir: saloria-api # Crucial para el monorepo
     region: frankfurt
 ```
 
-Para aplicar cambios globales a la infraestructura, se recomienda editar este archivo en lugar de usar el dashboard manual.
+Si Render vuelve a usarse como backend activo, se recomienda editar este archivo en lugar de usar el dashboard manual.
 
 ### 3. Frontend
 
 Desplegado en Vercel.
 
 - **Variables de Entorno**:
-  - `VITE_API_BASE_URL`: URL del backend (Staging o Producción).
+  - `VITE_API_BASE_URL`: URL del backend público.
 
 ### 4. Storage de Archivos
 
@@ -177,23 +174,22 @@ Esto evita el problema de pérdida de archivos cuando se usa filesystem local de
 
 ## 🚀 Estrategia de Ramas y CI/CD
 
-El flujo de trabajo sigue el modelo de promoción de entornos:
+El flujo de trabajo sigue un modelo **main-only**:
 
-1. **Desarrollo**: Se crean ramas `feat/`, `fix/`, etc. a partir de `staging`.
-2. **Promoción a Staging**: Al terminar una tarea, se integra en `staging` mediante el comando `/ship`.
-3. **Validación**: Los cambios se prueban en el entorno de Staging.
-4. **Promoción a Producción**: Una vez validados, los cambios se integran de `staging` a `main` (Despliegue automático a producción).
-5. **Pipeline real observado**:
-   - **Render**: `autoDeploy` activado para staging y producción.
-   - **Vercel**: despliegue automático asociado al proyecto y sus aliases.
+1. **Desarrollo**: Se crean ramas `feat/`, `fix/`, etc. a partir de `main`.
+2. **Integración**: Al terminar una tarea, se integra en `main` mediante el comando `/ship`.
+3. **Despliegue**: La producción despliega automáticamente desde `main`.
+4. **Pipeline real observado**:
+   - **Vercel**: despliegue automático asociado al proyecto y sus aliases de producción.
+   - **Raspberry Pi**: la API se sirve desde el host activo con su configuración operativa.
    - **Repositorio**: no hay workflows versionados en `.github/workflows` en el momento de esta verificación.
 
 ## 🧭 Notas Operativas Importantes
 
-- La separación entre staging y producción depende principalmente de **variables de entorno externas** y no de perfiles Spring versionados por archivo.
-- El frontend de producción público es `peluqueria-saas-three.vercel.app`.
-- El backend de producción público es `peluqueria-saas-prod-fra.onrender.com`.
-- Hay servicios antiguos en Oregon suspendidos por el usuario que conviene no confundir con la infraestructura activa actual.
+- El despliegue soportado depende principalmente de **variables de entorno externas** y no de perfiles Spring versionados por archivo.
+- El frontend de producción público es `saloria.vercel.app`.
+- El backend de producción público es `api.alexrg.es`.
+- El servicio antiguo de Render está suspendido por el usuario y no debe confundirse con la ruta activa.
 
 ## 🍓 Opción Self-Hosted: Raspberry Pi
 

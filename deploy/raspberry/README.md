@@ -74,7 +74,7 @@ Cuando la fase 1 este estable:
 
 1. Conecta un SSD externo.
 2. Ajusta el volumen de `postgres_data` al disco persistente.
-3. Cambia `SPRING_DATASOURCE_URL` a `jdbc:postgresql://db:5432/peluqueria_db`.
+3. Cambia `SPRING_DATASOURCE_URL` a `jdbc:postgresql://db:5432/saloria_db`.
 4. Arranca con el perfil local:
 
 ```bash

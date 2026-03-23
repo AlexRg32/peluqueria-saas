@@ -27,7 +27,7 @@ El contenedor de datos para cada salón.
 
 - `id` (PK): Identificador único.
 - `name`: Nombre comercial.
-- `slug`: Identificador único en URL (e.g. `peluqueria-pepe`).
+- `slug`: Identificador único en URL (e.g. `saloria-pepe`).
 - `owner_id`: FK a User (dueño).
 
 ### Tabla `app_users` (Usuarios del Sistema)

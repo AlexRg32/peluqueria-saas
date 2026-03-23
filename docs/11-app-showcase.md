@@ -1,6 +1,6 @@
-# 📸 Galería de Funcionalidades - Peluquería SaaS
+# 📸 Galería de Funcionalidades - Saloria
 
-Este documento muestra las principales pantallas y funcionalidades de la plataforma **Peluquería SaaS**, divididas por los roles de usuario: **Público (Marketplace)**, **Administrador de Negocio** y **Cliente Final**.
+Este documento muestra las principales pantallas y funcionalidades de la plataforma **Saloria**, divididas por los roles de usuario: **Público (Marketplace)**, **Administrador de Negocio** y **Cliente Final**.
 
 ---
 

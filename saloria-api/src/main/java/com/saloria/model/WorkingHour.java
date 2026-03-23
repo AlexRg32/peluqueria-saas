@@ -1,0 +1,41 @@
+package com.saloria.model;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import lombok.Data;
+import jakarta.persistence.Table;
+
+@Entity
+@Data
+@lombok.EqualsAndHashCode(callSuper = true)
+@Table(name = "working_hours")
+public class WorkingHour extends AuditableEntity {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @jakarta.persistence.Column(name = "\"day\"")
+  private String day;
+
+  private String startTime;
+
+  private String endTime;
+
+  @jakarta.persistence.Column(name = "is_day_off")
+  private boolean dayOff;
+
+  private String description;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "enterprise_id", nullable = false)
+  private Enterprise enterprise;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = true)
+  private User user;
+}

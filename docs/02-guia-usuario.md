@@ -1,4 +1,4 @@
-# 📖 Guía de Usuario - Peluquería SaaS
+# 📖 Guía de Usuario - Saloria
 
 Esta guía describe cómo utilizar las funcionalidades principales de la plataforma, dirigida tanto a los propietarios de negocio como a sus clientes finales.
 

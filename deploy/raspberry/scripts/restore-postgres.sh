@@ -30,7 +30,7 @@ gunzip -c "${BACKUP_FILE}" | docker compose \
   --profile local-db \
   exec -T db \
   psql \
-  -U "${POSTGRES_USER:-peluqueria}" \
-  -d "${POSTGRES_DB:-peluqueria_db}"
+  -U "${POSTGRES_USER:-saloria}" \
+  -d "${POSTGRES_DB:-saloria_db}"
 
 echo "Restore completed from ${BACKUP_FILE}"

@@ -24,7 +24,7 @@ docker compose \
   pg_dump \
   --clean \
   --if-exists \
-  -U "${POSTGRES_USER:-peluqueria}" \
-  "${POSTGRES_DB:-peluqueria_db}" | gzip > "${OUTPUT_DIR}/peluqueria-db-${TIMESTAMP}.sql.gz"
+  -U "${POSTGRES_USER:-saloria}" \
+  "${POSTGRES_DB:-saloria_db}" | gzip > "${OUTPUT_DIR}/saloria-db-${TIMESTAMP}.sql.gz"
 
-echo "Backup created at ${OUTPUT_DIR}/peluqueria-db-${TIMESTAMP}.sql.gz"
+echo "Backup created at ${OUTPUT_DIR}/saloria-db-${TIMESTAMP}.sql.gz"

@@ -1,0 +1,49 @@
+package com.saloria.model;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import lombok.Data;
+import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
+@Entity
+@Data
+@lombok.EqualsAndHashCode(callSuper = true)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "service_offerings")
+public class ServiceOffering extends AuditableEntity {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  private String name;
+
+  private String description;
+
+  private double price;
+
+  private String image;
+
+  private Integer duration;
+
+  private String category;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "enterprise_id", nullable = false)
+  @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+  private Enterprise enterprise;
+
+  @Builder.Default
+  private boolean deleted = false;
+}

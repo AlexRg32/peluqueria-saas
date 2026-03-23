@@ -1,6 +1,6 @@
 # 🎨 Sistema de Diseño y UI
 
-La identidad visual de **Peluquería SaaS** busca transmitir elegancia, exclusividad y limpieza.
+La identidad visual de **Saloria** busca transmitir elegancia, exclusividad y limpieza.
 
 ## 🌈 Paleta de Colores
 

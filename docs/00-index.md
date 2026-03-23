@@ -1,6 +1,6 @@
-# 📚 Documentación - Peluquería SaaS
+# 📚 Documentación - Saloria
 
-Bienvenido a la documentación oficial del proyecto **Peluquería SaaS**. Este repositorio contiene toda la información necesaria para entender, utilizar, desarrollar y desplegar la plataforma.
+Bienvenido a la documentación oficial del proyecto **Saloria**. Este repositorio contiene toda la información necesaria para entender, utilizar, desarrollar y desplegar la plataforma.
 
 ## 🗂 Índice de Contenidos
 

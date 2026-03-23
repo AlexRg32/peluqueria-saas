@@ -30,18 +30,18 @@ graph LR
 
 El código se organiza en capas horizontales para separar responsabilidades:
 
-1. **Controller Layer (`com.peluqueria.controller`)**:
+1. **Controller Layer (`com.saloria.controller`)**:
     - Maneja las peticiones HTTP.
     - Valida entradas (DTOs).
     - Delega a servicios.
     - Retorna respuestas estandarizadas.
 
-2. **Service Layer (`com.peluqueria.service`)**:
+2. **Service Layer (`com.saloria.service`)**:
     - Contiene la lógica de negocio pura.
     - Transaccionalidad (`@Transactional`).
     - Manejo de reglas de negocio (e.g. "No se puede cancelar una cita 1 hora antes").
 
-3. **Persistence Layer (`com.peluqueria.repository`)**:
+3. **Persistence Layer (`com.saloria.repository`)**:
     - Interfaces `JpaRepository`.
     - Abstracción del acceso a datos.
 

@@ -1,6 +1,6 @@
 # 🤜 Guía de Contribución
 
-¡Gracias por tu interés en contribuir a Peluquería SaaS!
+¡Gracias por tu interés en contribuir a Saloria!
 
 ## 🛠 Requisitos Previos
 
@@ -16,8 +16,8 @@ Asegúrate de tener instaladas las siguientes herramientas:
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/tu-usuario/peluqueria-saas.git
-cd peluqueria-saas
+git clone https://github.com/tu-usuario/saloria.git
+cd saloria
 ```
 
 ### 2. Base de Datos
@@ -31,7 +31,7 @@ docker-compose up -d db
 ### 3. Backend (Spring Boot)
 
 ```bash
-cd peluqueria-api
+cd saloria-api
 # Ejecutar tests
 ./mvnw test
 # Iniciar aplicación
@@ -43,7 +43,7 @@ La API estará disponible en `http://localhost:8080`.
 ### 4. Frontend (React)
 
 ```bash
-cd peluqueria-client
+cd saloria-client
 # Instalar dependencias
 npm install
 # Iniciar servidor de desarrollo

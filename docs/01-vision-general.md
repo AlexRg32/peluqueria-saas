@@ -2,7 +2,7 @@
 
 ## Propuesta de Valor
 
-**Peluquería SaaS** es una plataforma de gestión integral (SaaS) diseñada específicamente para salones de belleza, barberías y estéticas. Su objetivo principal es digitalizar y optimizar las operaciones diarias de estos negocios, permitiendo a los dueños centrarse en sus clientes mientras el software se encarga de la administración.
+**Saloria** es una plataforma de gestión integral (SaaS) diseñada específicamente para salones de belleza, barberías y estéticas. Su objetivo principal es digitalizar y optimizar las operaciones diarias de estos negocios, permitiendo a los dueños centrarse en sus clientes mientras el software se encarga de la administración.
 
 A diferencia de soluciones genéricas, esta plataforma está construida con un enfoque **Multi-tenant**, lo que significa que una única instancia del software puede servir a múltiples empresas de forma segura y aislada.
 
@@ -42,9 +42,8 @@ El proyecto utiliza un stack moderno y robusto, priorizando el tipado estático 
 ### Infraestructura
 
 - **Contenedores**: Docker & Docker Compose para desarrollo local.
-- **Entornos de Despliegue**:
-  - **Staging**: Render (API/DB) + Vercel (Frontend) para pruebas.
-  - **Producción**: Render (API) + Supabase (DB) + Vercel (Frontend) para uso real.
+- **Despliegue Activo**:
+  - **Producción**: Raspberry Pi (API) + Supabase (DB) + Vercel (Frontend), publicado desde `main`.
 
 ---
 

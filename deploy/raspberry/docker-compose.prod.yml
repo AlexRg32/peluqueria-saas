@@ -1,10 +1,10 @@
 services:
   app:
     build:
-      context: ../../peluqueria-api
+      context: ../../saloria-api
       dockerfile: Dockerfile
-    image: peluqueria-api:raspberry
-    container_name: peluqueria_api
+    image: saloria-api:raspberry
+    container_name: saloria_api
     restart: unless-stopped
     env_file:
       - .env.prod
@@ -18,7 +18,7 @@ services:
 
   caddy:
     image: caddy:2.8-alpine
-    container_name: peluqueria_caddy
+    container_name: saloria_caddy
     profiles:
       - caddy
     restart: unless-stopped
@@ -38,7 +38,7 @@ services:
 
   cloudflared:
     image: cloudflare/cloudflared:latest
-    container_name: peluqueria_cloudflared
+    container_name: saloria_cloudflared
     profiles:
       - cloudflare
     restart: unless-stopped
@@ -52,7 +52,7 @@ services:
 
   db:
     image: postgres:15
-    container_name: peluqueria_db
+    container_name: saloria_db
     profiles:
       - local-db
     restart: unless-stopped

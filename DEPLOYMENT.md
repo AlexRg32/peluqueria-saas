@@ -1,4 +1,4 @@
-# 🚀 Guía de Despliegue - Peluquería SaaS
+# 🚀 Guía de Despliegue - Saloria
 
 Esta guía detalla los pasos para desplegar la aplicación de forma gratuita.
 
@@ -8,11 +8,22 @@ Esta guía detalla los pasos para desplegar la aplicación de forma gratuita.
 2. En la configuración del proyecto, busca la sección **Database** y copia la **URI de conexión**.
    - Ejemplo: `postgresql://postgres:password@db.xxxx.supabase.co:5432/postgres`
 
-## 2. Backend (Spring Boot en Render)
+## 2. Backend (Spring Boot en Raspberry Pi)
+
+La ruta principal soportada para producción es la Raspberry Pi descrita en [`deploy/raspberry/README.md`](./deploy/raspberry/README.md).
+
+Recomendacion:
+
+1. Mantener la base de datos en Supabase al principio.
+2. Mover solo la API Spring Boot a la Raspberry.
+3. Publicar la API con Cloudflare Tunnel o, si prefieres, con Caddy + DDNS.
+4. Cambiar en Vercel `VITE_API_BASE_URL` al dominio HTTPS público de la API.
+
+### Alternativa: Backend en Render
 
 1. Crea una cuenta en [Render](https://render.com/).
 2. Crea un nuevo **Web Service** y conecta tu repositorio de GitHub.
-3. Elige el directorio `/peluqueria-api`.
+3. Elige el directorio `/saloria-api`.
 4. Render detectará automáticamente el Dockerfile o puedes usar el build nativo:
    - **Build Command**: `./mvnw clean package -DskipTests`
    - **Start Command**: `java -jar target/*.jar`
@@ -22,28 +33,16 @@ Esta guía detalla los pasos para desplegar la aplicación de forma gratuita.
    - `SPRING_DATASOURCE_PASSWORD`: Tu contraseña de Supabase.
    - `CORS_ALLOWED_ORIGINS`: La URL que te dé Vercel (ej: `https://tu-app.vercel.app`).
 
-### Alternativa: Backend en Raspberry Pi
-
-Si quieres evitar el sleep del plan free de Render, el repositorio ya incluye una ruta self-hosted en [`deploy/raspberry/README.md`](./deploy/raspberry/README.md).
-
-Recomendacion:
-
-1. Mantener la base de datos en Supabase al principio.
-2. Mover solo la API Spring Boot a la Raspberry.
-3. Publicar la API con Cloudflare Tunnel o, si prefieres, con Caddy + DDNS.
-4. Cambiar en Vercel `VITE_API_BASE_URL` al nuevo dominio HTTPS de la Raspberry.
-
 ## 3. Frontend (React en Vercel)
 
 1. Ve a [Vercel](https://vercel.com/) y crea un nuevo proyecto.
-2. Conecta tu repositorio de GitHub y selecciona la carpeta `/peluqueria-client`.
+2. Conecta tu repositorio de GitHub y selecciona la carpeta `/saloria-client`.
 3. **Build Settings**: Vercel detectará que es Vite. No cambies nada.
 4. **Environment Variables**:
-   - `VITE_API_BASE_URL`: La URL que te dé Render (ej: `https://peluqueria-api.onrender.com`).
-   - Si migras el backend a Raspberry: `https://api.tudominio.com`
+   - `VITE_API_BASE_URL`: La URL pública de la API (ej: `https://api.tudominio.com`).
 
 ---
 
 ## 🔄 Flujo de Actualización
 
-A partir de ahora, cada vez que hagas `git push origin main`, tanto el Frontend como el Backend se actualizarán automáticamente sin que tengas que hacer nada más.
+A partir de ahora, el flujo soportado es **solo `main`**. Cada vez que promociones cambios a `main`, tanto el Frontend como el Backend productivos deben quedar alineados con esa rama.

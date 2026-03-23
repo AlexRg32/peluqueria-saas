@@ -1,6 +1,6 @@
 # 📑 Contratos de API (API Contract)
 
-Este documento detalla los endpoints expuestos por el backend de **Peluquería SaaS**. Sirve como contrato de integración para el desarrollo del Client-Side (Frontend o Apps Móviles).
+Este documento detalla los endpoints expuestos por el backend de **Saloria**. Sirve como contrato de integración para el desarrollo del Client-Side (Frontend o Apps Móviles).
 
 > **Nota de Seguridad**: Todos los endpoints que no sean explícitamente públicos requieren la inclusión de un token JWT válido en las cabeceras de la petición: `Authorization: Bearer <JWT_TOKEN>`.
 > Además, tienen **protección contra IDOR automática**: Se verifica rigurosamente mediante `SecurityService` que el ID del usuario o el ID de la empresa en cada endpoint corresponda legítimamente al contexto de la empresa del token JWT proporcionado.

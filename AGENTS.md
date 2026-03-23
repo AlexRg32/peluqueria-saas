@@ -19,8 +19,8 @@ El agente puede usar **ambos sistemas** (`.agent` + skills de Codex) en la misma
 
 ## Orquestación recomendada
 
-- Features grandes: `plan-ceo-review` + `plan-eng-review` (gstack) -> `.agent think` -> `.agent forge` -> `review` + `qa` (gstack) -> `.agent ship` (a `staging`) -> `.agent promote` (a `main`).
-- Features pequeñas: `.agent forge` -> `review` + `qa --quick` -> `.agent ship` (a `staging`) -> `.agent promote` cuando corresponda.
+- Features grandes: `plan-ceo-review` + `plan-eng-review` (gstack) -> `.agent think` -> `.agent forge` -> `review` + `qa` (gstack) -> `.agent ship` (a `main`).
+- Features pequeñas: `.agent forge` -> `review` + `qa --quick` -> `.agent ship` (a `main`).
 
 ## Uso de skills sin invocación explícita
 

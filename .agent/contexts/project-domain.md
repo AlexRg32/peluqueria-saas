@@ -4,7 +4,7 @@
 
 ## Project Name
 
-Peluquería SaaS
+Saloria
 
 ## Description
 
@@ -34,4 +34,4 @@ A comprehensive SaaS platform built for beauty salons, barbershops, and aestheti
 - **Backend Stack**: Java 17, Spring Boot 3, PostgreSQL 15, JWT.
 - **Frontend Stack**: TypeScript, React 18 (Vite), Tailwind CSS, React Query.
 - **Architecture Pattern**: Backend uses standard Layered Architecture (`Controller -> Service -> Repository`). DTOs are mandatory for all API requests/responses. No business logic in Controllers.
-- **Infrastructure**: Docker for local dev. Deployment targets are Render & Vercel.
+- **Infrastructure**: Docker for local dev. Production deploys from `main`, with Vercel for the frontend and Raspberry Pi plus Cloudflare Tunnel as the primary backend path. Render remains optional as cloud fallback only.

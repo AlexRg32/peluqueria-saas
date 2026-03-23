@@ -1,9 +1,9 @@
 services:
   db:
     image: postgres:15
-    container_name: peluqueria_db
+    container_name: saloria_db
     environment:
-      POSTGRES_DB: peluqueria_db
+      POSTGRES_DB: saloria_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
@@ -12,12 +12,12 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   app:
-    build: ./peluqueria-api
-    container_name: peluqueria_app
+    build: ./saloria-api
+    container_name: saloria_app
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/peluqueria_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/saloria_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - CORS_ALLOWED_ORIGINS=http://localhost:3000
@@ -26,10 +26,10 @@ services:
 
   client:
     build:
-      context: ./peluqueria-client
+      context: ./saloria-client
       args:
         - VITE_API_BASE_URL=http://localhost:8080
-    container_name: peluqueria_client
+    container_name: saloria_client
     ports:
       - "3000:80"
     depends_on:

@@ -19,7 +19,7 @@ description: Full-cycle forge — codebase awareness, structured templates, chec
 If the user asks to "execute", "resume", "implement the plan", or similar, OR if they provided a `PATH`:
 
 1. If a `PATH` was provided, use it. Otherwise, automatically find the most recently created directory in `.orchestrator/plans/` and set `PLAN_PATH` to it: `export PLAN_PATH=$(ls -td .orchestrator/plans/* | head -1)`
-2. Check Git Branch: run `git branch --show-current`. If the current branch is `main` or `staging`, create a new feature branch to protect integration branches: `git checkout -b "feat/resume-$(date +'%H%M')"`.
+2. Check Git Branch: run `git branch --show-current`. If the current branch is `main`, create a new feature branch to protect the integration branch: `git checkout -b "feat/resume-$(date +'%H%M')"`.
 3. Jump directly to the **## Recovery & Resume** section at the bottom of this file. Do NOT re-initialize folders or status files.
 
 ### Scenario B: New Feature (Default)
@@ -29,17 +29,17 @@ If the user provides a new feature request instead, analyze Intent (`feat`, `fix
 1. **Initialize Git Branch**:
 
    ```bash
-   git checkout staging && \
-   git pull origin staging && \
+   git checkout main && \
+   git pull origin main && \
    export BRANCH_NAME="<TYPE>/<SLUG>-$(date +'%H%M')" && \
    git checkout -b "$BRANCH_NAME"
    ```
 
-   If `staging` does not exist locally, create tracking first:
+   If `main` does not exist locally, create tracking first:
 
    ```bash
-   git fetch origin staging && \
-   git checkout -b staging --track origin/staging
+   git fetch origin main && \
+   git checkout -b main --track origin/main
    ```
 
 2. **Initialize Workspace Directory**:

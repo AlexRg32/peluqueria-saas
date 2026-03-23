@@ -1,6 +1,6 @@
-# ✂️ Peluquería SaaS - Sistema de Gestión Multi-cliente (Proyecto en desarrollo)
+# ✂️ Saloria - Sistema de Gestión Multi-cliente (Proyecto en desarrollo)
 
-🌐 **[Visita la Página Principal de la Aplicación](https://peluqueria-saas-three.vercel.app)**
+🌐 **[Visita la Página Principal de la Aplicación](https://saloria.vercel.app)**
 
 Una plataforma SaaS profesional de nivel empresarial diseñada para gestionar múltiples peluquerías y barberías de forma eficiente. Construida con un backend robusto en **Spring Boot** y un frontend dinámico en **React**.
 
@@ -93,17 +93,17 @@ docker-compose up --build
 
 Ejecuta una instancia de PostgreSQL o usa la que proporciona docker-compose.
 
-#### 2. Backend (`/peluqueria-api`)
+#### 2. Backend (`/saloria-api`)
 
 ```bash
-cd peluqueria-api
+cd saloria-api
 ./mvnw spring-boot:run
 ```
 
-#### 3. Frontend (`/peluqueria-client`)
+#### 3. Frontend (`/saloria-client`)
 
 ```bash
-cd peluqueria-client
+cd saloria-client
 npm install
 npm run dev
 ```
