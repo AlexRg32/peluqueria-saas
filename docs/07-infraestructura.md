@@ -129,6 +129,7 @@ La ruta activa usa una Raspberry Pi con Docker Compose y Cloudflare Tunnel.
   - `SPRING_DATASOURCE_URL`: String de conexión JDBC de Supabase o PostgreSQL externo.
   - `JWT_SECRET`: Clave secreta de producción.
   - `CORS_ALLOWED_ORIGINS`: URLs permitidas del frontend público y dominios asociados.
+- **Acceso remoto recomendado**: Tailscale para SSH privado al host, manteniendo Cloudflare Tunnel solo para exponer la API HTTP.
 
 ### 4. Configuración del Monorepo (Importante)
 
@@ -181,8 +182,8 @@ El flujo de trabajo sigue un modelo **main-only**:
 3. **Despliegue**: La producción despliega automáticamente desde `main`.
 4. **Pipeline real observado**:
    - **Vercel**: despliegue automático asociado al proyecto y sus aliases de producción.
-   - **Raspberry Pi**: la API se sirve desde el host activo con su configuración operativa.
-   - **Repositorio**: no hay workflows versionados en `.github/workflows` en el momento de esta verificación.
+   - **Raspberry Pi**: workflow `.github/workflows/deploy-raspberry.yml` corre en un runner self-hosted del propio host y ejecuta `deploy/raspberry/scripts/redeploy.sh`.
+   - **Repositorio**: el redeploy de la API solo se dispara cuando cambian `saloria-api/**`, `deploy/raspberry/**` o el propio workflow.
 
 ## 🧭 Notas Operativas Importantes
 
@@ -217,13 +218,15 @@ La configuracion se encuentra en [`deploy/raspberry/README.md`](../deploy/raspbe
 - `.env.prod.example`
 - `Caddyfile`
 - `cloudflared/config.yml`
-- scripts de bootstrap, healthcheck y backup/restore
+- scripts de bootstrap, instalacion de Tailscale, redeploy, healthcheck y backup/restore
 
 ### Consideraciones operativas
 
 - **No exponer PostgreSQL** a Internet.
 - **Cloudflare Tunnel** es la opcion preferida si el router o el ISP complican el port forwarding.
+- **Tailscale** es la opcion recomendada para acceso SSH remoto privado a la Raspberry.
 - Si PostgreSQL vive en Raspberry, conviene **SSD externo** en lugar de tarjeta SD.
 - El frontend en Vercel solo necesita cambiar `VITE_API_BASE_URL` al nuevo dominio HTTPS de la API.
+- La Raspberry debe tener el repositorio clonado localmente para que Docker Compose pueda construir `saloria-api` desde el monorepo.
 
 > [Siguiente: Guía de Contribución](./08-guia-contribucion.md)

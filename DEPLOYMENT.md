@@ -17,7 +17,8 @@ Recomendacion:
 1. Mantener la base de datos en Supabase al principio.
 2. Mover solo la API Spring Boot a la Raspberry.
 3. Publicar la API con Cloudflare Tunnel o, si prefieres, con Caddy + DDNS.
-4. Cambiar en Vercel `VITE_API_BASE_URL` al dominio HTTPS público de la API.
+4. Usar Tailscale para acceso SSH remoto a la Raspberry sin abrir puertos.
+5. Cambiar en Vercel `VITE_API_BASE_URL` al dominio HTTPS público de la API.
 
 ### Alternativa: Backend en Render
 
@@ -46,3 +47,6 @@ Recomendacion:
 ## 🔄 Flujo de Actualización
 
 A partir de ahora, el flujo soportado es **solo `main`**. Cada vez que promociones cambios a `main`, tanto el Frontend como el Backend productivos deben quedar alineados con esa rama.
+
+- **Frontend (Vercel)**: despliegue automatico desde el proyecto conectado.
+- **Backend (Raspberry)**: despliegue automatico via GitHub Actions en un runner self-hosted de la Raspberry usando `deploy/raspberry/scripts/redeploy.sh`.

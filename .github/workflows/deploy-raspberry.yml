@@ -1,0 +1,28 @@
+name: Deploy Raspberry API
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "saloria-api/**"
+      - "deploy/raspberry/**"
+      - ".github/workflows/deploy-raspberry.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-raspberry-prod
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on:
+      - self-hosted
+      - raspberry
+      - prod
+
+    steps:
+      - name: Redeploy API on Raspberry
+        run: |
+          cd "$HOME/Saloria"
+          ./deploy/raspberry/scripts/redeploy.sh
