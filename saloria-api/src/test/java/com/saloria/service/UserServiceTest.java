@@ -22,8 +22,6 @@ import com.saloria.dto.UserResponse;
 import com.saloria.model.Enterprise;
 import com.saloria.model.Role;
 import com.saloria.model.User;
-import com.saloria.repository.AppointmentRepository;
-import com.saloria.repository.CustomerRepository;
 import com.saloria.repository.EnterpriseRepository;
 import com.saloria.repository.UserRepository;
 
@@ -31,10 +29,6 @@ public class UserServiceTest {
 
   @Mock
   private UserRepository userRepository;
-  @Mock
-  private AppointmentRepository appointmentRepository;
-  @Mock
-  private CustomerRepository customerRepository;
   @Mock
   private EnterpriseRepository enterpriseRepository;
   @Mock
@@ -49,8 +43,6 @@ public class UserServiceTest {
     MockitoAnnotations.openMocks(this);
     userService = new UserService(
         userRepository,
-        appointmentRepository,
-        customerRepository,
         enterpriseRepository,
         passwordEncoder);
   }
@@ -111,5 +103,26 @@ public class UserServiceTest {
     assertEquals(Role.EMPLEADO, response.getRole());
     assertEquals(1L, response.getEnterpriseId());
     assertEquals("ana@example.com", response.getEmail());
+  }
+
+  @Test
+  void deleteUserArchivesUserWithoutDeletingHistoricalLinks() {
+    User user = User.builder()
+        .id(15L)
+        .name("Lucas")
+        .email("lucas@example.com")
+        .role(Role.EMPLEADO)
+        .active(true)
+        .archived(false)
+        .build();
+
+    when(userRepository.findByIdAndArchivedFalse(15L)).thenReturn(Optional.of(user));
+    when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+    userService.deleteUser(15L);
+
+    assertEquals(false, user.getActive());
+    assertEquals(true, user.getArchived());
+    verify(userRepository).save(user);
   }
 }

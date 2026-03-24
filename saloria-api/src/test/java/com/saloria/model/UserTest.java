@@ -8,11 +8,13 @@ import org.junit.jupiter.api.Test;
 public class UserTest {
 
   @Test
-  void isEnabledReflectsActiveFlag() {
-    User activeUser = User.builder().active(true).build();
-    User inactiveUser = User.builder().active(false).build();
+  void isEnabledReflectsActiveAndArchivedFlags() {
+    User activeUser = User.builder().active(true).archived(false).build();
+    User inactiveUser = User.builder().active(false).archived(false).build();
+    User archivedUser = User.builder().active(true).archived(true).build();
 
     assertTrue(activeUser.isEnabled());
     assertFalse(inactiveUser.isEnabled());
+    assertFalse(archivedUser.isEnabled());
   }
 }

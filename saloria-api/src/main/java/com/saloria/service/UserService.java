@@ -13,8 +13,6 @@ import java.util.List;
 import com.saloria.dto.UserResponse;
 import com.saloria.model.User;
 import com.saloria.repository.UserRepository;
-import com.saloria.repository.AppointmentRepository;
-import com.saloria.repository.CustomerRepository;
 import com.saloria.repository.EnterpriseRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.access.AccessDeniedException;
@@ -25,13 +23,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
   private final UserRepository userRepository;
-  private final AppointmentRepository appointmentRepository;
-  private final CustomerRepository customerRepository;
   private final EnterpriseRepository enterpriseRepository;
   private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
   public List<UserResponse> getAllUsers(Long enterpriseId) {
-    return userRepository.findByEnterpriseId(enterpriseId).stream()
+    return userRepository.findByEnterpriseIdAndArchivedFalse(enterpriseId).stream()
         .map(this::mapToResponse)
         .collect(Collectors.toList());
   }
@@ -62,11 +58,11 @@ public class UserService {
   }
 
   public User getUserById(Long id) {
-    return userRepository.findById(id).orElse(null);
+    return userRepository.findByIdAndArchivedFalse(id).orElse(null);
   }
 
   public UserResponse updateUser(Long id, UpdateUserRequest request, Authentication authentication) {
-    User user = userRepository.findById(id)
+    User user = userRepository.findByIdAndArchivedFalse(id)
         .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
     User actor = getAuthenticatedUser(authentication);
@@ -109,7 +105,7 @@ public class UserService {
   }
 
   public List<UserResponse> getUsersByEnterpriseId(Long enterpriseId) {
-    return userRepository.findByEnterpriseId(enterpriseId).stream()
+    return userRepository.findByEnterpriseIdAndArchivedFalse(enterpriseId).stream()
         .filter(user -> user.getRole() != com.saloria.model.Role.CLIENTE)
         .map(this::mapToResponse)
         .collect(Collectors.toList());
@@ -129,21 +125,11 @@ public class UserService {
 
   @Transactional
   public void deleteUser(Long id) {
-    User user = userRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    User user = userRepository.findByIdAndArchivedFalse(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
-    // 1. Delete appointments where user is the employee
-    appointmentRepository.deleteByEmployeeId(id);
-
-    // 2. Check if user is linked to a customer record
-    customerRepository.findByUserId(id).ifPresent(customer -> {
-      // Delete customer's appointments
-      appointmentRepository.deleteByCustomerId(customer.getId());
-      // Delete customer record
-      customerRepository.delete(customer);
-    });
-
-    // 3. Delete user
-    userRepository.delete(user);
+    user.setActive(false);
+    user.setArchived(true);
+    userRepository.save(user);
   }
 }

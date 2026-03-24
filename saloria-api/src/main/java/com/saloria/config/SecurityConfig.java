@@ -15,7 +15,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -30,6 +32,9 @@ public class SecurityConfig {
   @org.springframework.beans.factory.annotation.Value("${app.cors.allowed-origins}")
   private String allowedOrigins;
 
+  @org.springframework.beans.factory.annotation.Value("${app.api-docs.enabled:false}")
+  private boolean apiDocsEnabled;
+
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
@@ -39,7 +44,8 @@ public class SecurityConfig {
             .requestMatchers("/auth/**").permitAll()
             .requestMatchers("/api/public/**").permitAll()
             .requestMatchers("/uploads/**").permitAll()
-            .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+            .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").access((authentication, context) ->
+                new org.springframework.security.authorization.AuthorizationDecision(apiDocsEnabled))
             .anyRequest().authenticated())
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -64,7 +70,14 @@ public class SecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOriginPatterns(Arrays.asList(allowedOrigins.split(",")));
+    List<String> originPatterns = new ArrayList<>();
+    for (String origin : allowedOrigins.split(",")) {
+      String candidate = origin.trim();
+      if (!candidate.isEmpty()) {
+        originPatterns.add(candidate);
+      }
+    }
+    configuration.setAllowedOriginPatterns(originPatterns);
     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
     configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "x-auth-token"));
     configuration.setExposedHeaders(Arrays.asList("x-auth-token"));

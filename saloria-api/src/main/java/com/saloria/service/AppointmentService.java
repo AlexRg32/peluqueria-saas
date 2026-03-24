@@ -84,6 +84,13 @@ public class AppointmentService {
     } else if (request.getUserId() != null) {
       // Registered User
       return customerRepository.findByEnterpriseIdAndUserId(enterprise.getId(), request.getUserId())
+          .map(existing -> {
+            validateCustomer(existing, enterprise);
+            if (existing.getUser() != null) {
+              validatePortalUser(existing.getUser(), enterprise);
+            }
+            return existing;
+          })
           .orElseGet(() -> {
             User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
@@ -128,7 +135,7 @@ public class AppointmentService {
   }
 
   public List<AppointmentResponse> findByUserEmail(String email) {
-    User user = userRepository.findByEmail(email)
+    User user = userRepository.findByEmailAndArchivedFalse(email)
         .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
     return appointmentRepository.findByCustomerUserIdOrderByDateDesc(user.getId()).stream()
         .map(this::mapToResponse)

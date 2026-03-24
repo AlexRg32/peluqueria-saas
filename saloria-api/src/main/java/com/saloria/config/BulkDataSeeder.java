@@ -84,7 +84,7 @@ public class BulkDataSeeder implements CommandLineRunner {
   }
 
   private List<User> seedEmployees(Enterprise enterprise) {
-    List<User> existing = userRepository.findByEnterpriseIdAndRole(enterprise.getId(), Role.EMPLEADO);
+    List<User> existing = userRepository.findByEnterpriseIdAndRoleAndArchivedFalse(enterprise.getId(), Role.EMPLEADO);
     if (existing.size() >= 5)
       return existing;
 

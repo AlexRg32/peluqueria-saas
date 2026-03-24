@@ -226,10 +226,10 @@ const UsersPage = () => {
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={confirmDelete}
-                title="¿Eliminar usuario definitivamente?"
-                message="¡Atención! Al eliminar este usuario se eliminarán también todas sus citas asociadas y registros vinculados. Esta acción es permanente y no se puede deshacer."
-                confirmText="Eliminar permanentemente"
-                cancelText="Mantener usuario"
+                title="¿Archivar usuario?"
+                message="El usuario dejará de poder iniciar sesión y desaparecerá de los listados operativos, pero su historial de citas y registros vinculados se conservará."
+                confirmText="Archivar usuario"
+                cancelText="Cancelar"
                 variant="danger"
                 isLoading={isDeleting}
             />

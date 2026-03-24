@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/api/public")
 @Tag(name = "2. Público", description = "Endpoints de acceso público para consultar información de empresas (perfiles).")
-@CrossOrigin(origins = "http://localhost:5173") // Updated to match dev port
 @RequiredArgsConstructor
 public class PublicController {
 

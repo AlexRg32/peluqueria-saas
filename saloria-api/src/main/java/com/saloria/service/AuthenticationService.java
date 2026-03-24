@@ -73,7 +73,7 @@ public class AuthenticationService {
         new UsernamePasswordAuthenticationToken(
             request.getEmail(),
             request.getPassword()));
-    var user = repository.findByEmail(request.getEmail())
+    var user = repository.findByEmailAndArchivedFalse(request.getEmail())
         .orElseThrow();
 
     // Validar que el rol sea acorde al portal (requiredRole)

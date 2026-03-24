@@ -68,7 +68,7 @@ public class EnterpriseService {
   }
 
   public List<UserResponse> getEmployeesByEnterpriseId(Long enterpriseId) {
-    return userRepository.findByEnterpriseIdAndRole(enterpriseId, Role.EMPLEADO)
+    return userRepository.findByEnterpriseIdAndRoleAndArchivedFalse(enterpriseId, Role.EMPLEADO)
         .stream()
         .map(user -> UserResponse.builder()
             .id(user.getId())

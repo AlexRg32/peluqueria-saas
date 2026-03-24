@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/appointments")
-@CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor
 @Tag(name = "7. Citas y Facturación", description = "Gestión de citas, reservas de clientes, cobros de caja (checkout) y resumen de facturación.")
 @SecurityRequirement(name = "bearerAuth")

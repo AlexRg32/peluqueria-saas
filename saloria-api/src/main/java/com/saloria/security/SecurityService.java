@@ -42,6 +42,10 @@ public class SecurityService {
 
     User user = (User) principal;
 
+    if (!user.isEnabled()) {
+      return false;
+    }
+
     if (user.getRole() == Role.SUPER_ADMIN) {
       return true;
     }
@@ -61,7 +65,7 @@ public class SecurityService {
     if (targetUserId == null)
       return false;
 
-    User targetUser = userRepository.findById(targetUserId).orElse(null);
+    User targetUser = userRepository.findByIdAndArchivedFalse(targetUserId).orElse(null);
     if (targetUser == null) {
       // Let the controller handle 404 naturally; from a security standpoint, if it
       // doesn't exist, we can't secure it here.

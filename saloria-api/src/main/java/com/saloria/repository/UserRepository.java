@@ -6,9 +6,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.saloria.model.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-  List<User> findByEnterpriseId(Long enterpriseId);
+  List<User> findByEnterpriseIdAndArchivedFalse(Long enterpriseId);
 
-  List<User> findByEnterpriseIdAndRole(Long enterpriseId, com.saloria.model.Role role);
+  List<User> findByEnterpriseIdAndRoleAndArchivedFalse(Long enterpriseId, com.saloria.model.Role role);
 
   Optional<User> findByEmail(String email);
+
+  Optional<User> findByEmailAndArchivedFalse(String email);
+
+  Optional<User> findByIdAndArchivedFalse(Long id);
 }

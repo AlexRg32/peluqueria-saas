@@ -53,6 +53,10 @@ public class User extends AuditableEntity implements UserDetails {
   @Column(columnDefinition = "boolean default true")
   private Boolean active = true;
 
+  @Builder.Default
+  @Column(nullable = false, columnDefinition = "boolean default false")
+  private Boolean archived = false;
+
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
@@ -80,6 +84,6 @@ public class User extends AuditableEntity implements UserDetails {
 
   @Override
   public boolean isEnabled() {
-    return Boolean.TRUE.equals(active);
+    return Boolean.TRUE.equals(active) && !Boolean.TRUE.equals(archived);
   }
 }

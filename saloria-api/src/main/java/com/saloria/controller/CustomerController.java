@@ -15,7 +15,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/customers")
-@CrossOrigin(origins = "http://localhost:3000")
 @RequiredArgsConstructor
 @Tag(name = "9. Clientes", description = "Fichas de clientes, historial asociado e información de contacto centralizada en este panel.")
 @SecurityRequirement(name = "bearerAuth")
