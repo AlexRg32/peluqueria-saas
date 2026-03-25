@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.saloria.model.Enterprise;
 import com.saloria.repository.EnterpriseRepository;
+import com.saloria.repository.ServiceOfferingRepository;
 import com.saloria.dto.EnterpriseResponse;
 
 @ExtendWith(MockitoExtension.class)
@@ -20,6 +21,9 @@ public class EnterpriseServiceTest {
 
   @Mock
   private EnterpriseRepository enterpriseRepository;
+
+  @Mock
+  private ServiceOfferingRepository serviceOfferingRepository;
 
   @InjectMocks
   private EnterpriseService enterpriseService;

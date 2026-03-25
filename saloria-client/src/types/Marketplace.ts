@@ -6,33 +6,34 @@ export interface BusinessHour {
 }
 
 export interface PublicEnterpriseProfile {
-    id: string;
+    id: number;
     slug: string;
     name: string;
     description: string;
     address: string;
     city: string;
-    rating: number;
-    reviewCount: number;
-    coverImage: string;
-    logo: string;
+    rating?: number | null;
+    reviewCount?: number | null;
+    coverImage?: string;
+    logo?: string;
     brandingColors: {
-        primary: string;
-        secondary: string;
+        primary?: string;
+        secondary?: string;
     };
     contactPhone: string;
     businessHours: BusinessHour[];
 }
 
 export interface EnterpriseSummary {
-    id: string;
+    id: number;
     slug: string;
     name: string;
     city: string;
-    rating: number;
-    reviewCount: number;
-    thumbnail: string;
+    rating?: number | null;
+    reviewCount?: number | null;
+    thumbnail?: string | null;
     services: string[];
     priceRange: string;
+    address?: string;
     distance?: string;
 }

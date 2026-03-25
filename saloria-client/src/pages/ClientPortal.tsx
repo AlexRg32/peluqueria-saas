@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { appointmentService, Appointment } from '@/services/appointmentService';
 import { marketplaceService } from '@/services/MarketplaceService';
@@ -12,6 +13,7 @@ import PopularNearYou from '@/features/client-portal/components/PopularNearYou';
 
 const ClientPortal = () => {
     const { user, isAuthenticated } = useAuth();
+    const navigate = useNavigate();
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [featuredSalons, setFeaturedSalons] = useState<EnterpriseSummary[]>([]);
     const [nearbySalons, setNearbySalons] = useState<EnterpriseSummary[]>([]);
@@ -20,6 +22,11 @@ const ClientPortal = () => {
     const [initializing, setInitializing] = useState(true);
 
     const userName = (user as any)?.name || user?.sub?.split('@')[0] || '';
+
+    const handleSearch = (query: string) => {
+        const trimmedQuery = query.trim();
+        navigate(trimmedQuery ? `/search?q=${encodeURIComponent(trimmedQuery)}` : '/search');
+    };
 
     useEffect(() => {
         loadData();
@@ -67,7 +74,7 @@ const ClientPortal = () => {
     return (
         <div className="space-y-8 sm:space-y-10 pb-24 md:pb-10">
             {/* Hero with search */}
-            <MarketplaceHero userName={isAuthenticated ? userName : undefined} />
+            <MarketplaceHero userName={isAuthenticated ? userName : undefined} onSearch={handleSearch} />
 
             {/* Quick category chips */}
             <QuickCategories />

@@ -8,4 +8,6 @@ public interface ServiceOfferingRepository extends JpaRepository<ServiceOffering
   List<ServiceOffering> findByEnterpriseId(Long enterpriseId);
 
   List<ServiceOffering> findByEnterpriseIdAndDeletedFalse(Long enterpriseId);
+
+  List<ServiceOffering> findByEnterpriseIdInAndDeletedFalse(List<Long> enterpriseIds);
 }

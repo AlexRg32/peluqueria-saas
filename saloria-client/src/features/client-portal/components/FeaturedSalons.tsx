@@ -1,4 +1,5 @@
 import { EnterpriseSummary } from '@/types/Marketplace';
+import { Link } from 'react-router-dom';
 import SalonCard from './SalonCard';
 
 interface FeaturedSalonsProps {
@@ -13,9 +14,9 @@ const FeaturedSalons = ({ salons, loading }: FeaturedSalonsProps) => {
                 <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
                     Peluquerías <span className="text-brand-primary">Destacadas</span>
                 </h2>
-                <button className="text-brand-primary font-bold text-xs uppercase tracking-wider hover:underline">
+                <Link to="/search" className="text-brand-primary font-bold text-xs uppercase tracking-wider hover:underline">
                     Ver todas
-                </button>
+                </Link>
             </div>
 
             {loading ? (

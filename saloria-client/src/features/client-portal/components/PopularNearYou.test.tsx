@@ -9,7 +9,7 @@ const renderWithRouter = (ui: React.ReactElement) =>
 
 const mockSalons: EnterpriseSummary[] = [
     {
-        id: '1',
+        id: 1,
         slug: 'near-1',
         name: 'Nearby Salon',
         city: 'Madrid',
@@ -25,7 +25,7 @@ const mockSalons: EnterpriseSummary[] = [
 describe('PopularNearYou', () => {
     it('renders section heading', () => {
         renderWithRouter(<PopularNearYou salons={mockSalons} />);
-        expect(screen.getByText(/populares cerca de ti/i)).toBeInTheDocument();
+        expect(screen.getByText(/populares ahora/i)).toBeInTheDocument();
     });
 
     it('renders compact SalonCards', () => {

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,7 +33,10 @@ public class WorkingHourService {
     if (hours.isEmpty()) {
       return initializeHours(enterpriseId, null);
     }
-    return hours.stream().map(this::mapToDTO).collect(Collectors.toList());
+    return hours.stream()
+        .map(this::mapToDTO)
+        .sorted(Comparator.comparingInt(dto -> DAYS.indexOf(dto.getDay())))
+        .collect(Collectors.toList());
   }
 
   @Transactional
@@ -43,7 +47,26 @@ public class WorkingHourService {
           .orElseThrow(() -> new RuntimeException("User not found"));
       return initializeHours(user.getEnterprise().getId(), userId);
     }
-    return hours.stream().map(this::mapToDTO).collect(Collectors.toList());
+    return hours.stream()
+        .map(this::mapToDTO)
+        .sorted(Comparator.comparingInt(dto -> DAYS.indexOf(dto.getDay())))
+        .collect(Collectors.toList());
+  }
+
+  @Transactional(readOnly = true)
+  public List<WorkingHourDTO> getEnterpriseHoursSnapshot(Long enterpriseId) {
+    enterpriseRepository.findById(enterpriseId)
+        .orElseThrow(() -> new RuntimeException("Enterprise not found"));
+
+    List<WorkingHour> hours = workingHourRepository.findByEnterpriseIdAndUserIdIsNull(enterpriseId);
+    if (hours.isEmpty()) {
+      return buildDefaultHours(enterpriseId, null);
+    }
+
+    return hours.stream()
+        .map(this::mapToDTO)
+        .sorted(Comparator.comparingInt(dto -> DAYS.indexOf(dto.getDay())))
+        .collect(Collectors.toList());
   }
 
   @Transactional
@@ -92,7 +115,20 @@ public class WorkingHourService {
       wh.setEnterprise(enterprise);
       wh.setUser(user);
       return mapToDTO(workingHourRepository.save(wh));
-    }).collect(Collectors.toList());
+    }).sorted(Comparator.comparingInt(dto -> DAYS.indexOf(dto.getDay()))).collect(Collectors.toList());
+  }
+
+  private List<WorkingHourDTO> buildDefaultHours(Long enterpriseId, Long userId) {
+    return DAYS.stream()
+        .map(day -> WorkingHourDTO.builder()
+            .day(day)
+            .startTime("09:00")
+            .endTime("20:00")
+            .dayOff(day.equals("DOMINGO"))
+            .enterpriseId(enterpriseId)
+            .userId(userId)
+            .build())
+        .collect(Collectors.toList());
   }
 
   private WorkingHourDTO mapToDTO(WorkingHour wh) {

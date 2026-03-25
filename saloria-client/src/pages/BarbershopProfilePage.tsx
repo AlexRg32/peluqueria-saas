@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Enterprise, enterpriseService } from '../services/enterpriseService';
 import { useAuth } from '../features/auth/hooks/useAuth';
-import { Calendar, MapPin, Phone, Globe, Facebook, Instagram, MessageCircle, Loader2, ChevronRight, User } from 'lucide-react';
+import { Calendar, MapPin, Phone, Globe, Facebook, Instagram, MessageCircle, Loader2, ChevronRight, User, Clock3 } from 'lucide-react';
 import { apiClient } from '../lib/axios';
+import { PublicBookingModal } from '../features/client-portal/components/PublicBookingModal';
+import { workingHourService, WorkingHour } from '../services/workingHourService';
 
 interface Service {
   id: number;
@@ -25,9 +27,12 @@ const BarbershopProfilePage = () => {
   const [enterprise, setEnterprise] = useState<Enterprise | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [workingHours, setWorkingHours] = useState<WorkingHour[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { isAuthenticated } = useAuth();
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (slug) {
@@ -42,13 +47,15 @@ const BarbershopProfilePage = () => {
       setEnterprise(data);
 
       // Fetch services and employees
-      const [servicesRes, employeesRes] = await Promise.all([
+      const [servicesRes, employeesRes, hoursRes] = await Promise.all([
         apiClient.get<Service[]>(`/api/public/enterprises/${data.id}/services`),
-        apiClient.get<Employee[]>(`/api/public/enterprises/${data.id}/employees`)
+        apiClient.get<Employee[]>(`/api/public/enterprises/${data.id}/employees`),
+        workingHourService.getPublicEnterpriseHours(data.id),
       ]);
 
       setServices(servicesRes.data);
       setEmployees(employeesRes.data);
+      setWorkingHours(hoursRes);
     } catch (err: any) {
       if (err.response?.status !== 404) {
         console.error("Error fetching enterprise data:", err);
@@ -84,6 +91,35 @@ const BarbershopProfilePage = () => {
   }
 
   const primaryColor = enterprise.primaryColor || '#4f46e5';
+  const businessHours = workingHours.length > 0 ? workingHours : [];
+  const canBookAsClient = isAuthenticated && user?.role === 'CLIENTE' && typeof user?.userId === 'number';
+
+  const handleBookingClick = () => {
+    if (!isAuthenticated) {
+      navigate('/auth/login');
+      return;
+    }
+
+    if (!canBookAsClient) {
+      navigate('/search');
+      return;
+    }
+
+    setIsBookingOpen(true);
+  };
+
+  const formatDayLabel = (day: string) => {
+    const labels: Record<string, string> = {
+      LUNES: 'Lunes',
+      MARTES: 'Martes',
+      MIERCOLES: 'Miércoles',
+      JUEVES: 'Jueves',
+      VIERNES: 'Viernes',
+      SABADO: 'Sábado',
+      DOMINGO: 'Domingo',
+    };
+    return labels[day] || day;
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen pb-20">
@@ -172,14 +208,20 @@ const BarbershopProfilePage = () => {
           {/* CTA Section */}
           <div className="md:pt-4 flex flex-col gap-3 min-w-[240px]">
              <button 
+                type="button"
+                onClick={handleBookingClick}
                 className="w-full py-4 px-8 rounded-2xl shadow-lg font-bold text-white transition-all hover:translate-y-[-2px] active:translate-y-0 flex items-center justify-center gap-3 text-lg"
                 style={{ backgroundColor: primaryColor }}
              >
                 <Calendar size={22} />
                 Reservar Ahora
              </button>
-             {!isAuthenticated && (
-               <p className="text-center text-xs text-slate-400 font-medium">Inicia sesión para ganar puntos</p>
+             {!isAuthenticated ? (
+               <p className="text-center text-xs text-slate-400 font-medium">Inicia sesión para reservar en segundos</p>
+             ) : !canBookAsClient ? (
+               <p className="text-center text-xs text-slate-400 font-medium">La reserva pública está disponible para cuentas cliente</p>
+             ) : (
+               <p className="text-center text-xs text-slate-400 font-medium">Tu reserva quedará asociada a tu historial automáticamente</p>
              )}
           </div>
         </div>
@@ -263,16 +305,20 @@ const BarbershopProfilePage = () => {
                        Horarios
                     </h3>
                     <div className="space-y-4">
-                        {[
-                          { day: 'Lunes - Viernes', hours: '09:00 - 20:00' },
-                          { day: 'Sábado', hours: '09:00 - 14:00' },
-                          { day: 'Domingo', hours: 'Cerrado', closed: true }
-                        ].map((h, i) => (
-                          <div key={i} className={`flex justify-between items-center py-3 ${i !== 2 ? 'border-b border-white/10' : ''}`}>
-                              <span className="text-slate-400 text-sm font-medium">{h.day}</span>
-                              <span className={`text-sm font-bold ${h.closed ? 'text-indigo-400' : 'text-white'}`}>{h.hours}</span>
+                        {businessHours.map((hour, i) => (
+                          <div key={i} className={`flex justify-between items-center py-3 ${i !== businessHours.length - 1 ? 'border-b border-white/10' : ''}`}>
+                              <span className="text-slate-400 text-sm font-medium">{formatDayLabel(hour.day)}</span>
+                              <span className={`text-sm font-bold ${hour.dayOff ? 'text-indigo-400' : 'text-white'}`}>
+                                {hour.dayOff ? 'Cerrado' : `${hour.startTime} - ${hour.endTime}`}
+                              </span>
                           </div>
                         ))}
+                        {businessHours.length === 0 && (
+                          <div className="flex items-center gap-3 rounded-2xl bg-white/5 px-4 py-4 text-sm text-slate-300">
+                            <Clock3 size={18} className="text-indigo-400" />
+                            Horario no disponible temporalmente
+                          </div>
+                        )}
                     </div>
                 </div>
 
@@ -292,6 +338,20 @@ const BarbershopProfilePage = () => {
 
         </div>
       </div>
+
+      {enterprise && user?.userId && (
+        <PublicBookingModal
+          isOpen={isBookingOpen}
+          onClose={() => setIsBookingOpen(false)}
+          enterpriseId={enterprise.id}
+          userId={user.userId}
+          enterpriseName={enterprise.name}
+          services={services}
+          employees={employees}
+          workingHours={workingHours}
+          onBooked={() => navigate('/citas')}
+        />
+      )}
     </div>
   );
 };

@@ -2,8 +2,10 @@ package com.saloria.security;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 
+import com.saloria.dto.CreateAppointmentRequest;
 import com.saloria.model.User;
 import com.saloria.model.Customer;
 import com.saloria.model.Appointment;
@@ -135,6 +137,29 @@ public class SecurityService {
       return false;
 
     return hasEnterpriseAccess(authentication, so.getEnterprise().getId());
+  }
+
+  public boolean canCreateOwnAppointment(Authentication authentication, CreateAppointmentRequest request) {
+    if (authentication == null || !authentication.isAuthenticated() || request == null) {
+      return false;
+    }
+
+    Object principal = authentication.getPrincipal();
+    if (!(principal instanceof User user) || !user.isEnabled() || user.getRole() != Role.CLIENTE) {
+      return false;
+    }
+
+    if (request.getUserId() == null || !request.getUserId().equals(user.getId())) {
+      return false;
+    }
+
+    if (request.getCustomerId() != null
+        || StringUtils.hasText(request.getCustomerName())
+        || StringUtils.hasText(request.getCustomerPhone())) {
+      return false;
+    }
+
+    return request.getEnterpriseId() != null;
   }
 
   private boolean hasSuperAdminRole(Authentication authentication) {

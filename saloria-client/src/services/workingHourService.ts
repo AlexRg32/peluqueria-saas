@@ -16,6 +16,11 @@ export const workingHourService = {
         return response.data;
     },
 
+    getPublicEnterpriseHours: async (enterpriseId: number): Promise<WorkingHour[]> => {
+        const response = await apiClient.get(`/api/public/enterprises/${enterpriseId}/working-hours`);
+        return response.data;
+    },
+
     getUserHours: async (userId: number): Promise<WorkingHour[]> => {
         const response = await apiClient.get(`/api/working-hours/user/${userId}`);
         return response.data;

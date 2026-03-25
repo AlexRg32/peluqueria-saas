@@ -17,7 +17,7 @@ const renderWithRouter = (ui: React.ReactElement) =>
 
 const mockSalons: EnterpriseSummary[] = [
     {
-        id: '1',
+        id: 1,
         slug: 'test-1',
         name: 'Salon Alpha',
         city: 'Madrid',
@@ -28,7 +28,7 @@ const mockSalons: EnterpriseSummary[] = [
         priceRange: '€€',
     },
     {
-        id: '2',
+        id: 2,
         slug: 'test-2',
         name: 'Salon Beta',
         city: 'Barcelona',

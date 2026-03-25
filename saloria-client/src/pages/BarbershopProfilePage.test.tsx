@@ -1,22 +1,35 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import BarbershopProfilePage from './BarbershopProfilePage';
-import { enterpriseService } from '../services/enterpriseService';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '../features/auth/context/AuthContext';
 
 // Mock dependencies
 vi.mock('../features/auth/hooks/useAuth', () => ({
-  useAuth: () => ({ user: null })
+  useAuth: () => ({ user: null, isAuthenticated: false })
 }));
 
 // Mock enterpriseService methods manually
 const getBySlugMock = vi.fn();
+const getPublicEnterpriseHoursMock = vi.fn();
+const apiGetMock = vi.fn();
 
 vi.mock('../services/enterpriseService', () => ({
     enterpriseService: {
         getBySlug: (...args: any[]) => getBySlugMock(...args)
     }
+}));
+
+vi.mock('../services/workingHourService', () => ({
+  workingHourService: {
+    getPublicEnterpriseHours: (...args: any[]) => getPublicEnterpriseHoursMock(...args),
+  }
+}));
+
+vi.mock('../lib/axios', () => ({
+  apiClient: {
+    get: (...args: any[]) => apiGetMock(...args),
+  }
 }));
 
 const mockEnterprise = {
@@ -47,6 +60,8 @@ const renderWithRouter = (slug = 'barberia-alex') => {
 describe('BarbershopProfilePage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    getPublicEnterpriseHoursMock.mockResolvedValue([]);
+    apiGetMock.mockResolvedValue({ data: [] });
   });
 
   it('renders loading state initially', async () => {
@@ -59,7 +74,7 @@ describe('BarbershopProfilePage', () => {
 
   it.skip('renders enterprise details on success', async () => {
     getBySlugMock.mockResolvedValue(mockEnterprise);
-    
+
     renderWithRouter();
 
     await waitFor(() => {
@@ -72,7 +87,7 @@ describe('BarbershopProfilePage', () => {
 
   it('renders error state when fetch fails', async () => {
     getBySlugMock.mockRejectedValue(new Error('Network error'));
-    
+
     renderWithRouter();
 
     await waitFor(() => {

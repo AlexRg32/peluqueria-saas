@@ -13,7 +13,7 @@ vi.mock('framer-motion', () => ({
 }));
 
 const mockSalon: EnterpriseSummary = {
-    id: '1',
+    id: 1,
     slug: 'test-salon',
     name: 'Test Salon',
     city: 'Madrid',

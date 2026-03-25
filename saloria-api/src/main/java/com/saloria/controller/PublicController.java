@@ -6,9 +6,12 @@ import lombok.RequiredArgsConstructor;
 
 import com.saloria.service.EnterpriseService;
 import com.saloria.service.ServiceOfferingService;
+import com.saloria.service.WorkingHourService;
 import com.saloria.dto.EnterpriseResponse;
+import com.saloria.dto.PublicEnterpriseSummaryResponse;
 import com.saloria.dto.ServiceOfferingResponse;
 import com.saloria.dto.UserResponse;
+import com.saloria.dto.WorkingHourDTO;
 
 import java.util.List;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,6 +25,14 @@ public class PublicController {
 
   private final EnterpriseService enterpriseService;
   private final ServiceOfferingService serviceOfferingService;
+  private final WorkingHourService workingHourService;
+
+  @Operation(summary = "Directorio público de empresas", description = "Lista negocios públicos disponibles y permite filtrarlos por nombre, dirección o servicios.")
+  @GetMapping("/enterprises")
+  public ResponseEntity<List<PublicEnterpriseSummaryResponse>> getPublicEnterprises(
+      @RequestParam(required = false, name = "q") String query) {
+    return ResponseEntity.ok(enterpriseService.findPublicDirectory(query));
+  }
 
   @Operation(summary = "Obtener empresa por Slug", description = "Recupera la información pública de una empresa a partir de su identificador único (slug).")
   @GetMapping("/enterprises/slug/{slug}")
@@ -39,5 +50,11 @@ public class PublicController {
   @GetMapping("/enterprises/{id}/employees")
   public ResponseEntity<List<UserResponse>> getEnterpriseEmployees(@PathVariable Long id) {
     return ResponseEntity.ok(enterpriseService.getEmployeesByEnterpriseId(id));
+  }
+
+  @Operation(summary = "Consultar horarios públicos de empresa", description = "Devuelve los horarios generales publicados de la empresa para el perfil público sin requerir autenticación.")
+  @GetMapping("/enterprises/{id}/working-hours")
+  public ResponseEntity<List<WorkingHourDTO>> getEnterpriseWorkingHours(@PathVariable Long id) {
+    return ResponseEntity.ok(workingHourService.getEnterpriseHoursSnapshot(id));
   }
 }

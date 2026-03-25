@@ -61,8 +61,8 @@ const MarketplaceHero = ({ userName, onSearch }: MarketplaceHeroProps) => {
                     className="text-slate-400 text-base sm:text-lg font-medium mb-8 max-w-lg"
                 >
                     {userName
-                        ? 'Reserva tu próxima cita en las mejores peluquerías de tu zona.'
-                        : 'Descubre, compara y reserva en las mejores peluquerías y barberías cerca de ti.'}
+                        ? 'Reserva tu próxima cita en negocios con agenda online y confirmación inmediata.'
+                        : 'Descubre, compara y reserva en peluquerías y barberías con agenda online.'}
                 </motion.p>
 
                 {/* Search Bar */}

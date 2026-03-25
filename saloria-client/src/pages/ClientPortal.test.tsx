@@ -31,7 +31,7 @@ vi.mock('@/services/MarketplaceService', () => ({
         getFeatured: vi.fn(() =>
             Promise.resolve([
                 {
-                    id: '1',
+                    id: 1,
                     slug: 'test',
                     name: 'Test Salon',
                     city: 'Madrid',

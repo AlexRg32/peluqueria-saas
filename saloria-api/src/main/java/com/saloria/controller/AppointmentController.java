@@ -26,7 +26,8 @@ public class AppointmentController {
 
   @Operation(summary = "Crear reserva internamente", description = "Crea una reserva de forma administrativa sin que un cliente acceda desde la interfaz pública.")
   @PostMapping
-  @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN') and @securityService.hasEnterpriseAccess(authentication, #request.enterpriseId)")
+  @PreAuthorize("(hasAnyRole('ADMIN', 'SUPER_ADMIN') and @securityService.hasEnterpriseAccess(authentication, #request.enterpriseId))"
+      + " or (hasRole('CLIENTE') and @securityService.canCreateOwnAppointment(authentication, #request))")
   public ResponseEntity<AppointmentResponse> create(@Valid @RequestBody CreateAppointmentRequest request) {
     return ResponseEntity.ok(appointmentService.create(request));
   }

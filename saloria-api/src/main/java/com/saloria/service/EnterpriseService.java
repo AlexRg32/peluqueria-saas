@@ -1,6 +1,10 @@
 package com.saloria.service;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.util.StringUtils;
@@ -9,10 +13,13 @@ import lombok.RequiredArgsConstructor;
 
 import com.saloria.model.Enterprise;
 import com.saloria.model.Role;
+import com.saloria.model.ServiceOffering;
 import com.saloria.dto.EnterpriseRequest;
 import com.saloria.dto.EnterpriseResponse;
+import com.saloria.dto.PublicEnterpriseSummaryResponse;
 import com.saloria.dto.UserResponse;
 import com.saloria.repository.EnterpriseRepository;
+import com.saloria.repository.ServiceOfferingRepository;
 import com.saloria.repository.UserRepository;
 import com.saloria.exception.ResourceNotFoundException;
 
@@ -22,6 +29,7 @@ public class EnterpriseService {
 
   private final EnterpriseRepository enterpriseRepository;
   private final UserRepository userRepository;
+  private final ServiceOfferingRepository serviceOfferingRepository;
 
   public List<EnterpriseResponse> findAll() {
     return enterpriseRepository.findAll().stream()
@@ -51,6 +59,34 @@ public class EnterpriseService {
     Enterprise enterprise = enterpriseRepository.findBySlug(slug)
         .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada: " + slug));
     return mapToResponse(enterprise);
+  }
+
+  public List<PublicEnterpriseSummaryResponse> findPublicDirectory(String query) {
+    List<Enterprise> enterprises = enterpriseRepository.findAll().stream()
+        .filter(enterprise -> StringUtils.hasText(enterprise.getSlug()))
+        .sorted((left, right) -> left.getName().compareToIgnoreCase(right.getName()))
+        .collect(Collectors.toList());
+
+    if (enterprises.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    List<Long> enterpriseIds = enterprises.stream()
+        .map(Enterprise::getId)
+        .toList();
+
+    Map<Long, List<ServiceOffering>> servicesByEnterprise = serviceOfferingRepository
+        .findByEnterpriseIdInAndDeletedFalse(enterpriseIds)
+        .stream()
+        .collect(Collectors.groupingBy(service -> service.getEnterprise().getId(), LinkedHashMap::new, Collectors.toList()));
+
+    String normalizedQuery = normalizeQuery(query);
+
+    return enterprises.stream()
+        .filter(enterprise -> matchesPublicQuery(enterprise, servicesByEnterprise.getOrDefault(enterprise.getId(), List.of()),
+            normalizedQuery))
+        .map(enterprise -> mapToPublicSummary(enterprise, servicesByEnterprise.getOrDefault(enterprise.getId(), List.of())))
+        .collect(Collectors.toList());
   }
 
   public EnterpriseResponse update(Long id, EnterpriseRequest request) {
@@ -125,5 +161,80 @@ public class EnterpriseService {
         .secondaryColor(enterprise.getSecondaryColor())
         .description(enterprise.getDescription())
         .build();
+  }
+
+  private PublicEnterpriseSummaryResponse mapToPublicSummary(Enterprise enterprise, List<ServiceOffering> services) {
+    List<String> serviceNames = services.stream()
+        .map(ServiceOffering::getName)
+        .filter(StringUtils::hasText)
+        .distinct()
+        .limit(3)
+        .collect(Collectors.toList());
+
+    return PublicEnterpriseSummaryResponse.builder()
+        .id(enterprise.getId())
+        .slug(enterprise.getSlug())
+        .name(enterprise.getName())
+        .city(extractCity(enterprise.getAddress()))
+        .rating(null)
+        .reviewCount(null)
+        .thumbnail(StringUtils.hasText(enterprise.getLogo()) ? enterprise.getLogo() : enterprise.getBanner())
+        .services(serviceNames)
+        .priceRange(computePriceRange(services))
+        .address(enterprise.getAddress())
+        .build();
+  }
+
+  private boolean matchesPublicQuery(Enterprise enterprise, List<ServiceOffering> services, String normalizedQuery) {
+    if (!StringUtils.hasText(normalizedQuery)) {
+      return true;
+    }
+
+    if (containsIgnoreCase(enterprise.getName(), normalizedQuery)
+        || containsIgnoreCase(enterprise.getDescription(), normalizedQuery)
+        || containsIgnoreCase(enterprise.getAddress(), normalizedQuery)) {
+      return true;
+    }
+
+    return services.stream()
+        .anyMatch(service -> containsIgnoreCase(service.getName(), normalizedQuery)
+            || containsIgnoreCase(service.getCategory(), normalizedQuery)
+            || containsIgnoreCase(service.getDescription(), normalizedQuery));
+  }
+
+  private String extractCity(String address) {
+    if (!StringUtils.hasText(address)) {
+      return "Sin ubicación";
+    }
+
+    String[] segments = address.split(",");
+    return segments[segments.length - 1].trim();
+  }
+
+  private String computePriceRange(List<ServiceOffering> services) {
+    if (services.isEmpty()) {
+      return "Consultar";
+    }
+
+    double averagePrice = services.stream()
+        .mapToDouble(ServiceOffering::getPrice)
+        .average()
+        .orElse(0.0);
+
+    if (averagePrice < 18) {
+      return "€";
+    }
+    if (averagePrice < 35) {
+      return "€€";
+    }
+    return "€€€";
+  }
+
+  private boolean containsIgnoreCase(String value, String normalizedQuery) {
+    return StringUtils.hasText(value) && value.toLowerCase(Locale.ROOT).contains(normalizedQuery);
+  }
+
+  private String normalizeQuery(String query) {
+    return StringUtils.hasText(query) ? query.trim().toLowerCase(Locale.ROOT) : "";
   }
 }

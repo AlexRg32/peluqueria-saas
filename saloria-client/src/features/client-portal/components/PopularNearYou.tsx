@@ -14,7 +14,7 @@ const PopularNearYou = ({ salons }: PopularNearYouProps) => {
             <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg sm:text-xl font-bold text-slate-900 flex items-center gap-2">
                     <MapPin size={20} className="text-brand-primary" />
-                    Populares cerca de ti
+                    Populares ahora
                 </h2>
             </div>
             <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">

@@ -1,64 +1,106 @@
-import { describe, it, expect } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { marketplaceService } from './MarketplaceService';
 
+const getMock = vi.fn();
+
+vi.mock('../lib/axios', () => ({
+    apiClient: {
+        get: (...args: any[]) => getMock(...args),
+    },
+}));
+
 describe('MarketplaceService', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
     describe('getFeatured', () => {
-        it('returns at least 8 salons', async () => {
+        it('returns the first 8 salons from the public directory', async () => {
+            getMock.mockResolvedValue({
+                data: Array.from({ length: 10 }, (_, index) => ({
+                    id: index + 1,
+                    slug: `salon-${index + 1}`,
+                    name: `Salon ${index + 1}`,
+                    city: 'Madrid',
+                    services: ['Corte'],
+                    priceRange: '€€',
+                })),
+            });
+
             const salons = await marketplaceService.getFeatured();
-            expect(salons.length).toBeGreaterThanOrEqual(8);
+            expect(salons).toHaveLength(8);
         });
 
-        it('each salon has all required fields', async () => {
+        it('maps fallback values for missing optional fields', async () => {
+            getMock.mockResolvedValue({
+                data: [
+                    {
+                        id: 1,
+                        slug: 'barberia-real',
+                        name: 'Barbería Real',
+                        city: 'Madrid',
+                        services: ['Corte'],
+                        priceRange: 'Consultar',
+                    },
+                ],
+            });
+
             const salons = await marketplaceService.getFeatured();
-            for (const salon of salons) {
-                expect(salon).toHaveProperty('id');
-                expect(salon).toHaveProperty('slug');
-                expect(salon).toHaveProperty('name');
-                expect(salon).toHaveProperty('city');
-                expect(salon).toHaveProperty('rating');
-                expect(salon).toHaveProperty('reviewCount');
-                expect(salon).toHaveProperty('thumbnail');
-                expect(salon).toHaveProperty('services');
-                expect(salon).toHaveProperty('priceRange');
-                expect(salon.services.length).toBeGreaterThan(0);
-            }
+            expect(salons[0].thumbnail).toContain('data:image/svg+xml');
+            expect(salons[0].rating).toBeNull();
+            expect(salons[0].reviewCount).toBeNull();
         });
     });
 
     describe('getNearby', () => {
-        it('returns salons with distance field', async () => {
-            const salons = await marketplaceService.getNearby();
-            expect(salons.length).toBeGreaterThan(0);
-            for (const salon of salons) {
-                expect(salon.distance).toBeDefined();
-            }
-        });
+        it('returns a shorter subset for the nearby rail', async () => {
+            getMock.mockResolvedValue({
+                data: Array.from({ length: 6 }, (_, index) => ({
+                    id: index + 1,
+                    slug: `salon-${index + 1}`,
+                    name: `Salon ${index + 1}`,
+                    city: 'Madrid',
+                    services: ['Corte'],
+                    priceRange: '€€',
+                })),
+            });
 
-        it('returns salons sorted by distance', async () => {
             const salons = await marketplaceService.getNearby();
-            for (let i = 1; i < salons.length; i++) {
-                const prev = parseFloat(salons[i - 1].distance!);
-                const curr = parseFloat(salons[i].distance!);
-                expect(curr).toBeGreaterThanOrEqual(prev);
-            }
+            expect(salons).toHaveLength(5);
         });
     });
 
     describe('search', () => {
-        it('returns matching salons by name', async () => {
+        it('forwards the text query to the public directory endpoint', async () => {
+            getMock.mockResolvedValue({
+                data: [
+                    {
+                        id: 1,
+                        slug: 'elite-cuts',
+                        name: 'Elite Cuts',
+                        city: 'Valencia',
+                        services: ['Degradado'],
+                        priceRange: '€€',
+                    },
+                ],
+            });
+
             const results = await marketplaceService.search('Elite');
-            expect(results.length).toBeGreaterThan(0);
+
+            expect(getMock).toHaveBeenCalledWith('/api/public/enterprises', {
+                params: { q: 'Elite' },
+            });
             expect(results[0].name).toContain('Elite');
         });
 
-        it('returns matching salons by service', async () => {
-            const results = await marketplaceService.search('Degradado');
-            expect(results.length).toBeGreaterThan(0);
-        });
+        it('loads the whole directory when the query is empty', async () => {
+            getMock.mockResolvedValue({ data: [] });
 
-        it('returns empty array for non-matching query', async () => {
-            const results = await marketplaceService.search('xyznonexistent');
-            expect(results).toEqual([]);
+            await marketplaceService.search('   ');
+
+            expect(getMock).toHaveBeenCalledWith('/api/public/enterprises', {
+                params: undefined,
+            });
         });
     });
 });

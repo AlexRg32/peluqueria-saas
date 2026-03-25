@@ -17,15 +17,23 @@ const SalonCard = ({ salon, variant = 'grid', index = 0 }: SalonCardProps) => {
                 className="group flex-shrink-0 w-[260px] bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
             >
                 <div className="relative h-36 overflow-hidden">
-                    <img
-                        src={salon.thumbnail}
-                        alt={salon.name}
-                        className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-                    />
-                    <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm">
-                        <Star size={12} className="text-amber-500 fill-amber-500" />
-                        <span className="text-xs font-bold text-slate-900">{salon.rating}</span>
-                    </div>
+                    {salon.thumbnail ? (
+                        <img
+                            src={salon.thumbnail}
+                            alt={salon.name}
+                            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                        />
+                    ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-100 flex items-center justify-center text-slate-500 font-black text-3xl">
+                            {salon.name.charAt(0)}
+                        </div>
+                    )}
+                    {typeof salon.rating === 'number' && (
+                        <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm">
+                            <Star size={12} className="text-amber-500 fill-amber-500" />
+                            <span className="text-xs font-bold text-slate-900">{salon.rating}</span>
+                        </div>
+                    )}
                 </div>
                 <div className="p-4">
                     <h3 className="font-bold text-slate-900 text-sm group-hover:text-brand-primary transition-colors truncate">
@@ -47,31 +55,36 @@ const SalonCard = ({ salon, variant = 'grid', index = 0 }: SalonCardProps) => {
     }
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: index * 0.05 }}
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: index * 0.05 }}>
             <Link
                 to={`/b/${salon.slug}`}
                 className="group relative bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full"
             >
                 {/* Image */}
                 <div className="relative h-48 sm:h-52 overflow-hidden">
-                    <img
-                        src={salon.thumbnail}
-                        alt={salon.name}
-                        className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-                    />
+                    {salon.thumbnail ? (
+                        <img
+                            src={salon.thumbnail}
+                            alt={salon.name}
+                            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                        />
+                    ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-100 flex items-center justify-center text-slate-500 font-black text-6xl">
+                            {salon.name.charAt(0)}
+                        </div>
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
 
                     {/* Rating badge */}
-                    <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-lg">
-                        <Star size={14} className="text-amber-500 fill-amber-500" />
-                        <span className="text-sm font-bold text-slate-900">{salon.rating}</span>
-                        <span className="text-xs text-slate-400">({salon.reviewCount})</span>
-                    </div>
+                    {typeof salon.rating === 'number' && (
+                        <div className="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-lg">
+                            <Star size={14} className="text-amber-500 fill-amber-500" />
+                            <span className="text-sm font-bold text-slate-900">{salon.rating}</span>
+                            {typeof salon.reviewCount === 'number' && (
+                                <span className="text-xs text-slate-400">({salon.reviewCount})</span>
+                            )}
+                        </div>
+                    )}
 
                     {/* Price badge */}
                     <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-2.5 py-1.5 rounded-xl shadow-lg">

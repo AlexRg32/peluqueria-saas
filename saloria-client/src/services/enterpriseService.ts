@@ -3,6 +3,7 @@ import { apiClient } from '../lib/axios';
 export interface Enterprise {
     id: number;
     name: string;
+    slug?: string;
     cif: string;
     address: string;
     phone: string;

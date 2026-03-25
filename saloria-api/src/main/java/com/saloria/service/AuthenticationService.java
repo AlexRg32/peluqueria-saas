@@ -54,6 +54,7 @@ public class AuthenticationService {
 
     Map<String, Object> extraClaims = new HashMap<>();
     extraClaims.put("userId", user.getId());
+    extraClaims.put("name", user.getName());
     if (enterprise != null) {
       extraClaims.put("enterpriseName", enterprise.getName());
       extraClaims.put("enterpriseId", enterprise.getId());
@@ -94,6 +95,7 @@ public class AuthenticationService {
 
     Map<String, Object> extraClaims = new HashMap<>();
     extraClaims.put("userId", user.getId());
+    extraClaims.put("name", user.getName());
     if (user.getEnterprise() != null) {
       extraClaims.put("enterpriseName", user.getEnterprise().getName());
       extraClaims.put("enterpriseId", user.getEnterprise().getId());
