@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Menu } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import UserMenu from './UserMenu';
+import BrandLogo from '@/components/branding/BrandLogo';
 
 const Navigation = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -52,7 +54,9 @@ const Navigation = () => {
                     >
                         <Menu size={22} />
                     </button>
-                    <div className="font-bold text-slate-800 text-xs uppercase tracking-[0.2em] opacity-80">Panel</div>
+                    <Link to="/" className="flex items-center">
+                        <BrandLogo variant="mark" className="h-8 w-8" alt="Saloria" />
+                    </Link>
                     <div className="flex items-center">
                         <UserMenu />
                     </div>

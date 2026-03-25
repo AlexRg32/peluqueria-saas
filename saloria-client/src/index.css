@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -16,12 +17,20 @@
   /* Proportions & Sizes */
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
+
+  /* Typography */
+  --font-display: "Jost", "Segoe UI", sans-serif;
   
   /* Shadow tokens for consistent depth */
   --shadow-brand: 0 10px 15px -3px rgba(197, 160, 89, 0.2);
 }
 
 @layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.04em;
+  }
+
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
     height: 6px;

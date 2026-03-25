@@ -3,6 +3,7 @@ import ProRegisterForm from '../../components/pro/ProRegisterForm';
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import BrandLogo from '@/components/branding/BrandLogo';
 
 export const ProRegisterPage: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
@@ -39,10 +40,11 @@ export const ProRegisterPage: React.FC = () => {
 
       <div className="max-w-7xl w-full grid lg:grid-cols-2 gap-12 items-center relative z-10">
         <div className="hidden lg:block space-y-8">
+          <BrandLogo className="h-11 w-auto" />
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-brand-primary font-bold text-xs uppercase tracking-widest">
             Registro Business
           </div>
-          <h1 className="text-7xl font-black text-white leading-[1.1]">
+          <h1 className="font-display text-7xl font-black text-white leading-[1.1]">
             Digitaliza tu <span className="text-brand-primary">Pasión</span>.
           </h1>
           <p className="text-xl text-slate-400 font-medium max-w-md">
@@ -66,7 +68,8 @@ export const ProRegisterPage: React.FC = () => {
             ))}
           </div>
         </div>
-        <div className="flex justify-center lg:justify-end">
+        <div className="flex flex-col items-center gap-6 lg:items-end">
+          <BrandLogo className="h-10 w-auto lg:hidden" />
           <ProRegisterForm />
         </div>
       </div>

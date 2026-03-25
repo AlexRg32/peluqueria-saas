@@ -38,7 +38,7 @@ const MarketplaceHero = ({ userName, onSearch }: MarketplaceHeroProps) => {
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="text-3xl sm:text-4xl lg:text-5xl font-black leading-tight tracking-tight mb-3"
+                    className="font-display text-3xl sm:text-4xl lg:text-5xl font-black leading-tight tracking-tight mb-3"
                 >
                     {userName ? (
                         <>

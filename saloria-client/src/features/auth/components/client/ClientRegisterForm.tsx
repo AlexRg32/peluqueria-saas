@@ -52,7 +52,7 @@ export const ClientRegisterForm: React.FC = () => {
   return (
     <div className="w-full max-w-md p-8 bg-white/80 backdrop-blur-xl rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-white/50">
       <div className="text-center mb-10">
-        <h2 className="text-4xl font-black text-slate-900 tracking-tight mb-2">Únete a nosotros</h2>
+        <h2 className="font-display text-4xl font-black text-slate-900 tracking-tight mb-2">Únete a nosotros</h2>
         <p className="text-slate-500 font-medium">Reserva en tus sitios favoritos en segundos</p>
       </div>
 

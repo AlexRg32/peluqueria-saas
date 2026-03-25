@@ -1,9 +1,10 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Menu, X, Scissors, Calendar, Search, LogOut } from 'lucide-react';
+import { Menu, X, Calendar, Search, LogOut } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import BottomTabBar from './BottomTabBar';
+import BrandLogo from '@/components/branding/BrandLogo';
 
 const ClientPortalLayout = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,13 +24,8 @@ const ClientPortalLayout = () => {
                     <div className="flex justify-between items-center h-16 sm:h-20">
                         {/* Logo */}
                         <div className="flex items-center">
-                            <Link to="/" className="flex items-center gap-2.5">
-                                <div className="w-9 h-9 bg-brand-primary rounded-xl flex items-center justify-center shadow-lg">
-                                    <Scissors className="text-slate-900 w-5 h-5" />
-                                </div>
-                                <span className="font-black text-xl tracking-tighter hidden sm:block">
-                                    Sal<span className="text-brand-primary">oria</span>
-                                </span>
+                            <Link to="/" className="flex items-center">
+                                <BrandLogo className="h-8 w-auto sm:h-10" />
                             </Link>
                         </div>
 
@@ -188,14 +184,7 @@ const ClientPortalLayout = () => {
             {/* Footer - Desktop only */}
             <footer className="hidden md:block bg-white border-t border-slate-200 py-8 px-4">
                 <div className="max-w-7xl mx-auto text-center">
-                    <div className="flex items-center justify-center gap-2.5 mb-4">
-                        <div className="w-7 h-7 bg-brand-primary/10 rounded-lg flex items-center justify-center">
-                            <Scissors size={16} className="text-brand-primary" />
-                        </div>
-                        <span className="font-black text-base tracking-tighter">
-                            Sal<span className="text-brand-primary">oria</span>
-                        </span>
-                    </div>
+                    <BrandLogo className="h-8 w-auto mx-auto mb-4" />
                     <p className="text-slate-400 text-xs font-medium">
                         &copy; 2026 Saloria. Tu centro de belleza personal.
                     </p>

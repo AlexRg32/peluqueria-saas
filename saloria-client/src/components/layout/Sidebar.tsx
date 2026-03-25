@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { X, Settings } from 'lucide-react';
+import BrandLogo from '@/components/branding/BrandLogo';
 
 interface SidebarProps {
     isMobile?: boolean;
@@ -44,10 +45,8 @@ const Sidebar = ({ isMobile, onClose }: SidebarProps) => {
             )}
 
             <div className="flex flex-col items-center mb-8 border-b border-slate-700/50 pb-6">
-                <div className="w-12 h-12 bg-gradient-to-tr from-brand-primary to-brand-secondary rounded-xl flex items-center justify-center shadow-brand mb-3">
-                    <span className="text-slate-900 font-bold text-xl">
-                        {enterpriseName[0]?.toUpperCase()}
-                    </span>
+                <div className="mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 shadow-brand">
+                    <BrandLogo variant="mark" className="h-10 w-10" alt="Saloria" />
                 </div>
                 <h2 className="text-xl font-bold text-white tracking-tight text-center px-4">
                     {enterpriseName}
@@ -107,5 +106,3 @@ const Sidebar = ({ isMobile, onClose }: SidebarProps) => {
 };
 
 export default Sidebar;
-
-

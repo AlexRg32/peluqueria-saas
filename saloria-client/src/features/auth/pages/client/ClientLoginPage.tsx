@@ -3,6 +3,7 @@ import ClientLoginForm from '../../components/client/ClientLoginForm';
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import BrandLogo from '@/components/branding/BrandLogo';
 
 export const ClientLoginPage: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
@@ -36,7 +37,8 @@ export const ClientLoginPage: React.FC = () => {
       
       <div className="max-w-7xl w-full grid lg:grid-cols-2 gap-12 items-center relative z-10">
         <div className="hidden lg:block space-y-8">
-          <h1 className="text-7xl font-black text-slate-900 leading-[1.1]">
+          <BrandLogo className="h-11 w-auto" />
+          <h1 className="font-display text-7xl font-black text-slate-900 leading-[1.1]">
             Vuelve a <span className="text-brand-primary">Sentirte</span> Bien.
           </h1>
           <p className="text-xl text-slate-500 font-medium max-w-md">
@@ -50,7 +52,8 @@ export const ClientLoginPage: React.FC = () => {
             <span>Fácil</span>
           </div>
         </div>
-        <div className="flex justify-center lg:justify-end">
+        <div className="flex flex-col items-center gap-6 lg:items-end">
+          <BrandLogo className="h-10 w-auto lg:hidden" />
           <ClientLoginForm />
         </div>
       </div>

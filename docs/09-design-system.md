@@ -16,10 +16,10 @@ Utilizamos variables CSS nativas definidas en el `@theme` de Tailwind 4.
 
 ## 🔠 Tipografía
 
-La aplicación utiliza la fuente del sistema por defecto para máximo rendimiento y claridad, optimizada por Tailwind.
+La aplicación mantiene la fuente del sistema para el producto y formularios, e introduce una fuente display para reforzar el tono editorial de la marca en home y auth.
 
-- **Títulos**: `font-sans font-bold` (Inter/San Francisco/Segoe UI).
-- **Cuerpo**: `font-sans text-slate-800`.
+- **Títulos marketing/auth**: `font-display` (`Jost`) para hero headlines, accesos y mensajes de marca.
+- **Cuerpo y producto**: `font-sans text-slate-800`.
 - **Monospace**: Para datos técnicos o IDs.
 
 ## 🧱 Componentes Base

@@ -54,7 +54,7 @@ export const ProLoginForm: React.FC = () => {
   return (
     <div className="w-full max-w-md p-8 bg-[#1e293b]/70 backdrop-blur-xl rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-slate-700/50">
       <div className="text-center mb-10">
-        <h2 className="text-4xl font-black text-white tracking-tight mb-2">Acceso Profesional</h2>
+        <h2 className="font-display text-4xl font-black text-white tracking-tight mb-2">Acceso Profesional</h2>
         <p className="text-slate-400 font-medium">Gestiona tu negocio de peluquería</p>
       </div>
 
