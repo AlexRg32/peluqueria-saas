@@ -57,4 +57,11 @@ public class PublicController {
   public ResponseEntity<List<WorkingHourDTO>> getEnterpriseWorkingHours(@PathVariable Long id) {
     return ResponseEntity.ok(workingHourService.getEnterpriseHoursSnapshot(id));
   }
+
+  @Operation(summary = "Consultar horarios públicos de un profesional", description = "Devuelve la disponibilidad efectiva del profesional, aplicando sus horas específicas y, si no existen, el horario general de la empresa.")
+  @GetMapping("/enterprises/{enterpriseId}/employees/{userId}/working-hours")
+  public ResponseEntity<List<WorkingHourDTO>> getEmployeeWorkingHours(@PathVariable Long enterpriseId,
+      @PathVariable Long userId) {
+    return ResponseEntity.ok(workingHourService.getPublicEmployeeHoursSnapshot(enterpriseId, userId));
+  }
 }

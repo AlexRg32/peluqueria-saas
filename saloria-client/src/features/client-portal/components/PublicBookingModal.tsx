@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Calendar, Scissors, User, X } from 'lucide-react';
 
 import { appointmentService, CreateAppointmentRequest } from '@/services/appointmentService';
-import { WorkingHour } from '@/services/workingHourService';
+import { workingHourService, WorkingHour } from '@/services/workingHourService';
 import { SearchableSelect, Option } from '@/components/ui/SearchableSelect';
 import { DateTimePicker } from '@/components/ui/DateTimePicker';
 
@@ -44,9 +44,13 @@ export const PublicBookingModal = ({
     workingHours,
     onBooked,
 }: PublicBookingModalProps) => {
-    const { control, handleSubmit, reset } = useForm<CreateAppointmentRequest>();
+    const { control, handleSubmit, reset, watch } = useForm<CreateAppointmentRequest>();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isAvailabilityLoading, setIsAvailabilityLoading] = useState(false);
+    const [employeeWorkingHours, setEmployeeWorkingHours] = useState<WorkingHour[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const selectedEmployeeId = watch('employeeId');
+    const selectedServiceId = watch('serviceId');
 
     const employeeOptions = useMemo<Option[]>(
         () =>
@@ -67,11 +71,62 @@ export const PublicBookingModal = ({
         [services]
     );
 
+    const selectedService = useMemo(
+        () => services.find((service) => String(service.id) === String(selectedServiceId)),
+        [selectedServiceId, services]
+    );
+
+    const isDatePickerDisabled = !selectedEmployeeId || !selectedService || isAvailabilityLoading;
+    const datePickerPlaceholder = !selectedEmployeeId
+        ? 'Selecciona primero un profesional'
+        : !selectedService
+            ? 'Selecciona primero un servicio'
+            : isAvailabilityLoading
+                ? 'Cargando disponibilidad...'
+                : 'Seleccionar fecha y hora';
+
     const handleClose = () => {
         setError(null);
+        setEmployeeWorkingHours([]);
         reset();
         onClose();
     };
+
+    useEffect(() => {
+        if (!isOpen) {
+            return;
+        }
+
+        if (!selectedEmployeeId) {
+            setEmployeeWorkingHours([]);
+            setIsAvailabilityLoading(false);
+            return;
+        }
+
+        let cancelled = false;
+        setIsAvailabilityLoading(true);
+
+        workingHourService.getPublicEmployeeHours(enterpriseId, Number(selectedEmployeeId))
+            .then((hours) => {
+                if (!cancelled) {
+                    setEmployeeWorkingHours(hours);
+                }
+            })
+            .catch(() => {
+                if (!cancelled) {
+                    setEmployeeWorkingHours(workingHours);
+                }
+            })
+            .finally(() => {
+                if (!cancelled) {
+                    setIsAvailabilityLoading(false);
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [enterpriseId, isOpen, selectedEmployeeId, workingHours]);
 
     const submit = handleSubmit(async (data) => {
         try {
@@ -187,7 +242,10 @@ export const PublicBookingModal = ({
                                                 label="Fecha y hora"
                                                 value={field.value}
                                                 onChange={field.onChange}
-                                                workingHours={workingHours}
+                                                workingHours={employeeWorkingHours}
+                                                appointmentDurationMinutes={selectedService?.duration}
+                                                disabled={isDatePickerDisabled}
+                                                placeholder={datePickerPlaceholder}
                                                 required
                                             />
                                         )}

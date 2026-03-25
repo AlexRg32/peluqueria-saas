@@ -91,4 +91,23 @@ public class PublicControllerTest {
         .andExpect(jsonPath("$[0].day").value("LUNES"))
         .andExpect(jsonPath("$[0].startTime").value("09:00"));
   }
+
+  @Test
+  public void testGetEmployeeWorkingHours() throws Exception {
+    when(workingHourService.getPublicEmployeeHoursSnapshot(1L, 8L)).thenReturn(List.of(
+        WorkingHourDTO.builder()
+            .enterpriseId(1L)
+            .userId(8L)
+            .day("MARTES")
+            .startTime("10:00")
+            .endTime("19:00")
+            .dayOff(false)
+            .build()));
+
+    mockMvc.perform(get("/api/public/enterprises/1/employees/8/working-hours"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].userId").value(8))
+        .andExpect(jsonPath("$[0].day").value("MARTES"))
+        .andExpect(jsonPath("$[0].startTime").value("10:00"));
+  }
 }

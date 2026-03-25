@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { 
-  format, 
-  addMonths, 
-  subMonths, 
+    format, 
+    addMonths, 
+    subMonths, 
   startOfMonth, 
   endOfMonth, 
   startOfWeek, 
@@ -10,11 +10,13 @@ import {
   isSameMonth, 
   isSameDay, 
   eachDayOfInterval, 
-  startOfToday,
-  isBefore,
-  setHours,
-  setMinutes,
-  isSameMinute
+    startOfToday,
+    isBefore,
+    isAfter,
+    setHours,
+    setMinutes,
+    isSameMinute,
+    addMinutes
 } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, Clock, Calendar as CalendarIcon, X } from 'lucide-react';
@@ -40,20 +42,101 @@ interface DateTimePickerProps {
     value?: string; // ISO String
     onChange: (value: string) => void;
     workingHours: WorkingHour[];
+    appointmentDurationMinutes?: number;
     label?: string;
     required?: boolean;
     placeholder?: string;
     error?: string;
+    disabled?: boolean;
 }
+
+const dayNameMap: Record<number, string> = {
+    1: 'LUNES',
+    2: 'MARTES',
+    3: 'MIERCOLES',
+    4: 'JUEVES',
+    5: 'VIERNES',
+    6: 'SABADO',
+    0: 'DOMINGO',
+};
+
+const normalizeDate = (date: Date) => {
+    const nextDate = new Date(date);
+    nextDate.setSeconds(0);
+    nextDate.setMilliseconds(0);
+    return nextDate;
+};
+
+const buildDayWindow = (selectedDate: Date, dayConfig: WorkingHour) => {
+    const [startH, startM] = dayConfig.startTime.split(':').map(Number);
+    const [endH, endM] = dayConfig.endTime.split(':').map(Number);
+
+    const startTime = normalizeDate(setMinutes(setHours(new Date(selectedDate), startH), startM));
+    const endTime = normalizeDate(setMinutes(setHours(new Date(selectedDate), endH), endM));
+
+    return { startTime, endTime };
+};
+
+export const isDateTimeWithinWorkingHours = (
+    selectedDate: Date,
+    workingHours: WorkingHour[],
+    appointmentDurationMinutes = 30
+) => {
+    const apiDayName = dayNameMap[selectedDate.getDay()];
+    const dayConfig = workingHours.find((wh) => wh.day === apiDayName);
+
+    if (!dayConfig || dayConfig.dayOff) {
+        return false;
+    }
+
+    const normalizedDate = normalizeDate(selectedDate);
+    const appointmentEnd = normalizeDate(addMinutes(normalizedDate, appointmentDurationMinutes));
+    const { startTime, endTime } = buildDayWindow(selectedDate, dayConfig);
+
+    return !isBefore(normalizedDate, startTime) && !isAfter(appointmentEnd, endTime);
+};
+
+export const buildAvailableTimeSlots = (
+    selectedDate: Date | null,
+    workingHours: WorkingHour[],
+    appointmentDurationMinutes = 30
+) => {
+    if (!selectedDate || !workingHours.length) {
+        return [];
+    }
+
+    const apiDayName = dayNameMap[selectedDate.getDay()];
+    const dayConfig = workingHours.find((wh) => wh.day === apiDayName);
+
+    if (!dayConfig || dayConfig.dayOff) {
+        return [];
+    }
+
+    const { startTime, endTime } = buildDayWindow(selectedDate, dayConfig);
+    const now = new Date();
+    const slots: Date[] = [];
+    let current = new Date(startTime);
+
+    while (!isAfter(addMinutes(current, appointmentDurationMinutes), endTime)) {
+        if (!isSameDay(selectedDate, now) || !isBefore(current, now)) {
+            slots.push(new Date(current));
+        }
+        current = addMinutes(current, 30);
+    }
+
+    return slots;
+};
 
 export const DateTimePicker: React.FC<DateTimePickerProps> = ({
     value,
     onChange,
     workingHours,
+    appointmentDurationMinutes = 30,
     label,
     required,
     placeholder = 'Seleccionar fecha y hora',
-    error
+    error,
+    disabled = false
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -71,45 +154,26 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
     const weekDays = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 
     // Time slots logic
-    const timeSlots = useMemo(() => {
-        if (!selectedDate || !workingHours.length) return [];
+    const timeSlots = useMemo(
+        () => buildAvailableTimeSlots(selectedDate, workingHours, appointmentDurationMinutes),
+        [appointmentDurationMinutes, selectedDate, workingHours]
+    );
 
-        const dayNameMap: Record<number, string> = {
-            1: 'LUNES', 2: 'MARTES', 3: 'MIERCOLES', 4: 'JUEVES', 5: 'VIERNES', 6: 'SABADO', 0: 'DOMINGO'
-        };
-        const dayOfWeek = selectedDate.getDay();
-        const apiDayName = dayNameMap[dayOfWeek];
-
-        const dayConfig = workingHours.find(wh => wh.day === apiDayName);
-        if (!dayConfig || dayConfig.dayOff) return [];
-
-        const slots: Date[] = [];
-        const [startH, startM] = dayConfig.startTime.split(':').map(Number);
-        const [endH, endM] = dayConfig.endTime.split(':').map(Number);
-
-        // Clear time to avoid inheriting selectedDate's time too early
-        let current = setMinutes(setHours(new Date(selectedDate), startH), startM);
-        current.setSeconds(0);
-        current.setMilliseconds(0);
-
-        const endTime = setMinutes(setHours(new Date(selectedDate), endH), endM);
-        endTime.setSeconds(0);
-        endTime.setMilliseconds(0);
-
-        // Don't show past times if today
-        const now = new Date();
-
-        while (isBefore(current, endTime)) {
-            if (!isSameDay(selectedDate, now) || !isBefore(current, now)) {
-                slots.push(new Date(current));
-            }
-            // Add 30 mins interval
-            const nextMinutes = current.getMinutes() + 30;
-            current.setMinutes(nextMinutes);
+    useEffect(() => {
+        if (!selectedDate || !workingHours.length) {
+            return;
         }
 
-        return slots;
-    }, [selectedDate, workingHours]);
+        if (!isDateTimeWithinWorkingHours(selectedDate, workingHours, appointmentDurationMinutes)) {
+            onChange('');
+        }
+    }, [appointmentDurationMinutes, onChange, selectedDate, workingHours]);
+
+    useEffect(() => {
+        if (disabled) {
+            setIsOpen(false);
+        }
+    }, [disabled]);
 
     const handleDateSelect = (date: Date) => {
         if (isBefore(date, startOfToday())) return;
@@ -142,11 +206,16 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
             )}
 
             <div 
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => {
+                    if (!disabled) {
+                        setIsOpen(!isOpen);
+                    }
+                }}
                 className={cn(
                     "relative w-full cursor-pointer transition-all bg-white rounded-xl border border-slate-200 hover:border-slate-300 px-4 py-3 min-h-[50px] flex items-center",
                     isOpen && "ring-2 ring-brand-primary/20 border-brand-primary shadow-sm",
-                    error && "border-rose-500 ring-rose-500/10"
+                    error && "border-rose-500 ring-rose-500/10",
+                    disabled && "cursor-not-allowed bg-slate-50 text-slate-400 hover:border-slate-200"
                 )}
             >
                 <div className="flex-1 overflow-hidden">
@@ -161,10 +230,10 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
                             </span>
                         </div>
                     ) : (
-                        <span className="text-slate-400">{placeholder}</span>
+                        <span className={disabled ? "text-slate-300" : "text-slate-400"}>{placeholder}</span>
                     )}
                 </div>
-                <CalendarIcon size={18} className="text-slate-400" />
+                <CalendarIcon size={18} className={disabled ? "text-slate-300" : "text-slate-400"} />
             </div>
 
             <AnimatePresence>

@@ -62,7 +62,13 @@ Este documento detalla los endpoints expuestos por el backend de **Saloria**. Si
 ### Consultar horarios públicos de empresa
 
 - **Método:** `GET /api/public/enterprises/{id}/working-hours`
-- **Descripción:** Devuelve los horarios generales publicados de la empresa para el perfil público.
+- **Descripción:** Devuelve un snapshot de solo lectura de los horarios generales publicados de la empresa. Si todavía no hay filas persistidas, responde con el horario por defecto sin crear registros.
+- **Respuesta:** Lista de `WorkingHourDTO`
+
+### Consultar horarios públicos de un profesional
+
+- **Método:** `GET /api/public/enterprises/{enterpriseId}/employees/{userId}/working-hours`
+- **Descripción:** Devuelve la disponibilidad efectiva del profesional para la reserva web. Prioriza su horario propio y, si no existe, cae al horario general de la empresa.
 - **Respuesta:** Lista de `WorkingHourDTO`
 
 > Importante: estos endpoints son públicos y de solo lectura. La creación real de una reserva requiere un usuario autenticado con rol `CLIENTE`.
@@ -247,19 +253,19 @@ Este documento detalla los endpoints expuestos por el backend de **Saloria**. Si
 ### Horario de la empresa
 
 - **Método:** `GET /api/working-hours/enterprise/{enterpriseId}`
-- **Descripción:** Devuelve los horarios de apertura globales.
+- **Descripción:** Devuelve un snapshot de solo lectura de los horarios de apertura globales. Si la empresa todavía no ha guardado configuración, responde con el horario por defecto sin persistir nada.
 - **Respuesta:** Lista de `WorkingHourDTO`
 
 ### Horario de empleado
 
 - **Método:** `GET /api/working-hours/user/{userId}`
-- **Descripción:** Consulta las horas laborables específicas de un empleado.
+- **Descripción:** Consulta la disponibilidad efectiva de un empleado. Si no tiene un horario propio guardado, responde con el horario general de la empresa para que el panel pueda editar sin side effects.
 - **Respuesta:** Lista de `WorkingHourDTO`
 
 ### Guardar horarios masivamente (batch)
 
 - **Método:** `PUT /api/working-hours/batch`
-- **Descripción:** Reemplaza o inserta jornada laboral en lote.
+- **Descripción:** Reemplaza o inserta jornada laboral en lote. Cuando llega un día sin `id`, el backend hace upsert por alcance (`empresa` o `empleado`) y día para evitar duplicados.
 - **Restricción:** Todos los elementos del batch deben pertenecer a una empresa sobre la que el usuario tenga acceso; no basta con que el primer elemento sea válido.
 - **Body:** Lista de `WorkingHourDTO`
 - **Respuesta:** Lista de `WorkingHourDTO`

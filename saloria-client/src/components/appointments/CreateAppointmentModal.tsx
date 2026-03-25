@@ -21,14 +21,27 @@ interface CreateAppointmentModalProps {
 export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     isOpen, onClose, onSubmit, enterpriseId, initialDate
 }) => {
-    const { register, handleSubmit, setValue, control } = useForm<CreateAppointmentRequest>();
+    const { register, handleSubmit, setValue, control, watch } = useForm<CreateAppointmentRequest>();
     const [isGuest, setIsGuest] = useState(false);
     const [employees, setEmployees] = useState<any[]>([]);
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [services, setServices] = useState<any[]>([]);
+    const [enterpriseWorkingHours, setEnterpriseWorkingHours] = useState<WorkingHour[]>([]);
     const [workingHours, setWorkingHours] = useState<WorkingHour[]>([]);
 
     const [isLoading, setIsLoading] = useState(false);
+    const [isAvailabilityLoading, setIsAvailabilityLoading] = useState(false);
+    const selectedEmployeeId = watch('employeeId');
+    const selectedServiceId = watch('serviceId');
+    const selectedService = services.find((service) => String(service.id) === String(selectedServiceId));
+    const isDatePickerDisabled = !selectedEmployeeId || !selectedService || isAvailabilityLoading;
+    const datePickerPlaceholder = !selectedEmployeeId
+        ? 'Selecciona primero un empleado'
+        : !selectedService
+            ? 'Selecciona primero un servicio'
+            : isAvailabilityLoading
+                ? 'Cargando disponibilidad...'
+                : 'Seleccionar fecha y hora';
 
     useEffect(() => {
         if (isOpen) {
@@ -42,7 +55,8 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                 setEmployees(emp.sort((a: any, b: any) => a.name.localeCompare(b.name)));
                 setCustomers(cust.sort((a: any, b: any) => a.name.localeCompare(b.name)));
                 setServices(serv.sort((a: any, b: any) => a.name.localeCompare(b.name)));
-                setWorkingHours(hours);
+                setEnterpriseWorkingHours(hours);
+                setWorkingHours([]);
             }).finally(() => {
                 setIsLoading(false);
             });
@@ -54,6 +68,42 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
             }
         }
     }, [isOpen, enterpriseId, initialDate, setValue]);
+
+    useEffect(() => {
+        if (!isOpen) {
+            return;
+        }
+
+        if (!selectedEmployeeId) {
+            setWorkingHours([]);
+            setIsAvailabilityLoading(false);
+            return;
+        }
+
+        let cancelled = false;
+        setIsAvailabilityLoading(true);
+
+        workingHourService.getUserHours(Number(selectedEmployeeId))
+            .then((hours) => {
+                if (!cancelled) {
+                    setWorkingHours(hours);
+                }
+            })
+            .catch(() => {
+                if (!cancelled) {
+                    setWorkingHours(enterpriseWorkingHours);
+                }
+            })
+            .finally(() => {
+                if (!cancelled) {
+                    setIsAvailabilityLoading(false);
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [enterpriseWorkingHours, isOpen, selectedEmployeeId]);
 
     const customerOptions: Option[] = customers.map(c => ({
         value: c.id,
@@ -245,6 +295,9 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                                                 value={field.value}
                                                 onChange={field.onChange}
                                                 workingHours={workingHours}
+                                                appointmentDurationMinutes={selectedService?.duration}
+                                                disabled={isDatePickerDisabled}
+                                                placeholder={datePickerPlaceholder}
                                                 required
                                             />
                                         )}

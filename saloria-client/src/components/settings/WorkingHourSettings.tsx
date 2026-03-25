@@ -75,7 +75,9 @@ export const WorkingHourSettings = ({ enterpriseId, userId }: WorkingHourSetting
     const handleSave = async () => {
         try {
             setSaving(true);
-            await workingHourService.saveBatch(hours);
+            const savedHours = await workingHourService.saveBatch(hours);
+            const order = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO'];
+            setHours(savedHours.sort((a, b) => order.indexOf(a.day) - order.indexOf(b.day)));
             setMessage({ type: 'success', text: 'Horarios guardados correctamente' });
             setTimeout(() => setMessage(null), 3000);
         } catch (error) {
