@@ -3,6 +3,13 @@
 set -euo pipefail
 
 BASE_URL="${1:-${APP_API_BASE_URL:-http://localhost:8080}}"
+HEALTHCHECK_PATH="${HEALTHCHECK_PATH:-/api/public/enterprises}"
 
-curl -fsS "${BASE_URL%/}/v3/api-docs" >/dev/null
-echo "Healthcheck OK for ${BASE_URL%/}/v3/api-docs"
+if [[ "${HEALTHCHECK_PATH}" != /* ]]; then
+  HEALTHCHECK_PATH="/${HEALTHCHECK_PATH}"
+fi
+
+TARGET_URL="${BASE_URL%/}${HEALTHCHECK_PATH}"
+
+curl -fsS "${TARGET_URL}" >/dev/null
+echo "Healthcheck OK for ${TARGET_URL}"

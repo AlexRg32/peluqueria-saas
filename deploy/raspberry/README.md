@@ -88,6 +88,12 @@ docker compose \
 ./deploy/raspberry/scripts/healthcheck.sh https://api.tudominio.com
 ```
 
+Por defecto el script comprueba este endpoint publico:
+
+```bash
+curl -fsS https://api.tudominio.com/api/public/enterprises
+```
+
 ## Acceso remoto recomendado: Tailscale
 
 La recomendacion operativa para acceder a la Raspberry fuera de casa es **Tailscale**. El Cloudflare Tunnel de este repo publica la API HTTP, pero no expone SSH por defecto.
@@ -131,6 +137,7 @@ El repositorio incluye un workflow de GitHub Actions en `.github/workflows/deplo
 2. GitHub encola el workflow `Deploy Raspberry API`.
 3. El runner self-hosted de la Raspberry ejecuta `deploy/raspberry/scripts/redeploy.sh`.
 4. El script hace `git pull --ff-only origin main`, reconstruye la API con Docker Compose y ejecuta el healthcheck con reintentos sobre `APP_API_BASE_URL`.
+5. El healthcheck usa por defecto `HEALTHCHECK_PATH=/api/public/enterprises` para no depender de Swagger/OpenAPI en produccion. Si el endpoint cambia, se puede sobrescribir por entorno.
 
 ### Preparacion del runner
 
