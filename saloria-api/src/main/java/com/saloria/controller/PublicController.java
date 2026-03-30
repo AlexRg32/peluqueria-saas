@@ -8,6 +8,7 @@ import com.saloria.service.EnterpriseService;
 import com.saloria.service.ServiceOfferingService;
 import com.saloria.service.WorkingHourService;
 import com.saloria.dto.EnterpriseResponse;
+import com.saloria.dto.BusySlotResponse;
 import com.saloria.dto.PublicEnterpriseSummaryResponse;
 import com.saloria.dto.ServiceOfferingResponse;
 import com.saloria.dto.UserResponse;
@@ -26,6 +27,7 @@ public class PublicController {
   private final EnterpriseService enterpriseService;
   private final ServiceOfferingService serviceOfferingService;
   private final WorkingHourService workingHourService;
+  private final com.saloria.service.AppointmentService appointmentService;
 
   @Operation(summary = "Directorio público de empresas", description = "Lista negocios públicos disponibles y permite filtrarlos por nombre, dirección o servicios.")
   @GetMapping("/enterprises")
@@ -63,5 +65,12 @@ public class PublicController {
   public ResponseEntity<List<WorkingHourDTO>> getEmployeeWorkingHours(@PathVariable Long enterpriseId,
       @PathVariable Long userId) {
     return ResponseEntity.ok(workingHourService.getPublicEmployeeHoursSnapshot(enterpriseId, userId));
+  }
+
+  @Operation(summary = "Consultar huecos ocupados públicos de un profesional", description = "Devuelve los bloques ocupados futuros del profesional sin exponer datos del cliente, para pintar disponibilidad real en la reserva online.")
+  @GetMapping("/enterprises/{enterpriseId}/employees/{userId}/busy-slots")
+  public ResponseEntity<List<BusySlotResponse>> getEmployeeBusySlots(@PathVariable Long enterpriseId,
+      @PathVariable Long userId) {
+    return ResponseEntity.ok(appointmentService.findPublicBusySlots(enterpriseId, userId));
   }
 }

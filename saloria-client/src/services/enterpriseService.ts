@@ -30,6 +30,11 @@ export interface Enterprise {
 }
 
 export const enterpriseService = {
+    getAll: async () => {
+        const response = await apiClient.get<Enterprise[]>('/api/enterprises');
+        return response.data;
+    },
+
     getById: async (id: number) => {
         const response = await apiClient.get<Enterprise>(`/api/enterprises/${id}`);
         return response.data;

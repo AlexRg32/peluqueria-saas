@@ -2,13 +2,19 @@ package com.saloria.service;
 
 import com.saloria.dto.CreateAppointmentRequest;
 import com.saloria.dto.AppointmentResponse;
+import com.saloria.dto.BusySlotResponse;
 import com.saloria.exception.ResourceNotFoundException;
 import com.saloria.model.*;
 import com.saloria.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -33,9 +39,13 @@ public class AppointmentService {
       java.time.DayOfWeek.FRIDAY, "VIERNES",
       java.time.DayOfWeek.SATURDAY, "SABADO",
       java.time.DayOfWeek.SUNDAY, "DOMINGO");
+  private static final EnumSet<AppointmentStatus> BLOCKING_STATUSES = EnumSet.of(
+      AppointmentStatus.PENDING,
+      AppointmentStatus.CONFIRMED);
 
+  @Transactional
   public AppointmentResponse create(CreateAppointmentRequest request) {
-    User employee = userRepository.findById(request.getEmployeeId())
+    User employee = userRepository.findByIdForUpdate(request.getEmployeeId())
         .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado"));
     ServiceOffering service = serviceOfferingRepository.findById(request.getServiceId())
         .orElseThrow(() -> new ResourceNotFoundException("Servicio no encontrado"));
@@ -49,24 +59,7 @@ public class AppointmentService {
     LocalDateTime requestEnd = requestStart.plusMinutes(service.getDuration());
     validateWorkingSchedule(employee, enterprise, requestStart, requestEnd);
 
-    // Check for conflicts
-    LocalDateTime dayStart = requestStart.toLocalDate().atStartOfDay();
-    LocalDateTime dayEnd = requestStart.toLocalDate().atTime(23, 59, 59);
-
-    List<Appointment> existingAppointments = appointmentRepository.findByEmployeeIdAndDateBetween(
-        request.getEmployeeId(), dayStart, dayEnd);
-
-    boolean hasConflict = existingAppointments.stream()
-        .filter(a -> a.getStatus() != AppointmentStatus.CANCELED)
-        .anyMatch(a -> {
-          LocalDateTime existingStart = a.getDate();
-          LocalDateTime existingEnd = existingStart.plusMinutes(a.getService().getDuration());
-          return requestStart.isBefore(existingEnd) && requestEnd.isAfter(existingStart);
-        });
-
-    if (hasConflict) {
-      throw new IllegalStateException("El empleado ya tiene una cita en ese horario.");
-    }
+    validateAppointmentConflict(request.getEmployeeId(), service.getDuration(), requestStart, null);
 
     Customer customer = getOrCreateCustomer(request, enterprise);
 
@@ -147,6 +140,21 @@ public class AppointmentService {
         .collect(Collectors.toList());
   }
 
+  public List<BusySlotResponse> findBusySlotsByEmployee(Long employeeId) {
+    return mapToBusySlots(appointmentRepository.findByEmployeeIdOrderByDateDesc(employeeId));
+  }
+
+  public List<BusySlotResponse> findPublicBusySlots(Long enterpriseId, Long employeeId) {
+    Enterprise enterprise = enterpriseRepository.findById(enterpriseId)
+        .orElseThrow(() -> new ResourceNotFoundException("Empresa no encontrada"));
+    User employee = userRepository.findById(employeeId)
+        .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado"));
+
+    validateEmployee(employee, enterprise);
+
+    return mapToBusySlots(appointmentRepository.findByEmployeeIdOrderByDateDesc(employeeId));
+  }
+
   public List<AppointmentResponse> findByUserEmail(String email) {
     User user = userRepository.findByEmailAndArchivedFalse(email)
         .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
@@ -155,14 +163,58 @@ public class AppointmentService {
         .collect(Collectors.toList());
   }
 
+  @Transactional
+  public AppointmentResponse reschedule(Long id, LocalDateTime nextDate) {
+    Appointment appointment = appointmentRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Cita no encontrada"));
+
+    if (appointment.getStatus() != AppointmentStatus.PENDING && appointment.getStatus() != AppointmentStatus.CONFIRMED) {
+      throw new IllegalStateException("Solo se pueden reprogramar citas pendientes o confirmadas.");
+    }
+
+    User employee = userRepository.findByIdForUpdate(appointment.getEmployee().getId())
+        .orElseThrow(() -> new ResourceNotFoundException("Empleado no encontrado"));
+    ServiceOffering service = appointment.getService();
+    Enterprise enterprise = appointment.getEnterprise();
+
+    validateEmployee(employee, enterprise);
+    validateService(service, enterprise);
+
+    LocalDateTime requestEnd = nextDate.plusMinutes(service.getDuration());
+    validateWorkingSchedule(employee, enterprise, nextDate, requestEnd);
+    validateAppointmentConflict(employee.getId(), service.getDuration(), nextDate, appointment.getId());
+
+    appointment.setDate(nextDate);
+    return mapToResponse(appointmentRepository.save(appointment));
+  }
+
+  @Transactional
+  public AppointmentResponse updateStatus(Long id, AppointmentStatus nextStatus) {
+    Appointment appointment = appointmentRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Cita no encontrada"));
+
+    AppointmentStatus currentStatus = appointment.getStatus();
+    validateStatusTransition(appointment, currentStatus, nextStatus);
+
+    appointment.setStatus(nextStatus);
+    return mapToResponse(appointmentRepository.save(appointment));
+  }
+
+  @Transactional
   public AppointmentResponse checkout(Long id, PaymentMethod method) {
     Appointment appointment = appointmentRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Cita no encontrada"));
 
+    if (appointment.getStatus() != AppointmentStatus.COMPLETED) {
+      throw new IllegalStateException("Solo se pueden cobrar citas completadas.");
+    }
+    if (appointment.isPaid()) {
+      throw new IllegalStateException("La cita ya está cobrada.");
+    }
+
     appointment.setPaid(true);
     appointment.setPaymentMethod(method);
     appointment.setPaidAt(java.time.LocalDateTime.now());
-    appointment.setStatus(AppointmentStatus.COMPLETED);
 
     return mapToResponse(appointmentRepository.save(appointment));
   }
@@ -195,6 +247,8 @@ public class AppointmentService {
     Customer c = a.getCustomer();
     return AppointmentResponse.builder()
         .id(a.getId())
+        .employeeId(a.getEmployee().getId())
+        .serviceId(a.getService().getId())
         .customerName(c.getName())
         .customerPhone(c.getPhone())
         .employeeName(a.getEmployee().getName())
@@ -210,6 +264,73 @@ public class AppointmentService {
         .enterpriseName(a.getEnterprise().getName())
         .enterpriseSlug(a.getEnterprise().getSlug())
         .build();
+  }
+
+  private List<BusySlotResponse> mapToBusySlots(List<Appointment> appointments) {
+    LocalDateTime cutoff = LocalDate.now().atStartOfDay();
+    return appointments.stream()
+        .filter(a -> BLOCKING_STATUSES.contains(a.getStatus()))
+        .filter(a -> !a.getDate().isBefore(cutoff))
+        .sorted(Comparator.comparing(Appointment::getDate))
+        .map(a -> BusySlotResponse.builder()
+            .appointmentId(a.getId())
+            .start(a.getDate())
+            .end(a.getDate().plusMinutes(a.getService().getDuration()))
+            .status(a.getStatus().name())
+            .build())
+        .collect(Collectors.toList());
+  }
+
+  private void validateAppointmentConflict(Long employeeId, Integer durationMinutes, LocalDateTime requestStart,
+      Long appointmentIdToIgnore) {
+    LocalDateTime requestEnd = requestStart.plusMinutes(durationMinutes);
+    LocalDateTime dayStart = requestStart.toLocalDate().atStartOfDay();
+    LocalDateTime dayEnd = requestStart.toLocalDate().atTime(23, 59, 59);
+
+    List<Appointment> existingAppointments = appointmentRepository.findByEmployeeIdAndDateBetween(
+        employeeId, dayStart, dayEnd);
+
+    boolean hasConflict = existingAppointments.stream()
+        .filter(a -> appointmentIdToIgnore == null || !a.getId().equals(appointmentIdToIgnore))
+        .filter(a -> BLOCKING_STATUSES.contains(a.getStatus()))
+        .anyMatch(a -> {
+          LocalDateTime existingStart = a.getDate();
+          LocalDateTime existingEnd = existingStart.plusMinutes(a.getService().getDuration());
+          return requestStart.isBefore(existingEnd) && requestEnd.isAfter(existingStart);
+        });
+
+    if (hasConflict) {
+      throw new IllegalStateException("El empleado ya tiene una cita en ese horario.");
+    }
+  }
+
+  private void validateStatusTransition(Appointment appointment, AppointmentStatus currentStatus,
+      AppointmentStatus nextStatus) {
+    if (nextStatus == null) {
+      throw new IllegalArgumentException("El estado es obligatorio");
+    }
+    if (currentStatus == nextStatus) {
+      throw new IllegalStateException("La cita ya está en el estado indicado.");
+    }
+    if (appointment.isPaid()
+        && (nextStatus == AppointmentStatus.CANCELED || nextStatus == AppointmentStatus.NO_SHOW)) {
+      throw new IllegalStateException("No se puede cancelar o marcar como no presentada una cita ya cobrada.");
+    }
+
+    boolean allowed = switch (currentStatus) {
+      case PENDING -> nextStatus == AppointmentStatus.CONFIRMED
+          || nextStatus == AppointmentStatus.COMPLETED
+          || nextStatus == AppointmentStatus.CANCELED
+          || nextStatus == AppointmentStatus.NO_SHOW;
+      case CONFIRMED -> nextStatus == AppointmentStatus.COMPLETED
+          || nextStatus == AppointmentStatus.CANCELED
+          || nextStatus == AppointmentStatus.NO_SHOW;
+      case COMPLETED, CANCELED, NO_SHOW -> false;
+    };
+
+    if (!allowed) {
+      throw new IllegalStateException("No se puede cambiar la cita de " + currentStatus + " a " + nextStatus + ".");
+    }
   }
 
   private void validateEmployee(User employee, Enterprise enterprise) {

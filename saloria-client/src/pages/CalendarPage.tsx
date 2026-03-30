@@ -4,25 +4,44 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { useAuth } from '../features/auth/hooks/useAuth';
-import { appointmentService, CreateAppointmentRequest, Appointment } from '../services/appointmentService';
+import { enterpriseService } from '../services/enterpriseService';
+import { appointmentService, AppointmentStatus, CreateAppointmentRequest, Appointment } from '../services/appointmentService';
 import { CreateAppointmentModal } from '../components/appointments/CreateAppointmentModal';
 import { AppointmentDetailsModal } from '../components/appointments/AppointmentDetailsModal';
-import { Plus } from 'lucide-react';
+import { Plus, Scissors } from 'lucide-react';
 import { getEmployeeColor } from '../utils/colors';
+import { SearchableSelect, Option } from '../components/ui/SearchableSelect';
 
 const CalendarPage = () => {
     const { user } = useAuth();
     const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
     const [events, setEvents] = useState<any[]>([]);
+    const [employees, setEmployees] = useState<any[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
     const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+    const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | ''>('');
+    const [calendarFeedback, setCalendarFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+    const [isDraggingAppointment, setIsDraggingAppointment] = useState(false);
+
+    const employeeOptions: Option[] = employees.map((employee) => ({
+        value: employee.id,
+        label: employee.name
+    }));
+
+    const isAppointmentMovable = (appointment: Appointment | null | undefined) => (
+        !!appointment && (
+            appointment.status === AppointmentStatus.PENDING || appointment.status === AppointmentStatus.CONFIRMED
+        )
+    );
 
     const loadAppointments = useCallback(async () => {
         try {
             let data: Appointment[];
-            if (!isAdmin && user?.userId) {
+            if (selectedEmployeeId) {
+                data = await appointmentService.getByEmployee(Number(selectedEmployeeId));
+            } else if (!isAdmin && user?.userId) {
                 // Employee: only their appointments
                 data = await appointmentService.getByEmployee(user.userId);
             } else if (user?.enterpriseId) {
@@ -33,6 +52,7 @@ const CalendarPage = () => {
             }
             const mappedEvents = data.map(app => {
                 const color = getEmployeeColor(app.employeeName);
+                const movable = isAppointmentMovable(app);
                 return {
                     id: app.id.toString(),
                     title: `${app.customerName} - ${app.serviceName}`,
@@ -41,25 +61,66 @@ const CalendarPage = () => {
                     backgroundColor: color,
                     borderColor: color,
                     allDay: false,
+                    editable: isAdmin && movable,
+                    startEditable: isAdmin && movable,
+                    durationEditable: false,
+                    classNames: [
+                        'calendar-appointment-card',
+                        isAdmin && movable ? 'calendar-appointment-draggable' : 'calendar-appointment-locked'
+                    ],
                     extendedProps: {
                         ...app
                     }
                 };
             });
-            setEvents(mappedEvents);
+            const shouldShowOccupancyOverlay = !isAdmin || Boolean(selectedEmployeeId);
+            const occupancyEvents = shouldShowOccupancyOverlay
+                ? data
+                    .filter((app) => app.status === AppointmentStatus.PENDING || app.status === AppointmentStatus.CONFIRMED)
+                    .map((app) => ({
+                        id: `busy-${app.id}`,
+                        start: app.date,
+                        end: new Date(new Date(app.date).getTime() + (app.duration || 30) * 60000),
+                        display: 'background',
+                        backgroundColor: app.status === AppointmentStatus.CONFIRMED
+                            ? 'rgba(59, 130, 246, 0.12)'
+                            : 'rgba(245, 158, 11, 0.16)',
+                        classNames: [
+                            'appointment-occupied-slot',
+                            app.status === AppointmentStatus.CONFIRMED
+                                ? 'appointment-occupied-slot-confirmed'
+                                : 'appointment-occupied-slot-pending'
+                        ]
+                    }))
+                : [];
+            setEvents([...occupancyEvents, ...mappedEvents]);
             
-            if (selectedAppointment) {
-                const updated = data.find(a => a.id === selectedAppointment.id);
-                if (updated) setSelectedAppointment(updated);
-            }
+            setSelectedAppointment((current) => {
+                if (!current) {
+                    return current;
+                }
+
+                const updated = data.find((appointment) => appointment.id === current.id);
+                return updated || current;
+            });
         } catch (err) {
             console.error(err);
         }
-    }, [user?.enterpriseId, user?.userId, isAdmin, selectedAppointment]);
+    }, [user?.enterpriseId, user?.userId, isAdmin, selectedEmployeeId]);
+
+    useEffect(() => {
+        if (!isAdmin || !user?.enterpriseId) {
+            return;
+        }
+
+        enterpriseService.getEmployees(user.enterpriseId)
+            .then((data) => setEmployees(data.sort((left, right) => left.name.localeCompare(right.name))))
+            .catch((error) => console.error('Error loading employees:', error));
+    }, [isAdmin, user?.enterpriseId]);
 
     useEffect(() => {
         loadAppointments();
-    }, [user?.enterpriseId]);
+    }, [loadAppointments]);
 
     const handleDateSelect = (selectInfo: any) => {
         setSelectedDate(selectInfo.start);
@@ -69,6 +130,10 @@ const CalendarPage = () => {
     };
 
     const handleEventClick = (clickInfo: any) => {
+        if (clickInfo.event.display === 'background') {
+            return;
+        }
+
         setSelectedAppointment(clickInfo.event.extendedProps);
         setIsDetailsOpen(true);
     };
@@ -77,12 +142,55 @@ const CalendarPage = () => {
         try {
             await appointmentService.create(data);
             setIsModalOpen(false);
+            setCalendarFeedback({ type: 'success', message: 'Cita creada correctamente.' });
             loadAppointments();
         } catch (error: any) {
             console.error(error);
             const message = error.response?.data?.message || 'Error al crear la cita';
             alert(message);
         }
+    };
+
+    const handleEventDrop = async (dropInfo: any) => {
+        const appointment = dropInfo.event.extendedProps as Appointment | undefined;
+        const nextStart = dropInfo.event.start as Date | null;
+
+        if (!appointment || !nextStart || !isAppointmentMovable(appointment)) {
+            dropInfo.revert();
+            return;
+        }
+
+        try {
+            setIsDraggingAppointment(true);
+            setCalendarFeedback(null);
+            await appointmentService.reschedule(appointment.id, {
+                date: nextStart.toISOString()
+            });
+            setCalendarFeedback({ type: 'success', message: 'Cita reprogramada desde la agenda.' });
+            await loadAppointments();
+        } catch (error: any) {
+            dropInfo.revert();
+            const message = error?.response?.data?.message || 'No se pudo mover la cita a ese hueco.';
+            setCalendarFeedback({ type: 'error', message });
+        } finally {
+            setIsDraggingAppointment(false);
+        }
+    };
+
+    const handleEventAllow = (dropInfo: any, draggedEvent: any) => {
+        if (!isAdmin || draggedEvent.display === 'background') {
+            return false;
+        }
+
+        const appointment = draggedEvent.extendedProps as Appointment | undefined;
+        if (!isAppointmentMovable(appointment)) {
+            return false;
+        }
+
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+
+        return dropInfo.start >= todayStart;
     };
 
     return (
@@ -97,16 +205,67 @@ const CalendarPage = () => {
                     </p>
                 </div>
                 
-                {isAdmin && (
-                    <button
-                        onClick={() => { setSelectedDate(new Date()); setIsModalOpen(true); }}
-                        className="flex items-center gap-2 bg-brand-primary hover:bg-brand-primary/90 text-white px-6 py-2.5 rounded-xl font-semibold shadow-brand transition-all active:scale-95"
-                    >
-                        <Plus size={18} />
-                        Nueva Cita
-                    </button>
-                )}
+                <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+                    {isAdmin && (
+                        <div className="w-full sm:w-72">
+                            <SearchableSelect
+                                label="Profesional en foco"
+                                placeholder="Todas las agendas"
+                                icon={Scissors}
+                                options={employeeOptions}
+                                value={selectedEmployeeId}
+                                onChange={(value) => setSelectedEmployeeId(value === '' ? '' : Number(value))}
+                            />
+                        </div>
+                    )}
+
+                    {isAdmin && (
+                        <button
+                            onClick={() => { setSelectedDate(new Date()); setIsModalOpen(true); }}
+                            className="flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary/90 text-white px-6 py-2.5 rounded-xl font-semibold shadow-brand transition-all active:scale-95"
+                        >
+                            <Plus size={18} />
+                            Nueva Cita
+                        </button>
+                    )}
+                </div>
             </header>
+
+            {(!isAdmin || selectedEmployeeId) && (
+                <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600">
+                    <span className="inline-flex items-center gap-2">
+                        <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+                        Pendiente bloquea hueco
+                    </span>
+                    <span className="inline-flex items-center gap-2">
+                        <span className="h-2.5 w-2.5 rounded-full bg-blue-400" />
+                        Confirmada bloquea hueco
+                    </span>
+                    {isAdmin && selectedEmployeeId && (
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                            Vista filtrada para selección precisa
+                        </span>
+                    )}
+                </div>
+            )}
+
+            {isAdmin && (
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-600">
+                    Arrastra una cita pendiente o confirmada para reprogramarla directamente en la semana.
+                </div>
+            )}
+
+            {calendarFeedback && (
+                <div
+                    className={`rounded-2xl px-4 py-3 text-sm font-semibold ${
+                        calendarFeedback.type === 'success'
+                            ? 'border border-emerald-100 bg-emerald-50 text-emerald-700'
+                            : 'border border-rose-100 bg-rose-50 text-rose-700'
+                    }`}
+                >
+                    {calendarFeedback.message}
+                </div>
+            )}
 
             <div className="bg-white rounded-3xl p-6 shadow-xl shadow-slate-200/50 border border-slate-100 min-h-[700px]">
                 <FullCalendar
@@ -120,11 +279,16 @@ const CalendarPage = () => {
                     locale="es"
                     events={events}
                     selectable={isAdmin}
+                    editable={isAdmin}
+                    eventStartEditable={isAdmin}
+                    eventDurationEditable={false}
                     selectMirror={true}
                     dayMaxEvents={true}
                     weekends={true}
                     select={handleDateSelect}
                     eventClick={handleEventClick}
+                    eventDrop={handleEventDrop}
+                    eventAllow={handleEventAllow}
                     slotMinTime="08:00:00"
                     slotMaxTime="21:00:00"
                     allDaySlot={false}
@@ -132,6 +296,7 @@ const CalendarPage = () => {
                     snapDuration="00:15:00"
                     nowIndicator={true}
                     height="auto"
+                    eventDragMinDistance={8}
                     eventTimeFormat={{
                         hour: '2-digit',
                         minute: '2-digit',
@@ -139,6 +304,10 @@ const CalendarPage = () => {
                         hour12: false
                     }}
                     eventContent={(eventInfo) => {
+                        if (eventInfo.event.display === 'background') {
+                            return null;
+                        }
+
                         const app = eventInfo.event.extendedProps;
                         const color = eventInfo.backgroundColor;
                         return (
@@ -155,7 +324,7 @@ const CalendarPage = () => {
                                         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter truncate">
                                             {app.employeeName}
                                         </span>
-                                        {app.paid && (
+                                        {!isDraggingAppointment && app.paid && (
                                             <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
                                         )}
                                     </div>
@@ -173,6 +342,7 @@ const CalendarPage = () => {
                     onSubmit={handleCreateAppointment}
                     enterpriseId={user.enterpriseId}
                     initialDate={selectedDate}
+                    initialEmployeeId={selectedEmployeeId || undefined}
                 />
             )}
 
@@ -224,6 +394,24 @@ const CalendarPage = () => {
                 }
                 .fc-event:hover {
                     z-index: 5;
+                }
+                .fc .appointment-occupied-slot {
+                    opacity: 1;
+                }
+                .fc .appointment-occupied-slot-confirmed {
+                    background-color: rgba(59, 130, 246, 0.12) !important;
+                }
+                .fc .appointment-occupied-slot-pending {
+                    background-color: rgba(245, 158, 11, 0.16) !important;
+                }
+                .fc .calendar-appointment-draggable {
+                    cursor: grab;
+                }
+                .fc .calendar-appointment-draggable:active {
+                    cursor: grabbing;
+                }
+                .fc .calendar-appointment-locked {
+                    cursor: default;
                 }
                 .fc-timegrid-slot {
                     height: 3.5em !important;

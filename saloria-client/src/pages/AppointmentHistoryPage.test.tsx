@@ -11,8 +11,20 @@ vi.mock('@/services/appointmentService', () => ({
   },
   AppointmentStatus: {
     PENDING: 'PENDING',
+    CONFIRMED: 'CONFIRMED',
     COMPLETED: 'COMPLETED',
-    CANCELED: 'CANCELED'
+    CANCELED: 'CANCELED',
+    NO_SHOW: 'NO_SHOW'
+  },
+  getAppointmentStatusLabel: (status: string) => {
+    const labels: Record<string, string> = {
+      PENDING: 'Pendiente',
+      CONFIRMED: 'Confirmada',
+      COMPLETED: 'Completada',
+      CANCELED: 'Cancelada',
+      NO_SHOW: 'No presentada',
+    };
+    return labels[status] || status;
   }
 }));
 

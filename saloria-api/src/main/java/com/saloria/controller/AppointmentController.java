@@ -1,7 +1,10 @@
 package com.saloria.controller;
 
 import com.saloria.dto.AppointmentResponse;
+import com.saloria.dto.BusySlotResponse;
 import com.saloria.dto.CreateAppointmentRequest;
+import com.saloria.dto.UpdateAppointmentScheduleRequest;
+import com.saloria.dto.UpdateAppointmentStatusRequest;
 import com.saloria.service.AppointmentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +55,30 @@ public class AppointmentController {
     return ResponseEntity.ok(appointmentService.findByEmployeeId(employeeId));
   }
 
+  @Operation(summary = "Huecos ocupados por empleado", description = "Devuelve los bloques ocupados futuros del profesional para pintar disponibilidad real en agenda y formularios.")
+  @GetMapping("/employee/{employeeId}/busy-slots")
+  @PreAuthorize("@securityService.canManageUser(authentication, #employeeId)")
+  public ResponseEntity<List<BusySlotResponse>> getBusySlotsByEmployee(@PathVariable Long employeeId) {
+    return ResponseEntity.ok(appointmentService.findBusySlotsByEmployee(employeeId));
+  }
+
+  @Operation(summary = "Reprogramar cita", description = "Actualiza la fecha y hora de una cita pendiente o confirmada, validando horario y solapes.")
+  @PatchMapping("/{id}/reschedule")
+  @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN') and @securityService.canManageAppointment(authentication, #id)")
+  public ResponseEntity<AppointmentResponse> reschedule(@PathVariable Long id,
+      @Valid @RequestBody UpdateAppointmentScheduleRequest request) {
+    return ResponseEntity.ok(appointmentService.reschedule(id, request.getDate()));
+  }
+
   @Operation(summary = "Pagar/Cobrar Cita (Checkout)", description = "Cambia el estado de la cita a COMPLETADA y registra el pago indicando el método usado (Efectivo, Tarjeta, etc).")
+  @PatchMapping("/{id}/status")
+  @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN') and @securityService.canManageAppointment(authentication, #id)")
+  public ResponseEntity<AppointmentResponse> updateStatus(@PathVariable Long id,
+      @Valid @RequestBody UpdateAppointmentStatusRequest request) {
+    return ResponseEntity.ok(appointmentService.updateStatus(id, request.getStatus()));
+  }
+
+  @Operation(summary = "Pagar/Cobrar Cita (Checkout)", description = "Registra el cobro de una cita ya completada indicando el método usado (Efectivo o Tarjeta).")
   @PostMapping("/{id}/checkout")
   @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN') and @securityService.canManageAppointment(authentication, #id)")
   public ResponseEntity<AppointmentResponse> checkout(@PathVariable Long id, @RequestBody Map<String, String> payload) {

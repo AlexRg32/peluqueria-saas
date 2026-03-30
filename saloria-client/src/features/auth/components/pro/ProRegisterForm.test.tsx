@@ -1,5 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { ProRegisterForm } from './ProRegisterForm';
 import { BrowserRouter } from 'react-router-dom';
@@ -22,20 +21,18 @@ describe('ProRegisterForm Styling', () => {
       },
     });
 
-    const user = userEvent.setup();
-
     render(
       <BrowserRouter>
         <ProRegisterForm />
       </BrowserRouter>
     );
 
-    await user.type(screen.getByLabelText(/nombre del propietario/i), 'Lucia');
-    await user.type(screen.getByLabelText(/email profesional/i), 'lucia@example.com');
-    await user.type(screen.getByLabelText(/nombre de la peluquería/i), 'Salon Norte');
-    await user.type(screen.getByLabelText(/^contraseña$/i), 'secret123');
-    await user.type(screen.getByLabelText(/repetir/i), 'secret123');
-    await user.click(screen.getByRole('button', { name: /registrar empresa/i }));
+    fireEvent.change(screen.getByLabelText(/nombre del propietario/i), { target: { value: 'Lucia' } });
+    fireEvent.change(screen.getByLabelText(/email profesional/i), { target: { value: 'lucia@example.com' } });
+    fireEvent.change(screen.getByLabelText(/nombre de la peluquería/i), { target: { value: 'Salon Norte' } });
+    fireEvent.change(screen.getByLabelText(/^contraseña$/i), { target: { value: 'secret123' } });
+    fireEvent.change(screen.getByLabelText(/repetir/i), { target: { value: 'secret123' } });
+    fireEvent.click(screen.getByRole('button', { name: /registrar empresa/i }));
 
     await waitFor(() => {
       expect(screen.getByText(/ya existe una empresa con ese nombre/i)).toBeInTheDocument();

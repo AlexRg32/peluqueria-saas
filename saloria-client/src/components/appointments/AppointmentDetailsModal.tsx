@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, User, Scissors, Calendar, Clock, Receipt, CheckCircle, Printer } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Appointment, appointmentService } from '../../services/appointmentService';
+import { Appointment, AppointmentStatus, BusySlot, appointmentService, getAppointmentStatusLabel } from '../../services/appointmentService';
 import { CheckoutModal } from './CheckoutModal';
 import { format } from 'date-fns';
 import { jsPDF } from 'jspdf';
+import { DateTimePicker } from '../ui/DateTimePicker';
+import { workingHourService, WorkingHour } from '../../services/workingHourService';
 
 interface AppointmentDetailsModalProps {
     isOpen: boolean;
@@ -18,17 +20,103 @@ export const AppointmentDetailsModal: React.FC<AppointmentDetailsModalProps> = (
     isOpen, onClose, appointment, onStatusUpdate, isAdmin = true
 }) => {
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+    const [isActionLoading, setIsActionLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [isRescheduleOpen, setIsRescheduleOpen] = useState(false);
+    const [isRescheduleLoading, setIsRescheduleLoading] = useState(false);
+    const [rescheduleDate, setRescheduleDate] = useState<string>('');
+    const [workingHours, setWorkingHours] = useState<WorkingHour[]>([]);
+    const [busySlots, setBusySlots] = useState<BusySlot[]>([]);
+
+    useEffect(() => {
+        if (!appointment) {
+            return;
+        }
+        setRescheduleDate(new Date(appointment.date).toISOString());
+        setIsRescheduleOpen(false);
+        setWorkingHours([]);
+        setBusySlots([]);
+        setErrorMessage(null);
+    }, [appointment]);
+
+    useEffect(() => {
+        if (!appointment?.employeeId || !isRescheduleOpen) {
+            return;
+        }
+
+        let cancelled = false;
+        setIsRescheduleLoading(true);
+
+        Promise.all([
+            workingHourService.getUserHours(appointment.employeeId).catch(() => {
+                if (!cancelled) {
+                    setErrorMessage('No se pudo cargar la disponibilidad del profesional.');
+                }
+                return [] as WorkingHour[];
+            }),
+            appointmentService.getBusySlotsByEmployee(appointment.employeeId).catch(() => [] as BusySlot[])
+        ])
+            .then(([hours, slots]) => {
+                if (!cancelled) {
+                    setWorkingHours(hours);
+                    setBusySlots(slots.filter((slot) => slot.appointmentId !== appointment.id));
+                }
+            })
+            .finally(() => {
+                if (!cancelled) {
+                    setIsRescheduleLoading(false);
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [appointment?.employeeId, isRescheduleOpen]);
 
     if (!appointment) return null;
 
+    const handleStatusUpdate = async (status: AppointmentStatus) => {
+        try {
+            setIsActionLoading(true);
+            setErrorMessage(null);
+            await appointmentService.updateStatus(appointment.id, status);
+            onStatusUpdate();
+        } catch (error: any) {
+            console.error('Error updating appointment status:', error);
+            setErrorMessage(error?.response?.data?.message || 'No se pudo actualizar el estado de la cita.');
+        } finally {
+            setIsActionLoading(false);
+        }
+    };
+
+    const handleReschedule = async () => {
+        if (!rescheduleDate) {
+            return;
+        }
+
+        try {
+            setIsActionLoading(true);
+            setErrorMessage(null);
+            await appointmentService.reschedule(appointment.id, { date: rescheduleDate });
+            setIsRescheduleOpen(false);
+            onStatusUpdate();
+        } catch (error: any) {
+            console.error('Error rescheduling appointment:', error);
+            setErrorMessage(error?.response?.data?.message || 'No se pudo reprogramar la cita.');
+        } finally {
+            setIsActionLoading(false);
+        }
+    };
+
     const handleCheckout = async (method: 'CASH' | 'CARD') => {
         try {
+            setErrorMessage(null);
             await appointmentService.checkout(appointment.id, method);
             setIsCheckoutOpen(false);
             onStatusUpdate();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error in checkout:', error);
-            alert('Error al procesar el pago');
+            setErrorMessage(error?.response?.data?.message || 'Error al procesar el pago');
         }
     };
 
@@ -92,6 +180,20 @@ export const AppointmentDetailsModal: React.FC<AppointmentDetailsModalProps> = (
         window.open(url, '_blank');
     };
 
+    const statusTone = appointment.status === AppointmentStatus.CONFIRMED
+        ? 'bg-blue-100 text-blue-700'
+        : appointment.status === AppointmentStatus.COMPLETED
+            ? 'bg-emerald-100 text-emerald-700'
+            : appointment.status === AppointmentStatus.NO_SHOW
+                ? 'bg-fuchsia-100 text-fuchsia-700'
+                : appointment.status === AppointmentStatus.CANCELED
+                    ? 'bg-slate-200 text-slate-700'
+                    : 'bg-amber-100 text-amber-700';
+
+    const showStatusActions = isAdmin && (
+        appointment.status === AppointmentStatus.PENDING || appointment.status === AppointmentStatus.CONFIRMED
+    );
+
     return (
         <>
             <AnimatePresence>
@@ -130,6 +232,12 @@ export const AppointmentDetailsModal: React.FC<AppointmentDetailsModalProps> = (
                             </header>
                             
                             <div className="p-8 space-y-6">
+                                {errorMessage && (
+                                    <div className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
+                                        {errorMessage}
+                                    </div>
+                                )}
+
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Cliente</label>
@@ -163,6 +271,20 @@ export const AppointmentDetailsModal: React.FC<AppointmentDetailsModalProps> = (
                                     </div>
                                 </div>
 
+                                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Estado de la cita</p>
+                                    <div className="mt-2 flex items-center justify-between gap-3">
+                                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider ${statusTone}`}>
+                                            {getAppointmentStatusLabel(appointment.status)}
+                                        </span>
+                                        {appointment.paid && (
+                                            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
+                                                Cobrada
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+
                                 {isAdmin && (
                                     <div className="flex items-center justify-between p-6 bg-slate-900 text-white rounded-3xl">
                                         <div className="space-y-1">
@@ -191,8 +313,88 @@ export const AppointmentDetailsModal: React.FC<AppointmentDetailsModalProps> = (
                                     </div>
                                 )}
 
+                                {showStatusActions && (
+                                    <div className="space-y-3">
+                                        <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">Acciones operativas</p>
+                                        <div className="grid gap-3 sm:grid-cols-2">
+                                            <button
+                                                onClick={() => {
+                                                    setErrorMessage(null);
+                                                    setIsRescheduleOpen((value) => !value);
+                                                }}
+                                                disabled={isActionLoading}
+                                                className="rounded-2xl bg-brand-primary px-4 py-3 text-sm font-black text-slate-900 transition-colors hover:bg-brand-primary/90 disabled:opacity-50"
+                                            >
+                                                {isRescheduleOpen ? 'Cerrar reprogramación' : 'Reprogramar cita'}
+                                            </button>
+                                            {appointment.status === AppointmentStatus.PENDING && (
+                                                <button
+                                                    onClick={() => handleStatusUpdate(AppointmentStatus.CONFIRMED)}
+                                                    disabled={isActionLoading}
+                                                    className="rounded-2xl bg-blue-600 px-4 py-3 text-sm font-black text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+                                                >
+                                                    Confirmar cita
+                                                </button>
+                                            )}
+                                            <button
+                                                onClick={() => handleStatusUpdate(AppointmentStatus.COMPLETED)}
+                                                disabled={isActionLoading}
+                                                className="rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-black text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
+                                            >
+                                                Marcar completada
+                                            </button>
+                                            <button
+                                                onClick={() => handleStatusUpdate(AppointmentStatus.NO_SHOW)}
+                                                disabled={isActionLoading}
+                                                className="rounded-2xl bg-fuchsia-600 px-4 py-3 text-sm font-black text-white transition-colors hover:bg-fuchsia-700 disabled:opacity-50"
+                                            >
+                                                Marcar no-show
+                                            </button>
+                                            <button
+                                                onClick={() => handleStatusUpdate(AppointmentStatus.CANCELED)}
+                                                disabled={isActionLoading}
+                                                className="rounded-2xl bg-slate-700 px-4 py-3 text-sm font-black text-white transition-colors hover:bg-slate-800 disabled:opacity-50"
+                                            >
+                                                Cancelar cita
+                                            </button>
+                                        </div>
+
+                                        {isRescheduleOpen && (
+                                            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4 space-y-4">
+                                                <DateTimePicker
+                                                    label="Nueva fecha y hora"
+                                                    value={rescheduleDate}
+                                                    onChange={setRescheduleDate}
+                                                    workingHours={workingHours}
+                                                    busySlots={busySlots}
+                                                    appointmentDurationMinutes={appointment.duration}
+                                                    disabled={isActionLoading || isRescheduleLoading}
+                                                    placeholder={isRescheduleLoading ? 'Cargando disponibilidad...' : 'Seleccionar fecha y hora'}
+                                                    required
+                                                />
+                                                <div className="flex items-center justify-end gap-3">
+                                                    <button
+                                                        onClick={() => setIsRescheduleOpen(false)}
+                                                        disabled={isActionLoading}
+                                                        className="rounded-xl px-4 py-2 text-sm font-bold text-slate-600 transition-colors hover:bg-white disabled:opacity-50"
+                                                    >
+                                                        Cancelar
+                                                    </button>
+                                                    <button
+                                                        onClick={handleReschedule}
+                                                        disabled={isActionLoading || isRescheduleLoading || !rescheduleDate}
+                                                        className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-black text-white transition-colors hover:bg-slate-800 disabled:opacity-50"
+                                                    >
+                                                        Guardar cambio
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
                                 <div className="flex flex-col gap-3">
-                                    {isAdmin && !appointment.paid ? (
+                                    {isAdmin && appointment.status === AppointmentStatus.COMPLETED && !appointment.paid ? (
                                         <button 
                                             onClick={() => setIsCheckoutOpen(true)}
                                             className="w-full py-4 bg-brand-primary hover:bg-brand-primary/90 text-slate-900 rounded-2xl font-black text-lg shadow-brand transition-all active:scale-95 flex items-center justify-center gap-2"
@@ -211,7 +413,8 @@ export const AppointmentDetailsModal: React.FC<AppointmentDetailsModalProps> = (
                                     ) : null}
                                     <button 
                                         onClick={onClose}
-                                        className="w-full py-3 text-slate-400 font-bold text-sm hover:text-slate-600 transition-colors"
+                                        disabled={isActionLoading}
+                                        className="w-full py-3 text-slate-400 font-bold text-sm hover:text-slate-600 transition-colors disabled:opacity-50"
                                     >
                                         Cerrar Ventana
                                     </button>

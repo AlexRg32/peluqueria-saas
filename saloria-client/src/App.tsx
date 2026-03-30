@@ -10,9 +10,10 @@ import DashboardPage from './pages/Dashboard';
 import ClientPortalPage from './pages/ClientPortal';
 import BillingPage from './pages/Billing';
 import SearchPage from './pages/SearchPage';
-import ProfilePlaceholder from './pages/ProfilePlaceholder';
+import ClientAccountPage from './pages/ClientAccountPage';
 import BarbershopProfilePage from './pages/BarbershopProfilePage';
 import AppointmentHistoryPage from './pages/AppointmentHistoryPage';
+import SuperAdminEnterprisesPage from './pages/SuperAdminEnterprisesPage';
 import { AuthProvider } from './features/auth/context/AuthContext';
 import RequireAuth from './features/auth/components/RequireAuth';
 import ProtectedRoute from './features/auth/components/ProtectedRoute';
@@ -52,7 +53,7 @@ function App() {
             {/* Protected Client Routes */}
             <Route element={<RequireAuth />}>
               <Route path="/citas" element={<AppointmentHistoryPage />} />
-              <Route path="/perfil" element={<ProfilePlaceholder />} />
+              <Route path="/perfil" element={<ClientAccountPage />} />
             </Route>
           </Route>
 
@@ -89,7 +90,7 @@ function App() {
 
                 {/* Super Admin Only Routes */}
                 <Route element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']} />}>
-                  <Route path="superadmin/empresas" element={<div>Super Admin: All Enterprises</div>} />
+                  <Route path="superadmin/empresas" element={<SuperAdminEnterprisesPage />} />
                 </Route>
               </Route>
             </Route>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { CreateAppointmentRequest } from '../../services/appointmentService';
+import { BusySlot, CreateAppointmentRequest, appointmentService } from '../../services/appointmentService';
 import { enterpriseService } from '../../services/enterpriseService';
 import { customerService, Customer } from '../../services/customerService';
 import { serviceOfferingService } from '../../services/serviceOfferingService';
@@ -16,10 +16,11 @@ interface CreateAppointmentModalProps {
     onSubmit: (data: CreateAppointmentRequest) => void;
     enterpriseId: number;
     initialDate?: Date;
+    initialEmployeeId?: number;
 }
 
 export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
-    isOpen, onClose, onSubmit, enterpriseId, initialDate
+    isOpen, onClose, onSubmit, enterpriseId, initialDate, initialEmployeeId
 }) => {
     const { register, handleSubmit, setValue, control, watch } = useForm<CreateAppointmentRequest>();
     const [isGuest, setIsGuest] = useState(false);
@@ -28,6 +29,7 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     const [services, setServices] = useState<any[]>([]);
     const [enterpriseWorkingHours, setEnterpriseWorkingHours] = useState<WorkingHour[]>([]);
     const [workingHours, setWorkingHours] = useState<WorkingHour[]>([]);
+    const [busySlots, setBusySlots] = useState<BusySlot[]>([]);
 
     const [isLoading, setIsLoading] = useState(false);
     const [isAvailabilityLoading, setIsAvailabilityLoading] = useState(false);
@@ -57,6 +59,7 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                 setServices(serv.sort((a: any, b: any) => a.name.localeCompare(b.name)));
                 setEnterpriseWorkingHours(hours);
                 setWorkingHours([]);
+                setBusySlots([]);
             }).finally(() => {
                 setIsLoading(false);
             });
@@ -66,8 +69,12 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                 const localISOTime = (new Date(initialDate.getTime() - tzOffset)).toISOString().slice(0, 16);
                 setValue('date', localISOTime);
             }
+
+            if (initialEmployeeId) {
+                setValue('employeeId', initialEmployeeId);
+            }
         }
-    }, [isOpen, enterpriseId, initialDate, setValue]);
+    }, [isOpen, enterpriseId, initialDate, initialEmployeeId, setValue]);
 
     useEffect(() => {
         if (!isOpen) {
@@ -76,6 +83,7 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
 
         if (!selectedEmployeeId) {
             setWorkingHours([]);
+            setBusySlots([]);
             setIsAvailabilityLoading(false);
             return;
         }
@@ -83,15 +91,14 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
         let cancelled = false;
         setIsAvailabilityLoading(true);
 
-        workingHourService.getUserHours(Number(selectedEmployeeId))
-            .then((hours) => {
+        Promise.all([
+            workingHourService.getUserHours(Number(selectedEmployeeId)).catch(() => enterpriseWorkingHours),
+            appointmentService.getBusySlotsByEmployee(Number(selectedEmployeeId)).catch(() => [] as BusySlot[])
+        ])
+            .then(([hours, slots]) => {
                 if (!cancelled) {
                     setWorkingHours(hours);
-                }
-            })
-            .catch(() => {
-                if (!cancelled) {
-                    setWorkingHours(enterpriseWorkingHours);
+                    setBusySlots(slots);
                 }
             })
             .finally(() => {
@@ -293,8 +300,16 @@ export const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
                                             <DateTimePicker
                                                 label="Fecha y Hora"
                                                 value={field.value}
-                                                onChange={field.onChange}
+                                                onChange={(nextValue) =>
+                                                    field.onChange({
+                                                        target: {
+                                                            name: field.name,
+                                                            value: nextValue,
+                                                        },
+                                                    })
+                                                }
                                                 workingHours={workingHours}
+                                                busySlots={busySlots}
                                                 appointmentDurationMinutes={selectedService?.duration}
                                                 disabled={isDatePickerDisabled}
                                                 placeholder={datePickerPlaceholder}

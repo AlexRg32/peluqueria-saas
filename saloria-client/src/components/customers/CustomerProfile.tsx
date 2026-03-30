@@ -83,6 +83,8 @@ export const CustomerProfile = ({ customerId }: CustomerProfileProps) => {
   if (!detail) return null;
 
   const initials = detail.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+  const sanitizedPhone = detail.phone?.replace(/\s/g, '') ?? '';
+  const hasPhone = sanitizedPhone.length > 0;
 
   const pendingCount = detail.appointments.filter(a => a.status === 'PENDING').length;
 
@@ -97,20 +99,24 @@ export const CustomerProfile = ({ customerId }: CustomerProfileProps) => {
           <div className="flex-1 text-center md:text-left">
             <h2 className="text-2xl font-bold text-slate-800 mb-2">{detail.name}</h2>
             <div className="flex flex-wrap justify-center md:justify-start gap-2">
-              <a 
-                href={`https://wa.me/${detail.phone.replace(/\s/g, '')}`} 
-                target="_blank" 
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-50 text-green-700 text-sm font-medium hover:bg-green-100 transition-colors"
-              >
-                <MessageSquare size={16} /> WhatsApp
-              </a>
-              <a 
-                href={`tel:${detail.phone}`}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium hover:bg-blue-100 transition-colors"
-              >
-                <Phone size={16} /> Llamar
-              </a>
+              {hasPhone && (
+                <a 
+                  href={`https://wa.me/${sanitizedPhone}`} 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-50 text-green-700 text-sm font-medium hover:bg-green-100 transition-colors"
+                >
+                  <MessageSquare size={16} /> WhatsApp
+                </a>
+              )}
+              {hasPhone && (
+                <a 
+                  href={`tel:${sanitizedPhone}`}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium hover:bg-blue-100 transition-colors"
+                >
+                  <Phone size={16} /> Llamar
+                </a>
+              )}
               {detail.email && (
                 <a 
                   href={`mailto:${detail.email}`}

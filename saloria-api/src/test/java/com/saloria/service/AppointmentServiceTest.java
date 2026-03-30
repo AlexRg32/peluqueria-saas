@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -52,6 +53,43 @@ public class AppointmentServiceTest {
 
   private AppointmentService appointmentService;
 
+  private Appointment buildAppointmentFixture(AppointmentStatus status) {
+    Enterprise enterprise = Enterprise.builder().id(1L).name("Enterprise A").slug("enterprise-a").build();
+    User employee = User.builder()
+        .id(1L)
+        .name("Employee")
+        .role(Role.EMPLEADO)
+        .active(true)
+        .enterprise(enterprise)
+        .build();
+    ServiceOffering service = ServiceOffering.builder()
+        .id(1L)
+        .name("Service")
+        .duration(30)
+        .price(10.0)
+        .enterprise(enterprise)
+        .deleted(false)
+        .build();
+    Customer customer = Customer.builder()
+        .id(1L)
+        .name("Test Customer")
+        .phone("123456789")
+        .enterprise(enterprise)
+        .visitsCount(0)
+        .build();
+
+    Appointment appointment = new Appointment();
+    appointment.setId(9L);
+    appointment.setStatus(status);
+    appointment.setCustomer(customer);
+    appointment.setEmployee(employee);
+    appointment.setService(service);
+    appointment.setEnterprise(enterprise);
+    appointment.setDate(LocalDateTime.now().plusDays(1));
+    appointment.setPrice(10.0);
+    return appointment;
+  }
+
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
@@ -62,6 +100,7 @@ public class AppointmentServiceTest {
         serviceOfferingRepository,
         enterpriseRepository,
         workingHourRepository);
+    when(userRepository.findByIdForUpdate(anyLong())).thenAnswer(invocation -> userRepository.findById(invocation.getArgument(0)));
     when(workingHourRepository.findFirstByUser_IdAndDay(anyLong(), anyString())).thenReturn(Optional.empty());
     when(workingHourRepository.findFirstByEnterpriseIdAndUserIdIsNullAndDay(anyLong(), anyString()))
         .thenReturn(Optional.empty());
@@ -132,6 +171,100 @@ public class AppointmentServiceTest {
     assertEquals("Enterprise A", response.getEnterpriseName());
     assertEquals("enterprise-a", response.getEnterpriseSlug());
     assertEquals(1L, response.getEnterpriseId());
+  }
+
+  @Test
+  public void testUpdateStatusAllowsPendingToConfirmed() {
+    Appointment appointment = buildAppointmentFixture(AppointmentStatus.PENDING);
+    when(appointmentRepository.findById(9L)).thenReturn(Optional.of(appointment));
+    when(appointmentRepository.save(appointment)).thenReturn(appointment);
+
+    AppointmentResponse response = appointmentService.updateStatus(9L, AppointmentStatus.CONFIRMED);
+
+    assertEquals("CONFIRMED", response.getStatus());
+  }
+
+  @Test
+  public void testUpdateStatusRejectsCompletedToCanceled() {
+    Appointment appointment = buildAppointmentFixture(AppointmentStatus.COMPLETED);
+    when(appointmentRepository.findById(9L)).thenReturn(Optional.of(appointment));
+
+    IllegalStateException error = assertThrows(IllegalStateException.class,
+        () -> appointmentService.updateStatus(9L, AppointmentStatus.CANCELED));
+
+    assertEquals("No se puede cambiar la cita de COMPLETED a CANCELED.", error.getMessage());
+  }
+
+  @Test
+  public void testCheckoutRejectsPendingAppointments() {
+    Appointment appointment = buildAppointmentFixture(AppointmentStatus.PENDING);
+    appointment.setId(11L);
+    when(appointmentRepository.findById(11L)).thenReturn(Optional.of(appointment));
+
+    IllegalStateException error = assertThrows(IllegalStateException.class,
+        () -> appointmentService.checkout(11L, com.saloria.model.PaymentMethod.CASH));
+
+    assertEquals("Solo se pueden cobrar citas completadas.", error.getMessage());
+  }
+
+  @Test
+  public void testRescheduleUpdatesDateWhenSlotIsAvailable() {
+    Appointment appointment = buildAppointmentFixture(AppointmentStatus.PENDING);
+    LocalDateTime nextDate = LocalDateTime.of(2026, 4, 6, 12, 0);
+    when(appointmentRepository.findById(9L)).thenReturn(Optional.of(appointment));
+    when(userRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(appointment.getEmployee()));
+    when(workingHourRepository.findFirstByUser_IdAndDay(1L, "LUNES")).thenReturn(Optional.empty());
+    when(workingHourRepository.findFirstByEnterpriseIdAndUserIdIsNullAndDay(1L, "LUNES")).thenReturn(Optional.empty());
+    when(appointmentRepository.findByEmployeeIdAndDateBetween(anyLong(), any(), any())).thenReturn(Collections.emptyList());
+    when(appointmentRepository.save(appointment)).thenReturn(appointment);
+
+    AppointmentResponse response = appointmentService.reschedule(9L, nextDate);
+
+    assertEquals(nextDate, response.getDate());
+  }
+
+  @Test
+  public void testRescheduleRejectsOverlappingSlot() {
+    Appointment appointment = buildAppointmentFixture(AppointmentStatus.CONFIRMED);
+    Appointment conflicting = buildAppointmentFixture(AppointmentStatus.PENDING);
+    conflicting.setId(12L);
+    conflicting.setDate(LocalDateTime.of(2026, 4, 6, 12, 0));
+    LocalDateTime nextDate = LocalDateTime.of(2026, 4, 6, 12, 15);
+
+    when(appointmentRepository.findById(9L)).thenReturn(Optional.of(appointment));
+    when(userRepository.findByIdForUpdate(1L)).thenReturn(Optional.of(appointment.getEmployee()));
+    when(workingHourRepository.findFirstByUser_IdAndDay(1L, "LUNES")).thenReturn(Optional.empty());
+    when(workingHourRepository.findFirstByEnterpriseIdAndUserIdIsNullAndDay(1L, "LUNES")).thenReturn(Optional.empty());
+    when(appointmentRepository.findByEmployeeIdAndDateBetween(anyLong(), any(), any())).thenReturn(List.of(conflicting));
+
+    IllegalStateException error = assertThrows(IllegalStateException.class,
+        () -> appointmentService.reschedule(9L, nextDate));
+
+    assertEquals("El empleado ya tiene una cita en ese horario.", error.getMessage());
+  }
+
+  @Test
+  public void testFindBusySlotsByEmployeeReturnsOnlyFutureBlockingAppointments() {
+    Appointment pending = buildAppointmentFixture(AppointmentStatus.PENDING);
+    pending.setId(14L);
+    pending.setDate(LocalDateTime.now().plusDays(2).withHour(11).withMinute(0));
+
+    Appointment canceled = buildAppointmentFixture(AppointmentStatus.CANCELED);
+    canceled.setId(15L);
+    canceled.setDate(LocalDateTime.now().plusDays(2).withHour(12).withMinute(0));
+
+    Appointment pastConfirmed = buildAppointmentFixture(AppointmentStatus.CONFIRMED);
+    pastConfirmed.setId(16L);
+    pastConfirmed.setDate(LocalDateTime.now().minusDays(1).withHour(10).withMinute(0));
+
+    when(appointmentRepository.findByEmployeeIdOrderByDateDesc(1L)).thenReturn(List.of(canceled, pending, pastConfirmed));
+
+    List<com.saloria.dto.BusySlotResponse> response = appointmentService.findBusySlotsByEmployee(1L);
+
+    assertEquals(1, response.size());
+    assertEquals(14L, response.get(0).getAppointmentId());
+    assertEquals(pending.getDate(), response.get(0).getStart());
+    assertEquals(pending.getDate().plusMinutes(pending.getService().getDuration()), response.get(0).getEnd());
   }
 
   @Test

@@ -11,6 +11,34 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 
+const getPrimaryDestination = (role: string) => {
+  if (role === 'SUPER_ADMIN') {
+    return {
+      label: 'Empresas Globales',
+      path: '/admin/superadmin/empresas',
+    };
+  }
+
+  if (role === 'ADMIN') {
+    return {
+      label: 'Configuración',
+      path: '/admin/empresas',
+    };
+  }
+
+  if (role === 'EMPLEADO') {
+    return {
+      label: 'Mi agenda',
+      path: '/admin/citas',
+    };
+  }
+
+  return {
+    label: 'Mi cuenta',
+    path: '/perfil',
+  };
+};
+
 const UserMenu = () => {
   const { user, enterprise, logout } = useAuth();
   const navigate = useNavigate();
@@ -22,6 +50,9 @@ const UserMenu = () => {
   };
 
   if (!user) return null;
+
+  const primaryDestination = getPrimaryDestination(user.role);
+  const displayName = user.name || user.sub.split('@')[0];
 
   return (
     <div 
@@ -35,10 +66,10 @@ const UserMenu = () => {
         className="flex items-center gap-4 px-4 py-2.5 rounded-full bg-white border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200"
       >
         <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-primary to-brand-secondary flex items-center justify-center text-slate-900 font-bold text-sm shadow-inner">
-          {user.sub[0].toUpperCase()}
+          {displayName[0].toUpperCase()}
         </div>
         <div className="hidden md:flex flex-col items-start leading-none gap-1">
-          <span className="text-base font-bold text-slate-800">{user.sub.split('@')[0]}</span>
+          <span className="text-base font-bold text-slate-800">{displayName}</span>
           <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">{user.role}</span>
         </div>
         <ChevronDown size={18} className={`text-slate-400 ml-1 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
@@ -80,7 +111,7 @@ const UserMenu = () => {
             <div className="p-2.5">
               <button 
                 onClick={() => {
-                  navigate('/empresas');
+                  navigate(primaryDestination.path);
                   setIsOpen(false);
                 }}
                 className="w-full flex items-center gap-4 px-3.5 py-3 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-colors group"
@@ -88,7 +119,7 @@ const UserMenu = () => {
                 <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center group-hover:bg-white border border-transparent group-hover:border-slate-200 transition-all">
                   <Settings size={18} />
                 </div>
-                <span className="font-bold text-base">Configuración</span>
+                <span className="font-bold text-base">{primaryDestination.label}</span>
               </button>
             </div>
 

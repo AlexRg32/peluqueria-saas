@@ -23,6 +23,7 @@ import { ChevronLeft, ChevronRight, Clock, Calendar as CalendarIcon, X } from 'l
 import { motion, AnimatePresence } from 'framer-motion';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { type BusySlot } from '../../services/appointmentService';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -42,6 +43,7 @@ interface DateTimePickerProps {
     value?: string; // ISO String
     onChange: (value: string) => void;
     workingHours: WorkingHour[];
+    busySlots?: BusySlot[];
     appointmentDurationMinutes?: number;
     label?: string;
     required?: boolean;
@@ -77,6 +79,13 @@ const buildDayWindow = (selectedDate: Date, dayConfig: WorkingHour) => {
     return { startTime, endTime };
 };
 
+const hasTimeOverlap = (
+    slotStart: Date,
+    slotEnd: Date,
+    busyStart: Date,
+    busyEnd: Date
+) => slotStart < busyEnd && slotEnd > busyStart;
+
 export const isDateTimeWithinWorkingHours = (
     selectedDate: Date,
     workingHours: WorkingHour[],
@@ -94,6 +103,35 @@ export const isDateTimeWithinWorkingHours = (
     const { startTime, endTime } = buildDayWindow(selectedDate, dayConfig);
 
     return !isBefore(normalizedDate, startTime) && !isAfter(appointmentEnd, endTime);
+};
+
+export const isDateTimeBlocked = (
+    selectedDate: Date,
+    busySlots: BusySlot[],
+    appointmentDurationMinutes = 30
+) => {
+    const normalizedDate = normalizeDate(selectedDate);
+    const appointmentEnd = normalizeDate(addMinutes(normalizedDate, appointmentDurationMinutes));
+
+    return busySlots.some((busySlot) => {
+        const busyStart = normalizeDate(new Date(busySlot.start));
+        const busyEnd = normalizeDate(new Date(busySlot.end));
+        return hasTimeOverlap(normalizedDate, appointmentEnd, busyStart, busyEnd);
+    });
+};
+
+export const buildTimeSlotStates = (
+    selectedDate: Date | null,
+    workingHours: WorkingHour[],
+    busySlots: BusySlot[] = [],
+    appointmentDurationMinutes = 30
+) => {
+    const slots = buildAvailableTimeSlots(selectedDate, workingHours, appointmentDurationMinutes);
+
+    return slots.map((time) => ({
+        time,
+        isBusy: isDateTimeBlocked(time, busySlots, appointmentDurationMinutes),
+    }));
 };
 
 export const buildAvailableTimeSlots = (
@@ -131,6 +169,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
     value,
     onChange,
     workingHours,
+    busySlots = [],
     appointmentDurationMinutes = 30,
     label,
     required,
@@ -141,8 +180,10 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
     const [isOpen, setIsOpen] = useState(false);
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [view, setView] = useState<'date' | 'time'>('date');
+    const [pendingDate, setPendingDate] = useState<Date | null>(null);
 
     const selectedDate = value ? new Date(value) : null;
+    const activeDate = pendingDate ?? selectedDate;
 
     // Calendar logic
     const days = useMemo(() => {
@@ -154,9 +195,9 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
     const weekDays = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 
     // Time slots logic
-    const timeSlots = useMemo(
-        () => buildAvailableTimeSlots(selectedDate, workingHours, appointmentDurationMinutes),
-        [appointmentDurationMinutes, selectedDate, workingHours]
+    const timeSlotStates = useMemo(
+        () => buildTimeSlotStates(activeDate, workingHours, busySlots, appointmentDurationMinutes),
+        [activeDate, appointmentDurationMinutes, busySlots, workingHours]
     );
 
     useEffect(() => {
@@ -164,10 +205,13 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
             return;
         }
 
-        if (!isDateTimeWithinWorkingHours(selectedDate, workingHours, appointmentDurationMinutes)) {
+        if (
+            !isDateTimeWithinWorkingHours(selectedDate, workingHours, appointmentDurationMinutes)
+            || isDateTimeBlocked(selectedDate, busySlots, appointmentDurationMinutes)
+        ) {
             onChange('');
         }
-    }, [appointmentDurationMinutes, onChange, selectedDate, workingHours]);
+    }, [appointmentDurationMinutes, busySlots, onChange, selectedDate, workingHours]);
 
     useEffect(() => {
         if (disabled) {
@@ -175,25 +219,30 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
         }
     }, [disabled]);
 
+    useEffect(() => {
+        if (!isOpen) {
+            setPendingDate(null);
+            setView('date');
+        }
+    }, [isOpen]);
+
     const handleDateSelect = (date: Date) => {
         if (isBefore(date, startOfToday())) return;
-        
-        // If we already had a time selected, keep it if possible, else just move to time view
-        const newDate = selectedDate ? 
-            setMinutes(setHours(date, selectedDate.getHours()), selectedDate.getMinutes()) : 
-            date;
-            
-        onChange(newDate.toISOString());
+
+        setPendingDate(normalizeDate(date));
         setView('time');
     };
 
     const handleTimeSelect = (time: Date) => {
         onChange(time.toISOString());
+        setPendingDate(null);
         setIsOpen(false);
     };
 
     const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
     const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
+    const availableSlotCount = timeSlotStates.filter((slot) => !slot.isBusy).length;
+    const busySlotCount = timeSlotStates.filter((slot) => slot.isBusy).length;
 
     return (
         <div className="relative space-y-1.5 w-full">
@@ -255,6 +304,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
                             {/* Header Toggle */}
                             <div className="flex border-b border-slate-100">
                                 <button 
+                                    type="button"
                                     onClick={() => setView('date')}
                                     className={cn(
                                         "flex-1 py-3 text-sm font-bold transition-all border-b-2",
@@ -264,6 +314,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
                                     Fecha
                                 </button>
                                 <button 
+                                    type="button"
                                     onClick={() => setView('time')}
                                     disabled={!selectedDate}
                                     className={cn(
@@ -283,10 +334,10 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
                                                 {format(currentMonth, 'MMMM yyyy', { locale: es })}
                                             </h4>
                                             <div className="flex gap-1">
-                                                <button onClick={prevMonth} className="p-1 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors">
+                                                <button type="button" onClick={prevMonth} className="p-1 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors">
                                                     <ChevronLeft size={20} />
                                                 </button>
-                                                <button onClick={nextMonth} className="p-1 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors">
+                                                <button type="button" onClick={nextMonth} className="p-1 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors">
                                                     <ChevronRight size={20} />
                                                 </button>
                                             </div>
@@ -302,10 +353,11 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
                                                 const isCurrentMonth = isSameMonth(day, currentMonth);
                                                 const isToday = isSameDay(day, new Date());
                                                 const isPast = isBefore(day, startOfToday());
-                                                const isSelected = selectedDate && isSameDay(day, selectedDate);
+                                                const isSelected = activeDate && isSameDay(day, activeDate);
 
                                                 return (
                                                     <button
+                                                        type="button"
                                                         key={idx}
                                                         onClick={() => handleDateSelect(day)}
                                                         disabled={isPast}
@@ -330,25 +382,35 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
                                 ) : (
                                     <div className="space-y-4">
                                         <div className="flex flex-col gap-1 px-2">
-                                            <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">Disponibles</span>
+                                            <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">Disponibilidad</span>
                                             <span className="text-sm font-bold text-slate-900 capitalize">
-                                                {format(selectedDate!, "eeee, d 'de' MMMM", { locale: es })}
+                                                {activeDate ? format(activeDate, "eeee, d 'de' MMMM", { locale: es }) : 'Selecciona un día'}
                                             </span>
+                                            {busySlotCount > 0 && (
+                                                <div className="flex flex-wrap items-center gap-3 pt-1 text-[11px] font-semibold">
+                                                    <span className="text-emerald-600">{availableSlotCount} libres</span>
+                                                    <span className="text-rose-500">{busySlotCount} ocupados</span>
+                                                </div>
+                                            )}
                                         </div>
 
-                                        {timeSlots.length > 0 ? (
+                                        {timeSlotStates.length > 0 ? (
                                             <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                                                {timeSlots.map((time, idx) => {
+                                                {timeSlotStates.map(({ time, isBusy }, idx) => {
                                                     const isSelected = selectedDate && isSameMinute(time, selectedDate);
                                                     return (
                                                         <button
+                                                            type="button"
                                                             key={idx}
                                                             onClick={() => handleTimeSelect(time)}
+                                                            disabled={isBusy}
                                                             className={cn(
                                                                 "py-2.5 px-3 rounded-xl text-sm font-bold transition-all border",
-                                                                isSelected 
+                                                                isSelected && !isBusy
                                                                     ? "bg-brand-primary border-brand-primary text-slate-900 shadow-lg shadow-brand-primary/20 scale-105" 
-                                                                    : "border-slate-100 text-slate-600 hover:border-brand-primary hover:text-brand-primary hover:bg-brand-primary/5"
+                                                                    : isBusy
+                                                                        ? "border-rose-100 bg-rose-50 text-rose-300 cursor-not-allowed"
+                                                                        : "border-slate-100 text-slate-600 hover:border-brand-primary hover:text-brand-primary hover:bg-brand-primary/5"
                                                             )}
                                                         >
                                                             {format(time, 'HH:mm')}
@@ -361,11 +423,12 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
                                                 <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-300 mb-3">
                                                     <X size={24} />
                                                 </div>
-                                                <p className="text-sm font-bold text-slate-600">Cerrado</p>
+                                                <p className="text-sm font-bold text-slate-600">Sin huecos disponibles</p>
                                                 <p className="text-xs text-slate-400 mt-1">
-                                                    No hay horarios disponibles para esta fecha.
+                                                    No hay horarios libres para esta fecha.
                                                 </p>
                                                 <button 
+                                                    type="button"
                                                     onClick={() => setView('date')}
                                                     className="mt-4 text-xs font-bold text-brand-primary hover:underline"
                                                 >

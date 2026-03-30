@@ -3,8 +3,8 @@ import { apiClient } from '../lib/axios';
 export interface Customer {
     id: number;
     name: string;
-    phone: string;
-    email?: string;
+    phone?: string | null;
+    email?: string | null;
     userId?: number;
 }
 
@@ -26,7 +26,7 @@ export interface CustomerDetail extends Customer {
 export interface UpdateCustomerRequest {
     name: string;
     phone: string;
-    email?: string;
+    email?: string | null;
     internalNotes?: string;
 }
 

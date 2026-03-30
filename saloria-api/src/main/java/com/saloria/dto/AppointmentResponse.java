@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AppointmentResponse {
   private Long id;
+  private Long employeeId;
+  private Long serviceId;
   private String customerName;
   private String customerPhone;
   private String employeeName;

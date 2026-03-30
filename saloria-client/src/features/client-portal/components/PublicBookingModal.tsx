@@ -3,7 +3,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Calendar, Scissors, User, X } from 'lucide-react';
 
-import { appointmentService, CreateAppointmentRequest } from '@/services/appointmentService';
+import { appointmentService, BusySlot, CreateAppointmentRequest } from '@/services/appointmentService';
 import { workingHourService, WorkingHour } from '@/services/workingHourService';
 import { SearchableSelect, Option } from '@/components/ui/SearchableSelect';
 import { DateTimePicker } from '@/components/ui/DateTimePicker';
@@ -48,6 +48,7 @@ export const PublicBookingModal = ({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isAvailabilityLoading, setIsAvailabilityLoading] = useState(false);
     const [employeeWorkingHours, setEmployeeWorkingHours] = useState<WorkingHour[]>([]);
+    const [busySlots, setBusySlots] = useState<BusySlot[]>([]);
     const [error, setError] = useState<string | null>(null);
     const selectedEmployeeId = watch('employeeId');
     const selectedServiceId = watch('serviceId');
@@ -88,6 +89,7 @@ export const PublicBookingModal = ({
     const handleClose = () => {
         setError(null);
         setEmployeeWorkingHours([]);
+        setBusySlots([]);
         reset();
         onClose();
     };
@@ -99,6 +101,7 @@ export const PublicBookingModal = ({
 
         if (!selectedEmployeeId) {
             setEmployeeWorkingHours([]);
+            setBusySlots([]);
             setIsAvailabilityLoading(false);
             return;
         }
@@ -106,15 +109,14 @@ export const PublicBookingModal = ({
         let cancelled = false;
         setIsAvailabilityLoading(true);
 
-        workingHourService.getPublicEmployeeHours(enterpriseId, Number(selectedEmployeeId))
-            .then((hours) => {
+        Promise.all([
+            workingHourService.getPublicEmployeeHours(enterpriseId, Number(selectedEmployeeId)).catch(() => workingHours),
+            appointmentService.getPublicBusySlots(enterpriseId, Number(selectedEmployeeId)).catch(() => [] as BusySlot[])
+        ])
+            .then(([hours, slots]) => {
                 if (!cancelled) {
                     setEmployeeWorkingHours(hours);
-                }
-            })
-            .catch(() => {
-                if (!cancelled) {
-                    setEmployeeWorkingHours(workingHours);
+                    setBusySlots(slots);
                 }
             })
             .finally(() => {
@@ -241,8 +243,16 @@ export const PublicBookingModal = ({
                                             <DateTimePicker
                                                 label="Fecha y hora"
                                                 value={field.value}
-                                                onChange={field.onChange}
+                                                onChange={(nextValue) =>
+                                                    field.onChange({
+                                                        target: {
+                                                            name: field.name,
+                                                            value: nextValue,
+                                                        },
+                                                    })
+                                                }
                                                 workingHours={employeeWorkingHours}
+                                                busySlots={busySlots}
                                                 appointmentDurationMinutes={selectedService?.duration}
                                                 disabled={isDatePickerDisabled}
                                                 placeholder={datePickerPlaceholder}

@@ -19,6 +19,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import com.saloria.dto.EnterpriseResponse;
 import com.saloria.dto.PublicEnterpriseSummaryResponse;
 import com.saloria.dto.WorkingHourDTO;
+import com.saloria.dto.BusySlotResponse;
+import com.saloria.service.AppointmentService;
 import com.saloria.service.EnterpriseService;
 import com.saloria.service.WorkingHourService;
 
@@ -28,6 +30,7 @@ public class PublicControllerTest {
   private EnterpriseService enterpriseService;
   private com.saloria.service.ServiceOfferingService serviceOfferingService;
   private WorkingHourService workingHourService;
+  private AppointmentService appointmentService;
   private PublicController publicController;
 
   @BeforeEach
@@ -35,7 +38,8 @@ public class PublicControllerTest {
     enterpriseService = mock(EnterpriseService.class);
     serviceOfferingService = mock(com.saloria.service.ServiceOfferingService.class);
     workingHourService = mock(WorkingHourService.class);
-    publicController = new PublicController(enterpriseService, serviceOfferingService, workingHourService);
+    appointmentService = mock(AppointmentService.class);
+    publicController = new PublicController(enterpriseService, serviceOfferingService, workingHourService, appointmentService);
     mockMvc = MockMvcBuilders.standaloneSetup(publicController).build();
   }
 
@@ -109,5 +113,21 @@ public class PublicControllerTest {
         .andExpect(jsonPath("$[0].userId").value(8))
         .andExpect(jsonPath("$[0].day").value("MARTES"))
         .andExpect(jsonPath("$[0].startTime").value("10:00"));
+  }
+
+  @Test
+  public void testGetEmployeeBusySlots() throws Exception {
+    when(appointmentService.findPublicBusySlots(1L, 8L)).thenReturn(List.of(
+        BusySlotResponse.builder()
+            .appointmentId(12L)
+            .start(java.time.LocalDateTime.of(2026, 4, 6, 10, 0))
+            .end(java.time.LocalDateTime.of(2026, 4, 6, 10, 30))
+            .status("CONFIRMED")
+            .build()));
+
+    mockMvc.perform(get("/api/public/enterprises/1/employees/8/busy-slots"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].appointmentId").value(12))
+        .andExpect(jsonPath("$[0].status").value("CONFIRMED"));
   }
 }

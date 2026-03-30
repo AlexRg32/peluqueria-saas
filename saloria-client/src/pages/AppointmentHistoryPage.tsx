@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { appointmentService, Appointment } from '@/services/appointmentService';
+import { appointmentService, Appointment, AppointmentStatus, getAppointmentStatusLabel } from '@/services/appointmentService';
 import { Loader2, Calendar, Clock, MapPin, ChevronRight, History } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -26,8 +26,18 @@ const AppointmentHistoryPage = () => {
   };
 
   const now = new Date();
-  const upcoming = appointments.filter(a => new Date(a.date) >= now && a.status !== 'CANCELED');
-  const past = appointments.filter(a => new Date(a.date) < now || a.status === 'CANCELED' || a.status === 'COMPLETED');
+  const upcoming = appointments.filter(a =>
+    new Date(a.date) >= now &&
+    a.status !== AppointmentStatus.CANCELED &&
+    a.status !== AppointmentStatus.NO_SHOW &&
+    a.status !== AppointmentStatus.COMPLETED
+  );
+  const past = appointments.filter(a =>
+    new Date(a.date) < now ||
+    a.status === AppointmentStatus.CANCELED ||
+    a.status === AppointmentStatus.NO_SHOW ||
+    a.status === AppointmentStatus.COMPLETED
+  );
 
   const filteredAppointments = activeTab === 'upcoming' ? upcoming : past;
 
@@ -117,12 +127,9 @@ const AppointmentHistoryPage = () => {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                      appointment.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
-                      appointment.status === 'COMPLETED' ? 'bg-green-100 text-green-700' :
-                      'bg-gray-100 text-gray-700'
+                      getStatusTone(appointment.status)
                     }`}>
-                      {appointment.status === 'PENDING' ? 'Pendiente' :
-                       appointment.status === 'COMPLETED' ? 'Completado' : 'Cancelado'}
+                      {getAppointmentStatusLabel(appointment.status)}
                     </span>
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 group-hover:text-brand-primary transition-colors">
@@ -164,3 +171,10 @@ const AppointmentHistoryPage = () => {
 };
 
 export default AppointmentHistoryPage;
+  const getStatusTone = (status: Appointment['status']) => {
+    if (status === AppointmentStatus.PENDING) return 'bg-amber-100 text-amber-700';
+    if (status === AppointmentStatus.CONFIRMED) return 'bg-blue-100 text-blue-700';
+    if (status === AppointmentStatus.COMPLETED) return 'bg-green-100 text-green-700';
+    if (status === AppointmentStatus.NO_SHOW) return 'bg-fuchsia-100 text-fuchsia-700';
+    return 'bg-gray-100 text-gray-700';
+  };
