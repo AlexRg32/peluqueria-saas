@@ -3,7 +3,7 @@ services:
     build:
       context: ../../saloria-api
       dockerfile: Dockerfile
-    image: saloria-api:raspberry
+    image: ${SALORIA_API_IMAGE:-saloria-api:raspberry}
     container_name: saloria_api
     restart: unless-stopped
     env_file:

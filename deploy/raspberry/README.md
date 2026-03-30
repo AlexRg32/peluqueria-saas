@@ -128,16 +128,18 @@ El repositorio incluye un workflow de GitHub Actions en `.github/workflows/deplo
 ### Modelo recomendado
 
 - Un runner **self-hosted** de GitHub Actions vive en la propia Raspberry.
-- Ese runner ejecuta localmente `deploy/raspberry/scripts/redeploy.sh`.
+- GitHub construye primero una imagen **linux/arm64** de la API y la publica en **GHCR**.
+- La Raspberry ejecuta `deploy/raspberry/scripts/redeploy.sh`, hace `docker pull` de esa imagen y reinicia el stack.
 - Tailscale sigue siendo la opcion recomendada para tu acceso SSH manual al host.
 
 ### Flujo
 
 1. Haces push a `main`.
 2. GitHub encola el workflow `Deploy Raspberry API`.
-3. El runner self-hosted de la Raspberry ejecuta `deploy/raspberry/scripts/redeploy.sh`.
-4. El script hace `git pull --ff-only origin main`, reconstruye la API con Docker Compose y ejecuta el healthcheck con reintentos sobre `APP_API_BASE_URL`.
-5. El healthcheck usa por defecto `HEALTHCHECK_PATH=/api/public/enterprises` para no depender de Swagger/OpenAPI en produccion. Si el endpoint cambia, se puede sobrescribir por entorno.
+3. El job `build-api-image` publica una imagen `linux/arm64` en GHCR.
+4. El runner self-hosted de la Raspberry ejecuta `deploy/raspberry/scripts/redeploy.sh`.
+5. El script hace `git pull --ff-only origin main`, intenta desplegar la imagen ya construida y solo hace build local si ese pull falla.
+6. El healthcheck usa por defecto `HEALTHCHECK_PATH=/api/public/enterprises` para no depender de Swagger/OpenAPI en produccion. Si el endpoint cambia, se puede sobrescribir por entorno.
 
 ### Preparacion del runner
 
