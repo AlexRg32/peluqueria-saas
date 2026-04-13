@@ -110,8 +110,23 @@ else
   deploy_with_local_build
 fi
 
+echo "Verifying application health..."
+LOCAL_URL="http://localhost:8080"
+PUBLIC_URL="${APP_API_BASE_URL:-}"
+
 for attempt in $(seq 1 "${HEALTHCHECK_ATTEMPTS}"); do
-  if "${DEPLOY_DIR}/scripts/healthcheck.sh" "${APP_API_BASE_URL:-http://localhost:8080}"; then
+  echo "Attempt ${attempt}/${HEALTHCHECK_ATTEMPTS}: Checking local endpoint ${LOCAL_URL}..."
+  if "${DEPLOY_DIR}/scripts/healthcheck.sh" "${LOCAL_URL}"; then
+    echo "Local healthcheck OK."
+    
+    if [[ -n "${PUBLIC_URL}" && "${PUBLIC_URL}" != *"localhost"* ]]; then
+      echo "Checking public endpoint ${PUBLIC_URL}..."
+      if "${DEPLOY_DIR}/scripts/healthcheck.sh" "${PUBLIC_URL}"; then
+        echo "Public healthcheck OK."
+      else
+        echo "Warning: Public healthcheck pending (tunnel might be slow to start). This is NOT a deployment failure."
+      fi
+    fi
     exit 0
   fi
 
@@ -120,5 +135,5 @@ for attempt in $(seq 1 "${HEALTHCHECK_ATTEMPTS}"); do
   fi
 done
 
-echo "Healthcheck failed after ${HEALTHCHECK_ATTEMPTS} attempts."
+echo "Error: Local healthcheck failed after ${HEALTHCHECK_ATTEMPTS} attempts."
 exit 1

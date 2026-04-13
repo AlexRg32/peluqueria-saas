@@ -15,6 +15,19 @@ export default defineConfig({
       "@": path.resolve(rootDir, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'calendar-vendor': ['@fullcalendar/react', '@fullcalendar/daygrid', '@fullcalendar/timegrid', '@fullcalendar/interaction'],
+          'ui-vendor': ['framer-motion', 'lucide-react', 'recharts'],
+          'pdf-vendor': ['jspdf', 'jspdf-autotable'],
+          'utility-vendor': ['axios', 'zod', 'react-hook-form', 'date-fns'],
+        }
+      }
+    }
+  },
   test: {
     globals: true,
     environment: 'jsdom',

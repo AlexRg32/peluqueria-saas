@@ -13,8 +13,7 @@ La infraestructura activa de la aplicación queda así:
 | **Frontend** | Producción | Vercel | `saloria.vercel.app` | Activo |
 | **Backend** | Producción | Raspberry Pi + Cloudflare Tunnel | `https://api.alexrg.es` | Activo |
 | **Base de Datos** | Producción | Supabase | `peluqueria-saas` (`xwnumlcqnrwhgpbrldhf`) | Activo |
-| **Base de Datos** | Otro proyecto Supabase | Supabase | `clases-claudia` (`cvrezcodldsscprjsvas`) | Activo |
-| **Servicios legacy** | Legacy | Render | `peluqueria-saas-prod-fra` | Suspendido por el usuario |
+| **Infra Legacy** | Legacy | Render | `peluqueria-saas-prod-fra` | **OBSOLETO / INACTIVO** |
 
 ### Resumen Ejecutivo
 
@@ -25,7 +24,7 @@ La infraestructura activa de la aplicación queda así:
 - **Modelo de despliegue**:
   - Solo existe una rama de integración soportada: **`main`**
   - No se mantiene un entorno dedicado de preproducción
-- **Infra legacy** en Render sigue existiendo como rastro histórico, pero no forma parte de la ruta activa.
+- **Infra legacy**: el servicio en Render ha sido **descontinuado** y ya no se usa ni se mantiene.
 
 ## 🐳 Docker (Entorno Local)
 

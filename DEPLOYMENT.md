@@ -20,7 +20,9 @@ Recomendacion:
 4. Usar Tailscale para acceso SSH remoto a la Raspberry sin abrir puertos.
 5. Cambiar en Vercel `VITE_API_BASE_URL` al dominio HTTPS público de la API.
 
-### Alternativa: Backend en Render
+### ⚠️ (Legacy) Backend en Render (DESCONTINUADO)
+
+> NOTA: Esta ruta se mantiene solo como referencia histórica. El backend productivo actual corre en **Raspberry Pi**.
 
 1. Crea una cuenta en [Render](https://render.com/).
 2. Crea un nuevo **Web Service** y conecta tu repositorio de GitHub.

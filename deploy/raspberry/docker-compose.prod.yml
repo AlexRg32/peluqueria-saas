@@ -12,6 +12,12 @@ services:
       - uploads_data:/data/uploads
     expose:
       - "8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/public/enterprises"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     networks:
       - edge
       - internal

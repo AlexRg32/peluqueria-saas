@@ -49,3 +49,11 @@ data/
 .gstack/
 deploy/raspberry/.env.prod
 deploy/raspberry/backups/
+
+### System Files ###
+.DS_Store
+**/.DS_Store
+
+### Project Specific ###
+**/uploads/
+!**/src/main/resources/**/uploads/

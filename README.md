@@ -136,13 +136,14 @@ npm run dev
 - **Frontend local (Vite)**: [http://localhost:5173](http://localhost:5173)
 - **Backend local**: [http://localhost:8080](http://localhost:8080)
 
-### 🍓 Opción Self-Hosted en Raspberry Pi
+### 🍓 Producción: Raspberry Pi + Vercel
 
-El repositorio incluye una ruta de despliegue para ejecutar el backend en una Raspberry Pi y mantener el frontend en Vercel.
+La aplicación en producción utiliza una arquitectura de alto rendimiento que elimina el "cold start":
 
-- Guía operativa: [`deploy/raspberry/README.md`](./deploy/raspberry/README.md)
-- Objetivo recomendado: mover primero solo la API para eliminar el cold start de Render
-- Base de datos: mantener Supabase al inicio y migrar PostgreSQL a la Raspberry solo en una segunda fase
+- **Backend API**: Desplegado en una **Raspberry Pi** mediante **Cloudflare Tunnel** ([https://api.alexrg.es](https://api.alexrg.es)).
+- **Frontend**: Desplegado en **Vercel** ([https://saloria.vercel.app](https://saloria.vercel.app)).
+- **Base de Datos**: PostgreSQL gestionado en **Supabase** (Región Frankfurt).
+- **Despliegue**: Totalmente automatizado desde la rama `main` mediante GitHub Actions y runners self-hosted.
 
 ---
 
